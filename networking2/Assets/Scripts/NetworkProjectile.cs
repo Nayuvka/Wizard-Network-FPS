@@ -6,6 +6,7 @@ public class NetworkProjectile : NetworkBehaviour
 {
     [SerializeField] private float speed = 50f;
     [SerializeField] private float lifetime = 5f;
+    [SerializeField] GameObject vfxPrefab;
 
     private NetworkVariable<Vector3> moveDir = new NetworkVariable<Vector3>(
         default,
@@ -48,7 +49,12 @@ public class NetworkProjectile : NetworkBehaviour
     void OnCollisionEnter(Collision collision)
     {
         if (!IsServer || !IsSpawned) return;
-        GetComponent<NetworkObject>().Despawn();
+        if(vfxPrefab != null)
+        {
+            Instantiate(vfxPrefab, transform.position, Quaternion.identity);
+        }
+        //GetComponent<NetworkObject>().Despawn();
+        Destroy(gameObject);
     }
 
     IEnumerator LifetimeTimer()
