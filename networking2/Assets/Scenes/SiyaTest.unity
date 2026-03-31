@@ -499,7 +499,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: TemporaryUI
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7828737813729057796, guid: 75e3bf32f04084356b126ca19c09793b, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:

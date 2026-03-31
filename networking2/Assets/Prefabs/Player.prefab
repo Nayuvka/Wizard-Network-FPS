@@ -31,7 +31,6 @@ Transform:
   m_Children:
   - {fileID: 1355854709270945189}
   - {fileID: 5410108208248861346}
-  - {fileID: 5241165419717107636}
   m_Father: {fileID: 6561529994773212125}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3279708789173951268
@@ -295,6 +294,7 @@ MonoBehaviour:
   shootCooldown: 1
   wandRange: 100
   wandMuzzle: {fileID: 5241165419717107636}
+  wandFlash: {fileID: 1299682805160589433, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -5167,7 +5167,8 @@ Transform:
   m_LocalPosition: {x: 0.477, y: 0.152, z: 0.772}
   m_LocalScale: {x: 0.05, y: 0.3955622, z: 0.05}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5241165419717107636}
   m_Father: {fileID: 7639041287777859699}
   m_LocalEulerAnglesHint: {x: 45, y: 0, z: 0}
 --- !u!33 &103081167326992158
@@ -5568,12 +5569,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8336335763825013064}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.477, y: 0.42204708, z: 1.0434613}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0.38268343, y: -0, z: -0, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: 0.968, z: 0.020000935}
+  m_LocalScale: {x: 20, y: 4.488711, z: 4.4887114}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7639041287777859699}
+  m_Father: {fileID: 5410108208248861346}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8835103612184426528
 GameObject:

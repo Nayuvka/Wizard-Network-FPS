@@ -10,6 +10,7 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private float shootCooldown = 0.5f;
     [SerializeField] private float wandRange = 100f;
     [SerializeField] private Transform wandMuzzle;
+    [SerializeField] private GameObject wandFlash;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private GameObject projectilePrefab;
 
@@ -78,6 +79,11 @@ public class NetworkShoot : NetworkBehaviour
         Vector3 moveDir = (targetPoint - spawnPos).normalized;
 
         GameObject bullet = Instantiate(projectilePrefab, spawnPos, Quaternion.LookRotation(moveDir));
+        if (wandFlash != null)
+        {
+            Instantiate(wandFlash, spawnPos, Quaternion.LookRotation(moveDir));
+        }
+        
 
         NetworkProjectile projectile = bullet.GetComponent<NetworkProjectile>();
 
