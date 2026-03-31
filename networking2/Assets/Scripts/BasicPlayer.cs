@@ -41,6 +41,7 @@ public class NetworkPlayerController : NetworkBehaviour
     void Update()
     {
         if (!IsOwner || !IsSpawned) return;
+        if (charController == null || !charController.enabled) return;
 
         HandleLook();
         HandleMovement();
@@ -75,6 +76,7 @@ public class NetworkPlayerController : NetworkBehaviour
         }
 
         Vector3 finalMove = (moveDirection * moveSpeed) + (Vector3.up * verticalVelocity);
+        if (!charController.enabled) return;
         charController.Move(finalMove * Time.deltaTime);
     }
 
@@ -87,5 +89,21 @@ public class NetworkPlayerController : NetworkBehaviour
 
         transform.Rotate(Vector3.up * mouseDelta.x);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
+    }
+
+    [ClientRpc]
+    public void ToggleControllerClientRpc(bool enabled)
+    {
+        this.enabled = enabled;
+        if (charController != null) charController.enabled = enabled;
+    }
+    [ClientRpc]
+    public void ResetCameraRotationClientRpc(Quaternion targetRotation)
+    {
+        if (!IsOwner) return;
+        rotationX = 0f;
+
+        playerCamera.transform.localRotation = Quaternion.identity;
+        transform.rotation = targetRotation;
     }
 }

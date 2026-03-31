@@ -16,7 +16,7 @@ public class CheckpointScript : NetworkBehaviour
             {
                 if(coli.TryGetComponent<RespawnScript>(out var respawn))
                 {
-                    respawn.SetRespawnPoint(transform.position);
+                    respawn.SetRespawnPoint(transform.position, transform.rotation);
                     isActive = true;
                     NotifyCheckpointReachedClientRpc();
                 }

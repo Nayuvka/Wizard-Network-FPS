@@ -371,8 +371,8 @@ GameObject:
   - component: {fileID: 897961450}
   - component: {fileID: 897961449}
   - component: {fileID: 897961448}
-  - component: {fileID: 897961453}
   - component: {fileID: 897961452}
+  - component: {fileID: 897961453}
   m_Layer: 0
   m_Name: CheckpointTest
   m_TagString: Untagged
