@@ -10,6 +10,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private float sensitivity = 0.1f;
     [SerializeField] private GameObject playerCamera;
     [SerializeField] private CharacterController charController;
+    private PlayerHealthScript health;
 
     private float rotationX = 0f;
     private float verticalVelocity;
@@ -34,6 +35,7 @@ public class NetworkPlayerController : NetworkBehaviour
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        health = GetComponent<PlayerHealthScript>();
     }
 
     void Update()
@@ -64,6 +66,7 @@ public class NetworkPlayerController : NetworkBehaviour
             if (jumpAction.triggered)
             {
                 verticalVelocity = jumpForce;
+                health.TakeDamage(20f);
             }
         }
         else
