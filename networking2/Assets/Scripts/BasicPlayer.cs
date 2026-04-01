@@ -10,7 +10,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private float sensitivity = 0.1f;
     [SerializeField] private GameObject playerCamera;
     [SerializeField] private CharacterController charController;
-    private PlayerHealthScript health;
+    //private PlayerHealthScript health;
 
     private float rotationX = 0f;
     private float verticalVelocity;
@@ -35,13 +35,13 @@ public class NetworkPlayerController : NetworkBehaviour
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        health = GetComponent<PlayerHealthScript>();
+        //health = GetComponent<PlayerHealthScript>();
     }
 
     void Update()
     {
         if (!IsOwner || !IsSpawned) return;
-        if (charController == null || !charController.enabled) return;
+        //if (charController == null || !charController.enabled) return;
 
         HandleLook();
         HandleMovement();
@@ -67,7 +67,7 @@ public class NetworkPlayerController : NetworkBehaviour
             if (jumpAction.triggered)
             {
                 verticalVelocity = jumpForce;
-                health.TakeDamage(20f);
+                //health.TakeDamage(20f);
             }
         }
         else

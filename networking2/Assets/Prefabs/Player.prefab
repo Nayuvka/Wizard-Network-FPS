@@ -125,8 +125,8 @@ GameObject:
   - component: {fileID: 1685465121049189665}
   - component: {fileID: 4670394539683004335}
   - component: {fileID: 4800045937385748158}
-  - component: {fileID: 7575482612472258571}
   - component: {fileID: 509913972017081583}
+  - component: {fileID: 7575482612472258571}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -327,7 +327,7 @@ MonoBehaviour:
   gravity: -9.81
   sensitivity: 0.1
   playerCamera: {fileID: 8062385506827879794}
-  charController: {fileID: 0}
+  charController: {fileID: 4670394539683004335}
 --- !u!143 &4670394539683004335
 CharacterController:
   m_ObjectHideFlags: 0
@@ -376,6 +376,21 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   projectilePrefab: {fileID: 940489568176787497, guid: 9280af62429a77f49bfab0aa7377b7aa, type: 3}
+--- !u!114 &509913972017081583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3279708789173951268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 860dfe2ff3abb1040bf5941919795c11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RespawnScript
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerHUD: {fileID: 6657154630976973544}
+  deathParticlePrefab: {fileID: 3645460515654626844, guid: 0fd6c9683f338dc408502501392511e5, type: 3}
 --- !u!114 &7575482612472258571
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -400,21 +415,6 @@ MonoBehaviour:
   fullhealthColour: {r: 0, g: 1, b: 0, a: 1}
   lowhealthColour: {r: 1, g: 0, b: 0, a: 1}
   lerpSpeed: 3
---- !u!114 &509913972017081583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3279708789173951268}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 860dfe2ff3abb1040bf5941919795c11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RespawnScript
-  ShowTopMostFoldoutHeaderGroup: 1
-  playerHUD: {fileID: 6657154630976973544}
-  deathParticlePrefab: {fileID: 3645460515654626844, guid: 0fd6c9683f338dc408502501392511e5, type: 3}
 --- !u!1 &3889078474339887112
 GameObject:
   m_ObjectHideFlags: 0
