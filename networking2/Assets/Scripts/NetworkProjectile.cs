@@ -49,10 +49,9 @@ public class NetworkProjectile : NetworkBehaviour
     void OnCollisionEnter(Collision collision)
     {
         if (!IsServer || !IsSpawned) return;
-        if(vfxPrefab != null)
-        {
-            Instantiate(vfxPrefab, transform.position, Quaternion.identity);
-        }
+
+        SpawnVFXClientRpc(transform.position);
+        if (IsSpawned) GetComponent<NetworkObject>().Despawn();
         //GetComponent<NetworkObject>().Despawn();
         Destroy(gameObject);
     }
@@ -62,5 +61,15 @@ public class NetworkProjectile : NetworkBehaviour
         yield return new WaitForSeconds(lifetime);
         if (IsServer && IsSpawned)
             GetComponent<NetworkObject>().Despawn();
+    }
+
+    [ClientRpc]
+
+    private void SpawnVFXClientRpc(Vector3 spawnPos)
+    {
+        if (vfxPrefab != null)
+        {
+            Instantiate(vfxPrefab, spawnPos, Quaternion.identity);
+        }
     }
 }
