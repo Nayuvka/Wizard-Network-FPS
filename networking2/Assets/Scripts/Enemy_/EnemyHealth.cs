@@ -9,6 +9,8 @@ public class EnemyHealth : NetworkBehaviour
     public float maxHealth;
     private bool isDead;
 
+    private Rigidbody rb;
+
     [Header("VFX")]
     [Space(5)]
     public GameObject enemyDeathParticle;
@@ -23,12 +25,14 @@ public class EnemyHealth : NetworkBehaviour
         
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, Vector3 hitDirection)
     {
         if (!IsServer || isDead) return;
-        currentHealth.Value -= damage;
 
-        if(currentHealth.Value <= 0)
+        currentHealth.Value -= damage;
+        HitFlashClientRpc();
+
+        if (currentHealth.Value <= 0)
         {
             isDead = true;
             Die();
@@ -41,6 +45,13 @@ public class EnemyHealth : NetworkBehaviour
     { 
         SpawnDeathPartcleClientRpc();
         GetComponent<NetworkObject>().Despawn();
+    }
+
+
+    [ClientRpc]
+    void HitFlashClientRpc()
+    {
+        GetComponent<EnemyHitFlash>()?.PlayFlash();
     }
 
     [ClientRpc]

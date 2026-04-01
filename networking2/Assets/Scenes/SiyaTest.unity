@@ -246,6 +246,7 @@ GameObject:
   - component: {fileID: 249886163}
   - component: {fileID: 249886162}
   - component: {fileID: 249886161}
+  - component: {fileID: 249886167}
   m_Layer: 7
   m_Name: EnemyTest (2)
   m_TagString: Enemy
@@ -393,6 +394,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &249886167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 249886160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c60258c4cdc808428735b3495c2d4b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHitFlash
+  meshRenderer: {fileID: 249886164}
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  flashDuration: 0.1
 --- !u!1 &853273205
 GameObject:
   m_ObjectHideFlags: 0
@@ -687,6 +703,7 @@ GameObject:
   - component: {fileID: 995248345}
   - component: {fileID: 995248344}
   - component: {fileID: 995248343}
+  - component: {fileID: 995248349}
   m_Layer: 7
   m_Name: EnemyTest (1)
   m_TagString: Enemy
@@ -834,6 +851,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &995248349
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 995248342}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c60258c4cdc808428735b3495c2d4b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHitFlash
+  meshRenderer: {fileID: 995248346}
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  flashDuration: 0.1
 --- !u!1001 &1064829359
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1156,6 +1188,7 @@ GameObject:
   - component: {fileID: 1790214515}
   - component: {fileID: 1790214513}
   - component: {fileID: 1790214514}
+  - component: {fileID: 1790214519}
   m_Layer: 7
   m_Name: EnemyTest
   m_TagString: Enemy
@@ -1303,6 +1336,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1790214519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1790214512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c60258c4cdc808428735b3495c2d4b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHitFlash
+  meshRenderer: {fileID: 1790214516}
+  flashColor: {r: 1, g: 1, b: 1, a: 1}
+  flashDuration: 0.1
 --- !u!1 &1993807453
 GameObject:
   m_ObjectHideFlags: 0

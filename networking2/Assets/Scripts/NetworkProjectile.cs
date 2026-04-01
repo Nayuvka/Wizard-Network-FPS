@@ -37,17 +37,21 @@ public class NetworkProjectile : NetworkBehaviour
 
         if (rb != null)
             rb.linearVelocity = current * projectileData.speed;
+
+        if (current != Vector3.zero)
+            rb.rotation = Quaternion.LookRotation(current);
     }
 
     public void Initialize(Vector3 direction)
     {
+        if (!IsServer) return;
         moveDir.Value = direction;
 
         if (rb != null)
             rb.linearVelocity = direction * projectileData.speed;
 
-        if (IsServer)
-            StartCoroutine(LifetimeTimer());
+        //if (IsServer)
+        StartCoroutine(LifetimeTimer());
     }
 
 
@@ -55,6 +59,14 @@ public class NetworkProjectile : NetworkBehaviour
     void OnCollisionEnter(Collision collision)
     {
         if (!IsServer || !IsSpawned) return;
+
+        var health = collision.collider.GetComponent<EnemyHealth>();
+
+        if (health != null)
+        {
+            Vector3 hitDir = (collision.transform.position - transform.position).normalized;
+            health.TakeDamage(projectileData.damage, hitDir);
+        }
 
         SpawnVFXClientRpc(transform.position);
         GetComponent<NetworkObject>().Despawn();

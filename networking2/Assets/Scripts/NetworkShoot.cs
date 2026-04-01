@@ -74,13 +74,21 @@ public class NetworkShoot : NetworkBehaviour
 
         ProjectileData selectedProjectile = projectiles[projectileIndex];
 
-        if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
+        //Hitscan method
+        /*if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
         {
             if (hit.collider.CompareTag("Enemy"))
             {
-                hit.collider.GetComponent<EnemyHealth>().TakeDamage(15f);
+                EnemyHealth health = hit.collider.GetComponent<EnemyHealth>();
+
+                if(health != null)
+                {
+                    Vector3 hitDir = cameraForward;
+                    health.TakeDamage(selectedProjectile.damage, hitDir);
+                }
+                
             }
-        }
+        }*/
 
         Vector3 moveDir = (targetPoint - spawnPos).normalized;
 

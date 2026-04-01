@@ -15,5 +15,5 @@ MonoBehaviour:
   projectilePrefab: {fileID: 940489568176787497, guid: 9280af62429a77f49bfab0aa7377b7aa, type: 3}
   hitEffect: {fileID: 613433886817584986, guid: 6e845b0e80fad2d4c93ff505a0750129, type: 3}
   speed: 50
-  damage: 0
+  damage: 10
   lifetime: 5
