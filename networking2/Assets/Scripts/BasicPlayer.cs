@@ -4,20 +4,33 @@ using UnityEngine.InputSystem;
 
 public class NetworkPlayerController : NetworkBehaviour
 {
+    [Header("References")]
+    [Space(5)]
+    [SerializeField] NetworkShoot networkShoot;
+    [SerializeField] private GameObject playerCamera;
+    [SerializeField] private CharacterController charController;
+
+    [Header("Player Movement Settings")]
+    [Space(5)]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float sensitivity = 0.1f;
-    [SerializeField] private GameObject playerCamera;
-    [SerializeField] private CharacterController charController;
+    
     //private PlayerHealthScript health;
-
     private float rotationX = 0f;
     private float verticalVelocity;
+
+
+    private float scrollCooldown = 0.2f;
+    private float lastScrollTime;
+
     private PlayerInput playerInput;
     private InputAction moveAction;
     private InputAction lookAction;
     private InputAction jumpAction;
+    private InputAction switchProjectileAction;
+    private InputAction scrollAction;
 
     public override void OnNetworkSpawn()
     {
@@ -27,11 +40,14 @@ public class NetworkPlayerController : NetworkBehaviour
             return;
         }
 
+        networkShoot = GetComponent<NetworkShoot>();
         charController = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         moveAction = playerInput.actions["Move"];
         lookAction = playerInput.actions["Look"];
         jumpAction = playerInput.actions["Jump"];
+        switchProjectileAction = playerInput.actions["SwitchProjectile"];
+        scrollAction = playerInput.actions["Scroll"];
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -45,6 +61,13 @@ public class NetworkPlayerController : NetworkBehaviour
 
         HandleLook();
         HandleMovement();
+
+        if (switchProjectileAction.triggered)
+        {
+            networkShoot.CycleProjectileForward();
+        }
+
+        HandleScroll();
     }
 
     void HandleMovement()
@@ -89,6 +112,24 @@ public class NetworkPlayerController : NetworkBehaviour
 
         transform.Rotate(Vector3.up * mouseDelta.x);
         playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
+    }
+
+    void HandleScroll()
+    {
+        if (Time.time < lastScrollTime + scrollCooldown) return;
+
+        float scrollValue = scrollAction.ReadValue<float>();
+
+        if (scrollValue > 0f)
+        {
+            networkShoot.CycleProjectileForward();
+            lastScrollTime = Time.time;
+        }
+        else if (scrollValue < 0f)
+        {
+            networkShoot.CycleProjectileBackward();
+            lastScrollTime = Time.time;
+        }
     }
 
     [ClientRpc]

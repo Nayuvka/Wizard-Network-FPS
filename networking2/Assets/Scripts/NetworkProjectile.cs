@@ -4,9 +4,10 @@ using System.Collections;
 
 public class NetworkProjectile : NetworkBehaviour
 {
-    [SerializeField] private float speed = 50f;
-    [SerializeField] private float lifetime = 5f;
-    [SerializeField] GameObject vfxPrefab;
+    //[SerializeField] private float speed = 50f;
+    //[SerializeField] private float lifetime = 5f;
+    //[SerializeField] GameObject vfxPrefab;
+    public ProjectileData projectileData;
 
     private NetworkVariable<Vector3> moveDir = new NetworkVariable<Vector3>(
         default,
@@ -32,8 +33,10 @@ public class NetworkProjectile : NetworkBehaviour
 
     void OnMoveDirChanged(Vector3 previous, Vector3 current)
     {
+        if (IsServer) return;
+
         if (rb != null)
-            rb.linearVelocity = current * speed;
+            rb.linearVelocity = current * projectileData.speed;
     }
 
     public void Initialize(Vector3 direction)
@@ -41,24 +44,25 @@ public class NetworkProjectile : NetworkBehaviour
         moveDir.Value = direction;
 
         if (rb != null)
-            rb.linearVelocity = direction * speed;
+            rb.linearVelocity = direction * projectileData.speed;
 
-        StartCoroutine(LifetimeTimer());
+        if (IsServer)
+            StartCoroutine(LifetimeTimer());
     }
+
+
 
     void OnCollisionEnter(Collision collision)
     {
         if (!IsServer || !IsSpawned) return;
 
         SpawnVFXClientRpc(transform.position);
-        if (IsSpawned) GetComponent<NetworkObject>().Despawn();
-        //GetComponent<NetworkObject>().Despawn();
-        Destroy(gameObject);
+        GetComponent<NetworkObject>().Despawn();
     }
 
     IEnumerator LifetimeTimer()
     {
-        yield return new WaitForSeconds(lifetime);
+        yield return new WaitForSeconds(projectileData.lifetime);
         if (IsServer && IsSpawned)
             GetComponent<NetworkObject>().Despawn();
     }
@@ -67,9 +71,9 @@ public class NetworkProjectile : NetworkBehaviour
 
     private void SpawnVFXClientRpc(Vector3 spawnPos)
     {
-        if (vfxPrefab != null)
+        if (projectileData.hitEffect != null)
         {
-            Instantiate(vfxPrefab, spawnPos, Quaternion.identity);
+            Instantiate(projectileData.hitEffect, spawnPos, Quaternion.identity);
         }
     }
 }

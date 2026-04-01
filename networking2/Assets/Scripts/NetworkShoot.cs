@@ -12,7 +12,10 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private Transform wandMuzzle;
     [SerializeField] private GameObject wandFlash;
     [SerializeField] private LayerMask enemyLayer;
-    [SerializeField] private GameObject projectilePrefab;
+    //[SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private ProjectileData[] projectiles;
+    private int currentProjectileIndex = 0;
+    private ProjectileData CurrentProjectile => projectiles[currentProjectileIndex];
 
     private Camera playerCamera;
     private PlayerInput playerInput;
@@ -60,12 +63,17 @@ public class NetworkShoot : NetworkBehaviour
             targetPoint = hit.point;
         }
 
-        ShootServerRpc(wandMuzzle.position, targetPoint, cameraOrigin, cameraForward);
+        ShootServerRpc(wandMuzzle.position, targetPoint, cameraOrigin, cameraForward, currentProjectileIndex);
     }
 
     [ServerRpc]
-    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, Vector3 cameraOrigin, Vector3 cameraForward)
+    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, Vector3 cameraOrigin, Vector3 cameraForward, int projectileIndex)
     {
+        if (projectileIndex < 0 || projectileIndex >= projectiles.Length)
+            projectileIndex = 0;
+
+        ProjectileData selectedProjectile = projectiles[projectileIndex];
+
         if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
         {
             if (hit.collider.CompareTag("Enemy"))
@@ -78,23 +86,53 @@ public class NetworkShoot : NetworkBehaviour
 
         Vector3 moveDir = (targetPoint - spawnPos).normalized;
 
-        GameObject bullet = Instantiate(projectilePrefab, spawnPos, Quaternion.LookRotation(moveDir));
+        GameObject bullet = Instantiate(
+            selectedProjectile.projectilePrefab,
+            spawnPos,
+            Quaternion.LookRotation(moveDir)
+        );
+
         if (wandFlash != null)
         {
             Instantiate(wandFlash, spawnPos, Quaternion.LookRotation(moveDir));
         }
-        
+
 
         NetworkProjectile projectile = bullet.GetComponent<NetworkProjectile>();
+        if (projectile != null)
+        {
+            projectile.projectileData = selectedProjectile;
+        }
 
         NetworkObject bulletNetObj = bullet.GetComponent<NetworkObject>();
         if (bulletNetObj != null)
             bulletNetObj.Spawn();
 
+
         if (projectile != null)
             projectile.Initialize(moveDir);
 
         ShootObserversClientRpc();
+    }
+
+    public void CycleProjectileForward()
+    {
+        currentProjectileIndex++;
+
+        if (currentProjectileIndex >= projectiles.Length)
+            currentProjectileIndex = 0;
+
+        Debug.Log("Switched to: " + CurrentProjectile.name);
+    }
+
+    public void CycleProjectileBackward()
+    {
+        currentProjectileIndex--;
+
+        if (currentProjectileIndex < 0)
+            currentProjectileIndex = projectiles.Length - 1;
+
+        Debug.Log("Switched to: " + CurrentProjectile.name);
     }
 
     [ClientRpc]
@@ -112,4 +150,6 @@ public class NetworkShoot : NetworkBehaviour
         yield return new WaitForSeconds(shootCooldown);
         canShoot = true;
     }
+
+    
 }
