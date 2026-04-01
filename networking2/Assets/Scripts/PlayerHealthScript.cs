@@ -33,14 +33,6 @@ public class PlayerHealthScript : NetworkBehaviour
     {
         UpdateHealthUI();
     }
-
-
-
-    public void HealthBarFill()
-    {
-        
-    }
-
     public void TakeDamage(float damage)
     {
         if (!IsServer) return;

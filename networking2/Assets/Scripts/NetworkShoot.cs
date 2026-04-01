@@ -78,9 +78,7 @@ public class NetworkShoot : NetworkBehaviour
         {
             if (hit.collider.CompareTag("Enemy"))
             {
-                NetworkObject enemyNetObj = hit.collider.GetComponent<NetworkObject>();
-                if (enemyNetObj != null)
-                    enemyNetObj.Despawn();
+                hit.collider.GetComponent<EnemyHealth>().TakeDamage(15f);
             }
         }
 
