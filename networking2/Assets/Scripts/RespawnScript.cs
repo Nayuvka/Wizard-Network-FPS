@@ -8,6 +8,8 @@ public class RespawnScript : NetworkBehaviour
     private NetworkVariable<Vector3> currentSpawnPosition = new NetworkVariable<Vector3>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NetworkVariable<Quaternion> currentSpawnRotation = new NetworkVariable<Quaternion>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     [SerializeField] private GameObject playerHUD;
+    [SerializeField] private GameObject deathParticlePrefab;
+    
     public void SetRespawnPoint(Vector3 lastPosition, Quaternion lastRotation)
     {
         if (!IsServer) return;
@@ -59,6 +61,17 @@ public class RespawnScript : NetworkBehaviour
             playerHUD.SetActive(isVisible);
         }
 
+        if (!isVisible)
+        {
+            SpawnDeathEffect();
+        }
+    }
 
+    private void SpawnDeathEffect()
+    {
+        if (deathParticlePrefab != null)
+        {
+            GameObject effect = Instantiate(deathParticlePrefab, transform.position, Quaternion.identity);
+        }
     }
 }
