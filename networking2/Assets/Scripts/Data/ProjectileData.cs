@@ -8,5 +8,6 @@ public class ProjectileData : ScriptableObject
     public float speed;
     public float damage;
     public float lifetime;
+    public Sprite projectileSprite;
 
 }

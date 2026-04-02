@@ -37,8 +37,6 @@ public class EnemyHealth : NetworkBehaviour
             isDead = true;
             Die();
         }
-
-        
     }
 
     private void Die()
