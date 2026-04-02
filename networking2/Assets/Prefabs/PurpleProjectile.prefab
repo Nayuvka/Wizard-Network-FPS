@@ -182,7 +182,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkProjectile
   ShowTopMostFoldoutHeaderGroup: 1
-  projectileData: {fileID: 0}
+  projectiles: []
+  projectileData: {fileID: 11400000, guid: a7352ce090d32e243afdd63e15cf58a2, type: 2}
 --- !u!96 &7021469668483005376
 TrailRenderer:
   serializedVersion: 4

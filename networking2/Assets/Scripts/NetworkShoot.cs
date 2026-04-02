@@ -5,6 +5,13 @@ using System.Collections;
 
 public class NetworkShoot : NetworkBehaviour
 {
+    [Header("References")]
+    [Space(5)]
+
+    private NetworkPlayerController playerController;
+
+    [Header("Shoot Settings")]
+    [Space(5)]
     [SerializeField] private ParticleSystem wandSmoke;
     [SerializeField] private Animator wandAnimator;
     [SerializeField] private float shootCooldown = 0.5f;
@@ -12,50 +19,28 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private Transform wandMuzzle;
     [SerializeField] private GameObject wandFlash;
     [SerializeField] private LayerMask enemyLayer;
-    //[SerializeField] private GameObject projectilePrefab;
     [SerializeField] private ProjectileData[] projectiles;
     private int currentProjectileIndex = 0;
     private ProjectileData CurrentProjectile => projectiles[currentProjectileIndex];
-
-    private Camera playerCamera;
-    private PlayerInput playerInput;
-    private InputAction shootAction;
     private bool canShoot = true;
 
     public override void OnNetworkSpawn()
     {
-        if (!IsOwner)
-        {
-            enabled = false;
-            return;
-        }
-
-        playerCamera = GetComponentInParent<Camera>();
-        if (playerCamera == null)
-            playerCamera = Camera.main;
-
-        playerInput = GetComponentInParent<PlayerInput>();
-        shootAction = playerInput.actions["Shoot"];
+        if (!IsOwner) return;
+        playerController = GetComponent<NetworkPlayerController>();
     }
 
-    void Update()
+    public void ProcessLocalShoot()
     {
-        if (!IsOwner || !IsSpawned) return;
+        if (!canShoot) return;
 
-        if (shootAction.triggered && canShoot)
-        {
-            ProcessLocalShoot();
-        }
-    }
 
-    void ProcessLocalShoot()
-    {
         wandSmoke.Play();
         wandAnimator.SetTrigger("Shoot");
         StartCoroutine(ShootTimer());
 
-        Vector3 cameraOrigin = playerCamera.transform.position;
-        Vector3 cameraForward = playerCamera.transform.forward;
+        Vector3 cameraOrigin = playerController.playerCamera.transform.position;
+        Vector3 cameraForward = playerController.playerCamera.transform.forward;
         Vector3 targetPoint = cameraOrigin + (cameraForward * wandRange);
 
         if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
@@ -116,7 +101,7 @@ public class NetworkShoot : NetworkBehaviour
 
 
         if (projectile != null)
-            projectile.Initialize(moveDir);
+            projectile.Initialize(moveDir, projectileIndex);
 
         ShootObserversClientRpc();
     }

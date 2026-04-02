@@ -7,7 +7,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [Header("References")]
     [Space(5)]
     [SerializeField] NetworkShoot networkShoot;
-    [SerializeField] private GameObject playerCamera;
+    public Transform playerCamera;
     [SerializeField] private CharacterController charController;
 
     [Header("Player Movement Settings")]
@@ -29,25 +29,42 @@ public class NetworkPlayerController : NetworkBehaviour
     private InputAction moveAction;
     private InputAction lookAction;
     private InputAction jumpAction;
+    public InputAction shootAction;
     private InputAction switchProjectileAction;
     private InputAction scrollAction;
 
     public override void OnNetworkSpawn()
     {
+        charController = GetComponent<CharacterController>();
+        playerInput = GetComponent<PlayerInput>();
+        networkShoot = GetComponent<NetworkShoot>();
+
         if (!IsOwner)
         {
-            if (playerCamera != null) playerCamera.SetActive(false);
+            if (playerCamera != null) playerCamera.gameObject.SetActive(false);
+
+            if (playerInput != null)
+                playerInput.enabled = false;
+
+            enabled = false;
+
             return;
         }
 
-        networkShoot = GetComponent<NetworkShoot>();
-        charController = GetComponent<CharacterController>();
-        playerInput = GetComponent<PlayerInput>();
+
         moveAction = playerInput.actions["Move"];
         lookAction = playerInput.actions["Look"];
         jumpAction = playerInput.actions["Jump"];
+        shootAction = playerInput.actions["Shoot"];
         switchProjectileAction = playerInput.actions["SwitchProjectile"];
         scrollAction = playerInput.actions["Scroll"];
+
+        moveAction.Enable();
+        lookAction.Enable();
+        jumpAction.Enable();
+        shootAction.Enable();
+        switchProjectileAction.Enable();
+        scrollAction.Enable();
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -56,11 +73,16 @@ public class NetworkPlayerController : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner || !IsSpawned) return;
+        if (!IsOwner) return;
         //if (charController == null || !charController.enabled) return;
 
         HandleLook();
         HandleMovement();
+
+        if (shootAction.triggered)
+        {
+            networkShoot.ProcessLocalShoot();
+        }
 
         if (switchProjectileAction.triggered)
         {
@@ -74,8 +96,8 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         Vector2 input = moveAction.ReadValue<Vector2>();
 
-        Vector3 forward = playerCamera.transform.forward;
-        Vector3 right = playerCamera.transform.right;
+        Vector3 forward = playerCamera.forward;
+        Vector3 right = playerCamera.right;
         forward.y = 0;
         right.y = 0;
         forward.Normalize();
@@ -111,7 +133,7 @@ public class NetworkPlayerController : NetworkBehaviour
         rotationX = Mathf.Clamp(rotationX, -90f, 90f);
 
         transform.Rotate(Vector3.up * mouseDelta.x);
-        playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
+        playerCamera.localRotation = Quaternion.Euler(rotationX, 0, 0);
     }
 
     void HandleScroll()
@@ -144,7 +166,7 @@ public class NetworkPlayerController : NetworkBehaviour
         if (!IsOwner) return;
         rotationX = 0f;
 
-        playerCamera.transform.localRotation = Quaternion.identity;
+        playerCamera.localRotation = Quaternion.identity;
         transform.rotation = targetRotation;
     }
 }
