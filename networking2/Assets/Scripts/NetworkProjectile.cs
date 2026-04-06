@@ -61,13 +61,12 @@ public class NetworkProjectile : NetworkBehaviour
     {
         if (IsServer) return;
 
-        // Fix: If data isn't set yet, try to set it using the current networked index
+
         if (projectileData == null)
         {
             SetProjectileData(projectileIndex.Value);
         }
 
-        // Safety check: if it's still null (e.g., array not assigned in inspector)
         if (projectileData == null)
         {
             Debug.LogWarning("ProjectileData still null on client!");
@@ -106,6 +105,8 @@ public class NetworkProjectile : NetworkBehaviour
         if (health != null)
         {
             Vector3 hitDir = (collision.transform.position - transform.position).normalized;
+            hitDir.y = 0.2f; // add slight upward force
+            hitDir.Normalize();
             health.TakeDamage(projectileData.damage, hitDir);
         }
 

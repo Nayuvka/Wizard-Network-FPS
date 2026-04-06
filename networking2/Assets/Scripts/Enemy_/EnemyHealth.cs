@@ -15,6 +15,9 @@ public class EnemyHealth : NetworkBehaviour
     [Space(5)]
     public GameObject enemyDeathParticle;
 
+    [Header("Knockback Settings")]
+    public float knockbackForce = 10f;
+
 
     public override void OnNetworkSpawn()
     {
@@ -30,6 +33,7 @@ public class EnemyHealth : NetworkBehaviour
         if (!IsServer || isDead) return;
 
         currentHealth.Value -= damage;
+        ApplyKnockback(hitDirection);
         HitFlashClientRpc();
 
         if (currentHealth.Value <= 0)
@@ -37,6 +41,16 @@ public class EnemyHealth : NetworkBehaviour
             isDead = true;
             Die();
         }
+    }
+
+    public void ApplyKnockback(Vector3 direction)
+    {
+        if (!IsServer) return;
+
+        if (rb == null) rb = GetComponent<Rigidbody>();
+
+        // Apply the force on the server
+        rb.AddForce(direction * knockbackForce, ForceMode.Impulse);
     }
 
     private void Die()
