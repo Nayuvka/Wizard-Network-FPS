@@ -12,8 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69d14548a40593f4da572bb1c5f593a3, type: 3}
   m_Name: Purple
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileData
+  type: 1
   projectilePrefab: {fileID: 940489568176787497, guid: fe69d680b4bdbd24285513625c0979fd, type: 3}
   hitEffect: {fileID: 613433886817584986, guid: 117850a818bcd55439de9d035ceec59e, type: 3}
   speed: 50
   damage: 15
   lifetime: 5
+  projectileSprite: {fileID: 0}
+  burstCount: 3
+  spreadAngle: 15
+  fireRate: 0.1

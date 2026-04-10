@@ -5,8 +5,10 @@ using System.Collections;
 public class NetworkProjectile : NetworkBehaviour
 {
     [SerializeField] private ProjectileData[] projectiles;
-
     public ProjectileData projectileData;
+
+    [Header("Knockback Settings")]
+    public float knockbackForce = 10f;
 
     private NetworkVariable<Vector3> moveDir = new NetworkVariable<Vector3>(
         default,
@@ -100,20 +102,24 @@ public class NetworkProjectile : NetworkBehaviour
     {
         if (!IsServer || !IsSpawned) return;
 
+        if (collision.gameObject.CompareTag("Wand"))
+        {
+            return;
+        }
+
         var health = collision.collider.GetComponent<EnemyHealth>();
 
         if (health != null)
         {
-            Vector3 hitDir = (collision.transform.position - transform.position).normalized;
-            hitDir.y = 0.2f; // add slight upward force
-            hitDir.Normalize();
-            health.TakeDamage(projectileData.damage, hitDir);
+            Vector3 hitDir = (collision.gameObject.transform.position - transform.position).normalized;
+            health.TakeDamage(projectileData.damage, hitDir, knockbackForce);
         }
 
         SpawnVFXClientRpc(transform.position);
         GetComponent<NetworkObject>().Despawn();
-    }
 
+        Debug.Log(collision.gameObject);
+    }
     IEnumerator LifetimeTimer()
     {
         yield return new WaitForSeconds(projectileData.lifetime);

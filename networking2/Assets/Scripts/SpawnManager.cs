@@ -19,6 +19,10 @@ public class SpawnManager : NetworkBehaviour
     //starts at 1 to avoid confusing logic
     private int currentDifficulty = 1;
 
+    public GameObject spawnIndicatorPrefab;
+    public float spawnIndicatorTime = 1.5f;
+    public float indicatorHeight = 3f;
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -70,11 +74,26 @@ public class SpawnManager : NetworkBehaviour
     IEnumerator SpawnEnemy(GameObject enemyPrefab, Vector3 spawnPosition, float spawnTimeOffset)
     {
         yield return new WaitForSeconds(spawnTimeOffset);
+
+        // Raise indicator slightly above ground
+        Vector3 indicatorPos = spawnPosition + Vector3.up * indicatorHeight;
+
+        // Spawn indicator
+        GameObject indicator = Instantiate(spawnIndicatorPrefab, indicatorPos, Quaternion.Euler(90, 0, 0));
+        NetworkObject indicatorNet = indicator.GetComponent<NetworkObject>();
+        indicatorNet.Spawn();
+
+        // Wait before spawning enemy
+        yield return new WaitForSeconds(spawnIndicatorTime);
+
+        // Remove indicator
+        indicatorNet.Despawn(true);
+
+        // Spawn enemy
         GameObject spawnedEnemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
-        
         NetworkObject netObj = spawnedEnemy.GetComponent<NetworkObject>();
         netObj.Spawn();
-        
+
         spawnedList.Add(netObj);
     }
 

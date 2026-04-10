@@ -1,6 +1,5 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using System.Collections;
 
 public class NetworkShoot : NetworkBehaviour
