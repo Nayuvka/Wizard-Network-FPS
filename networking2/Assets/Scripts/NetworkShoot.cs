@@ -15,8 +15,7 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private Animator wandAnimator;
     [SerializeField] private float shootCooldown = 0.5f;
     [SerializeField] private float wandRange = 100f;
-    [SerializeField] private Transform wandMuzzle;
-    [SerializeField] private GameObject wandFlash;
+    [SerializeField] private Transform wandFirePoint;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private ProjectileData[] projectiles;
     private int currentProjectileIndex = 0;
@@ -47,7 +46,7 @@ public class NetworkShoot : NetworkBehaviour
             targetPoint = hit.point;
         }
 
-        ShootServerRpc(wandMuzzle.position, targetPoint, cameraOrigin, cameraForward, currentProjectileIndex);
+        ShootServerRpc(wandFirePoint.position, targetPoint, cameraOrigin, cameraForward, currentProjectileIndex);
     }
 
     [ServerRpc]
@@ -81,11 +80,6 @@ public class NetworkShoot : NetworkBehaviour
             spawnPos,
             Quaternion.LookRotation(moveDir)
         );
-
-        if (wandFlash != null)
-        {
-            Instantiate(wandFlash, spawnPos, Quaternion.LookRotation(moveDir));
-        }
 
 
         NetworkProjectile projectile = bullet.GetComponent<NetworkProjectile>();

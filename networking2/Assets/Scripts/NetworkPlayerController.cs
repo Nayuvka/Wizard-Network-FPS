@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.XR;
 
 public class NetworkPlayerController : NetworkBehaviour
 {
@@ -17,7 +18,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float sensitivity = 0.1f;
     
-    //private PlayerHealthScript health;
+    private PlayerHealthScript health;
     private float rotationX = 0f;
     private float verticalVelocity;
 
@@ -33,11 +34,32 @@ public class NetworkPlayerController : NetworkBehaviour
     private InputAction switchProjectileAction;
     private InputAction scrollAction;
 
+    [SerializeField] private Animator animator;
+    private bool hasAnimator;
+
+    private int animIDSpeed;
+    private int animIDGrounded;
+    private int animIDJump;
+    private int animIDFreeFall;
+    private int animIDMotionSpeed;
+
+    private float animationBlend;
+    [SerializeField] private float animationSmoothSpeed = 10f;
+
+    [Header("Player SFX")]
+    [Space(5)]
+
+    public AudioClip LandingAudioClip;
+    public AudioClip[] FootstepAudioClips;
+    [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
+
     public override void OnNetworkSpawn()
     {
         charController = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         networkShoot = GetComponent<NetworkShoot>();
+        hasAnimator = TryGetComponent(out animator);
+
 
         if (!IsOwner)
         {
@@ -51,6 +73,7 @@ public class NetworkPlayerController : NetworkBehaviour
             return;
         }
 
+        AssignAnimationIDs();
 
         moveAction = playerInput.actions["Move"];
         lookAction = playerInput.actions["Look"];
@@ -68,7 +91,7 @@ public class NetworkPlayerController : NetworkBehaviour
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        //health = GetComponent<PlayerHealthScript>();
+        health = GetComponent<PlayerHealthScript>();
     }
 
     void Update()
@@ -92,6 +115,8 @@ public class NetworkPlayerController : NetworkBehaviour
         HandleScroll();
     }
 
+
+
     void HandleMovement()
     {
         Vector2 input = moveAction.ReadValue<Vector2>();
@@ -105,24 +130,73 @@ public class NetworkPlayerController : NetworkBehaviour
 
         Vector3 moveDirection = (forward * input.y) + (right * input.x);
 
+
+        float inputMagnitude = input.magnitude;
+        float targetSpeed = moveSpeed * inputMagnitude;
+
+        animationBlend = Mathf.Lerp(animationBlend, targetSpeed, Time.deltaTime * animationSmoothSpeed);
+
+        if (hasAnimator)
+        {
+            animator.SetFloat(animIDSpeed, animationBlend);   
+            animator.SetFloat(animIDMotionSpeed, inputMagnitude);
+        }
+
         if (charController.isGrounded)
         {
             verticalVelocity = -2f;
 
+      
+            if (hasAnimator)
+            {
+                animator.SetBool(animIDGrounded, true);
+                animator.SetBool(animIDFreeFall, false);
+            }
+
             if (jumpAction.triggered)
             {
                 verticalVelocity = jumpForce;
-                //health.TakeDamage(20f);
+
+          
+                if (hasAnimator)
+                {
+                    animator.SetBool(animIDJump, true);
+                }
+            }
+            else
+            {
+                if (hasAnimator)
+                {
+                    animator.SetBool(animIDJump, false);
+                }
             }
         }
         else
         {
             verticalVelocity += gravity * Time.deltaTime;
+
+     
+            if (hasAnimator)
+            {
+                animator.SetBool(animIDGrounded, false);
+                animator.SetBool(animIDJump, false);
+                animator.SetBool(animIDFreeFall, true);
+            }
         }
 
         Vector3 finalMove = (moveDirection * moveSpeed) + (Vector3.up * verticalVelocity);
+
         if (!charController.enabled) return;
         charController.Move(finalMove * Time.deltaTime);
+    }
+
+    private void AssignAnimationIDs()
+    {
+        animIDSpeed = Animator.StringToHash("Speed");
+        animIDGrounded = Animator.StringToHash("Grounded");
+        animIDJump = Animator.StringToHash("Jump");
+        animIDFreeFall = Animator.StringToHash("FreeFall");
+        animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
     }
 
     void HandleLook()
@@ -168,5 +242,25 @@ public class NetworkPlayerController : NetworkBehaviour
 
         playerCamera.localRotation = Quaternion.identity;
         transform.rotation = targetRotation;
+    }
+
+    private void OnFootstep(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            if (FootstepAudioClips.Length > 0)
+            {
+                var index = Random.Range(0, FootstepAudioClips.Length);
+                AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(charController.center), FootstepAudioVolume);
+            }
+        }
+    }
+
+    private void OnLand(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(charController.center), FootstepAudioVolume);
+        }
     }
 }
