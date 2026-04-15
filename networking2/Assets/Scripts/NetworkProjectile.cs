@@ -111,7 +111,8 @@ public class NetworkProjectile : NetworkBehaviour
 
         if (health != null)
         {
-            Vector3 hitDir = (collision.gameObject.transform.position - transform.position).normalized;
+            Vector3 hitDir = moveDir.Value.normalized;
+            health.TakeDamage(projectileData.damage, hitDir, knockbackForce);
             health.TakeDamage(projectileData.damage, hitDir, knockbackForce);
         }
 
