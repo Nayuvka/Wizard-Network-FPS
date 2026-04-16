@@ -204,7 +204,7 @@ public class NetworkPlayerController : NetworkBehaviour
         Vector2 mouseDelta = lookAction.ReadValue<Vector2>() * sensitivity;
 
         rotationX -= mouseDelta.y;
-        rotationX = Mathf.Clamp(rotationX, -90f, 90f);
+        rotationX = Mathf.Clamp(rotationX, -75f, 75f);
 
         transform.Rotate(Vector3.up * mouseDelta.x);
         playerCamera.localRotation = Quaternion.Euler(rotationX, 0, 0);
