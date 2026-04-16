@@ -10,6 +10,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] NetworkShoot networkShoot;
     public Transform playerCamera;
     [SerializeField] private CharacterController charController;
+    [SerializeField] private PlayerHealthScript playerHealthScript;
 
     [Header("Player Movement Settings")]
     [Space(5)]
@@ -59,6 +60,7 @@ public class NetworkPlayerController : NetworkBehaviour
         playerInput = GetComponent<PlayerInput>();
         networkShoot = GetComponent<NetworkShoot>();
         hasAnimator = TryGetComponent(out animator);
+        playerHealthScript = GetComponent<PlayerHealthScript>();
 
 
         if (!IsOwner)
@@ -156,6 +158,7 @@ public class NetworkPlayerController : NetworkBehaviour
             if (jumpAction.triggered)
             {
                 verticalVelocity = jumpForce;
+                playerHealthScript.TakeDamage(20f);
 
           
                 if (hasAnimator)

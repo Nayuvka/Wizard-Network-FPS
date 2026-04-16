@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,6 +15,7 @@ public class PlayerHealthScript : NetworkBehaviour
     [Space(5)]
 
     public Image healthBarFill;
+    public TextMeshProUGUI healthText;
     public Color fullhealthColour = Color.green;
     public Color lowhealthColour = Color.red;
 
@@ -58,6 +60,11 @@ public class PlayerHealthScript : NetworkBehaviour
         float targetFill = currentHealth.Value / maxHealth;
         healthBarFill.fillAmount = Mathf.Lerp(healthBarFill.fillAmount, targetFill, lerpSpeed * Time.deltaTime);
         healthBarFill.color = Color.Lerp(lowhealthColour, fullhealthColour, targetFill);
+
+        if(healthText != null)
+        {
+            healthText.text = Mathf.CeilToInt(targetFill * 100) + "/" + Mathf.CeilToInt(maxHealth);
+        }
 
 
     }
