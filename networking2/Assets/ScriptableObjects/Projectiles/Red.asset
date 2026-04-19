@@ -12,8 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69d14548a40593f4da572bb1c5f593a3, type: 3}
   m_Name: Red
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileData
+  type: 0
   projectilePrefab: {fileID: 940489568176787497, guid: 93a66fa2969781644a73ba92bcacbc37, type: 3}
   hitEffect: {fileID: 613433886817584986, guid: 9f5fbcfb6299c2b4c912f3ff44f14463, type: 3}
   speed: 50
   damage: 25
   lifetime: 5
+  projectileSprite: {fileID: 0}
+  projectileMaterial: {fileID: 2100000, guid: 465e10759de59204f8e57f902444d809, type: 2}
+  burstCount: 3
+  spreadAngle: 15
+  fireRate: 0.1

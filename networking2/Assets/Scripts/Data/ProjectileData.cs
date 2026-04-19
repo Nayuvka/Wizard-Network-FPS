@@ -18,6 +18,7 @@ public class ProjectileData : ScriptableObject
     public float damage;
     public float lifetime;
     public Sprite projectileSprite;
+    public Material projectileMaterial;
 
     [Header("Burst Settings")]
     public int burstCount = 3;

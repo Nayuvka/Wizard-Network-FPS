@@ -12,6 +12,7 @@ public class NetworkShoot : NetworkBehaviour
 
     [Header("Shoot Settings")]
     [Space(5)]
+
     [SerializeField] private ParticleSystem wandSmoke;
     [SerializeField] private Animator wandAnimator;
     [SerializeField] private float shootCooldown = 0.5f;
@@ -23,10 +24,23 @@ public class NetworkShoot : NetworkBehaviour
     private ProjectileData CurrentProjectile => projectiles[currentProjectileIndex];
     private bool canShoot = true;
 
+    [SerializeField] private Renderer staffRenderer;
+    [SerializeField] private int gemMaterialIndex = 1;
+
     public override void OnNetworkSpawn()
     {
         if (!IsOwner) return;
         playerController = GetComponent<NetworkPlayerController>();
+
+
+        UpdateGemMaterial();
+    }
+
+    void UpdateGemMaterial()
+    {
+        Material[] mats = staffRenderer.materials;
+        mats[gemMaterialIndex] = CurrentProjectile.projectileMaterial;
+        staffRenderer.materials = mats;
     }
 
     public void ProcessLocalShoot()
@@ -112,6 +126,7 @@ public class NetworkShoot : NetworkBehaviour
         if (currentProjectileIndex >= projectiles.Length)
             currentProjectileIndex = 0;
 
+        UpdateGemMaterial();
         Debug.Log("Switched to: " + CurrentProjectile.name);
     }
 
@@ -122,6 +137,7 @@ public class NetworkShoot : NetworkBehaviour
         if (currentProjectileIndex < 0)
             currentProjectileIndex = projectiles.Length - 1;
 
+        UpdateGemMaterial();
         Debug.Log("Switched to: " + CurrentProjectile.name);
     }
 

@@ -19,6 +19,7 @@ MonoBehaviour:
   damage: 10
   lifetime: 5
   projectileSprite: {fileID: 0}
+  projectileMaterial: {fileID: 2100000, guid: 33ba0c53d763ce449a6c35c00dca0b9a, type: 2}
   burstCount: 3
   spreadAngle: 15
   fireRate: 0.1
