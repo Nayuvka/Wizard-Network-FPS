@@ -8,6 +8,7 @@ public class NetworkShoot : NetworkBehaviour
     [Space(5)]
 
     private NetworkPlayerController playerController;
+    [SerializeField] private NetworkCameraShake cameraShake;
 
     [Header("Shoot Settings")]
     [Space(5)]
@@ -34,7 +35,12 @@ public class NetworkShoot : NetworkBehaviour
 
 
         wandSmoke.Play();
+        if(cameraShake != null)
+        {
+            cameraShake.ShakeCamera();
+        }
         wandAnimator.SetTrigger("Shoot");
+        
         StartCoroutine(ShootTimer());
 
         Vector3 cameraOrigin = playerController.playerCamera.transform.position;

@@ -1130,6 +1130,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: NetworkManager
       objectReference: {fileID: 0}
+    - target: {fileID: 5151622951644763493, guid: 63ec879c9e3210b43a94c592c129ecdf, type: 3}
+      propertyPath: NetworkConfig.PlayerPrefab
+      value: 
+      objectReference: {fileID: 1086911277809186475, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
     - target: {fileID: 8389577742503480251, guid: 63ec879c9e3210b43a94c592c129ecdf, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.43694
@@ -1254,63 +1258,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &213725055568755411
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1298029529795044939, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -2.85147
-      objectReference: {fileID: 0}
-    - target: {fileID: 1298029529795044939, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.89185
-      objectReference: {fileID: 0}
-    - target: {fileID: 1298029529795044939, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 5.94813
-      objectReference: {fileID: 0}
-    - target: {fileID: 1298029529795044939, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.92387956
-      objectReference: {fileID: 0}
-    - target: {fileID: 1298029529795044939, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: -0.38268343
-      objectReference: {fileID: 0}
-    - target: {fileID: 1298029529795044939, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1298029529795044939, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1298029529795044939, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: -45
-      objectReference: {fileID: 0}
-    - target: {fileID: 1298029529795044939, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1298029529795044939, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7536903571315504989, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
-      propertyPath: m_Name
-      value: Wizard Staff
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 7a4542284e0368b47a86b981fdb626be, type: 3}
 --- !u!114 &1842855485449692797
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1477,6 +1424,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TemporaryUI
       objectReference: {fileID: 0}
+    - target: {fileID: 3276274946445176034, guid: 5d88c000f9779494e87dc4a2e2d96b63, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1499,4 +1450,3 @@ SceneRoots:
   - {fileID: 1094394649}
   - {fileID: 1973459790}
   - {fileID: 479813903}
-  - {fileID: 213725055568755411}
