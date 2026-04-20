@@ -10,7 +10,6 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private float shootCooldown = 0.5f;
     [SerializeField] private float wandRange = 100f;
     [SerializeField] private Transform wandMuzzle;
-    [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private GameObject projectilePrefab;
 
     private Camera playerCamera;
@@ -27,8 +26,7 @@ public class NetworkShoot : NetworkBehaviour
         }
 
         playerCamera = GetComponentInParent<Camera>();
-        if (playerCamera == null)
-            playerCamera = Camera.main;
+        if (playerCamera == null) playerCamera = Camera.main;
 
         playerInput = GetComponentInParent<PlayerInput>();
         shootAction = playerInput.actions["Shoot"];
@@ -37,11 +35,7 @@ public class NetworkShoot : NetworkBehaviour
     void Update()
     {
         if (!IsOwner || !IsSpawned) return;
-
-        if (shootAction.triggered && canShoot)
-        {
-            ProcessLocalShoot();
-        }
+        if (shootAction.triggered && canShoot) ProcessLocalShoot();
     }
 
     void ProcessLocalShoot()
@@ -50,43 +44,32 @@ public class NetworkShoot : NetworkBehaviour
         wandAnimator.SetTrigger("Shoot");
         StartCoroutine(ShootTimer());
 
-        Vector3 cameraOrigin = playerCamera.transform.position;
-        Vector3 cameraForward = playerCamera.transform.forward;
-        Vector3 targetPoint = cameraOrigin + (cameraForward * wandRange);
+        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); 
+        Vector3 targetPoint;
 
-        if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
+        if (Physics.Raycast(ray, out RaycastHit hit, wandRange))
         {
             targetPoint = hit.point;
         }
+        else
+        {
+            targetPoint = ray.GetPoint(wandRange);
+        }
 
-        ShootServerRpc(wandMuzzle.position, targetPoint, cameraOrigin, cameraForward);
+        ShootServerRpc(wandMuzzle.position, targetPoint);
     }
 
     [ServerRpc]
-    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, Vector3 cameraOrigin, Vector3 cameraForward)
+    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint)
     {
-        if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
-        {
-            if (hit.collider.CompareTag("Enemy"))
-            {
-                NetworkObject enemyNetObj = hit.collider.GetComponent<NetworkObject>();
-                if (enemyNetObj != null)
-                    enemyNetObj.Despawn();
-            }
-        }
-
         Vector3 moveDir = (targetPoint - spawnPos).normalized;
 
         GameObject bullet = Instantiate(projectilePrefab, spawnPos, Quaternion.LookRotation(moveDir));
-
-        NetworkProjectile projectile = bullet.GetComponent<NetworkProjectile>();
-
         NetworkObject bulletNetObj = bullet.GetComponent<NetworkObject>();
-        if (bulletNetObj != null)
-            bulletNetObj.Spawn();
-
-        if (projectile != null)
-            projectile.Initialize(moveDir);
+        bulletNetObj.Spawn();
+        
+        NetworkProjectile projectile = bullet.GetComponent<NetworkProjectile>();
+        if (projectile != null) projectile.Initialize(moveDir);
 
         ShootObserversClientRpc();
     }
@@ -95,7 +78,6 @@ public class NetworkShoot : NetworkBehaviour
     void ShootObserversClientRpc()
     {
         if (IsOwner) return;
-
         wandSmoke.Play();
         wandAnimator.SetTrigger("Shoot");
     }

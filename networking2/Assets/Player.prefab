@@ -390,6 +390,7 @@ GameObject:
   - component: {fileID: 1984877648439317658}
   - component: {fileID: 1986648789784123021}
   - component: {fileID: 3952714872594754878}
+  - component: {fileID: 2696517311480524174}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -654,10 +655,27 @@ MonoBehaviour:
   shootCooldown: 1
   wandRange: 100
   wandMuzzle: {fileID: 7161025565784555389}
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 128
   projectilePrefab: {fileID: 940489568176787497, guid: 9280af62429a77f49bfab0aa7377b7aa, type: 3}
+--- !u!114 &2696517311480524174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7793954097118988265}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eab4d818ca3f232489848918c1910168, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 100
+  healthDisplay: {fileID: 0}
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 100
 --- !u!1 &9113889050801947885
 GameObject:
   m_ObjectHideFlags: 0
