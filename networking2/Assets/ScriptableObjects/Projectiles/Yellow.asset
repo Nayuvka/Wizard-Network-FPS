@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69d14548a40593f4da572bb1c5f593a3, type: 3}
+  m_Name: Yellow
+  m_EditorClassIdentifier: Assembly-CSharp::ProjectileData
+  type: 2
+  projectilePrefab: {fileID: 940489568176787497, guid: 9280af62429a77f49bfab0aa7377b7aa, type: 3}
+  hitEffect: {fileID: 613433886817584986, guid: 6e845b0e80fad2d4c93ff505a0750129, type: 3}
+  speed: 50
+  damage: 10
+  lifetime: 5
+  projectileSprite: {fileID: 0}
+  projectileMaterial: {fileID: 2100000, guid: 33ba0c53d763ce449a6c35c00dca0b9a, type: 2}
+  burstCount: 3
+  spreadAngle: 15
+  fireRate: 0.1
