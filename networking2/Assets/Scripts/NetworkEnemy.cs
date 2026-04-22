@@ -16,11 +16,11 @@ public class NetworkEnemy : NetworkBehaviour
     [SerializeField] private CanvasGroup healthCanvasGroup;
 
     private NetworkVariable<float> currentHealth = new NetworkVariable<float>(
-        100f, 
-        NetworkVariableReadPermission.Everyone, 
+        100f,
+        NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server
     );
-    
+
     private NavMeshAgent agent;
     private Transform targetPlayer;
     private float nextAttackTime;
@@ -31,7 +31,7 @@ public class NetworkEnemy : NetworkBehaviour
         agent.speed = moveSpeed;
 
         if (healthCanvasGroup != null) healthCanvasGroup.alpha = 0;
-        
+
         if (healthSlider != null)
         {
             healthSlider.maxValue = maxHealth;
@@ -81,7 +81,7 @@ public class NetworkEnemy : NetworkBehaviour
         if (targetPlayer != null)
         {
             float distance = Vector3.Distance(transform.position, targetPlayer.position);
-            
+
             if (distance <= attackRange)
             {
                 agent.isStopped = true;
@@ -123,8 +123,7 @@ public class NetworkEnemy : NetworkBehaviour
             {
                 PlayerHealth pHealth = client.PlayerObject.GetComponent<PlayerHealth>();
                 RespawnScript pRespawn = client.PlayerObject.GetComponent<RespawnScript>();
-                
-                // Now checks if health is > 0 AND they aren't currently in the respawn middle-state
+
                 if (pHealth != null && pHealth.currentHealth.Value > 0 && (pRespawn == null || !pRespawn.isRespawning.Value))
                 {
                     float distance = Vector3.Distance(transform.position, client.PlayerObject.transform.position);
@@ -135,8 +134,8 @@ public class NetworkEnemy : NetworkBehaviour
                     }
                 }
             }
-            targetPlayer = nearest;
         }
+        targetPlayer = nearest;
     }
 
     public void TakeDamage(float damage)
@@ -150,6 +149,12 @@ public class NetworkEnemy : NetworkBehaviour
     private void Die()
     {
         if (!IsServer) return;
+
+        if (SpawnManager.Instance != null)
+        {
+            SpawnManager.Instance.EnemyDeath(GetComponent<NetworkObject>());
+        }
+
         PlayDeathVfxClientRpc(transform.position);
         GetComponent<NetworkObject>().Despawn();
     }

@@ -182,11 +182,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkProjectile
   ShowTopMostFoldoutHeaderGroup: 1
+  type: 0
   speed: 50
-  damage: 25
+  baseDamage: 10
   lifetime: 5
-  vfxPrefab: {fileID: 613433886817584986, guid: 6e845b0e80fad2d4c93ff505a0750129, type: 3}
-  layersToHit:
+  impactEffect: {fileID: 613433886817584986, guid: 6e845b0e80fad2d4c93ff505a0750129, type: 3}
+  effectRadius: 5
+  enemyLayer:
     serializedVersion: 2
     m_Bits: 128
 --- !u!96 &7021469668483005376

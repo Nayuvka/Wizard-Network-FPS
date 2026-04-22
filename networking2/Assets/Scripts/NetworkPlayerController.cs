@@ -15,20 +15,15 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float sensitivity = 0.1f;
-    
+
     private float rotationX = 0f;
     private float verticalVelocity;
-
-    private float scrollCooldown = 0.2f;
-    private float lastScrollTime;
 
     private PlayerInput playerInput;
     private InputAction moveAction;
     private InputAction lookAction;
     private InputAction jumpAction;
     public InputAction shootAction;
-    private InputAction switchProjectileAction;
-    private InputAction scrollAction;
 
     [SerializeField] private Animator animator;
     private bool hasAnimator;
@@ -61,7 +56,7 @@ public class NetworkPlayerController : NetworkBehaviour
 
         if (!IsOwner)
         {
-            if (playerCamera != null) 
+            if (playerCamera != null)
             {
                 playerCamera.GetComponent<Camera>().enabled = false;
             }
@@ -84,15 +79,11 @@ public class NetworkPlayerController : NetworkBehaviour
         lookAction = playerInput.actions["Look"];
         jumpAction = playerInput.actions["Jump"];
         shootAction = playerInput.actions["Shoot"];
-        switchProjectileAction = playerInput.actions["SwitchProjectile"];
-        scrollAction = playerInput.actions["Scroll"];
 
         moveAction.Enable();
         lookAction.Enable();
         jumpAction.Enable();
         shootAction.Enable();
-        switchProjectileAction.Enable();
-        scrollAction.Enable();
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
@@ -109,13 +100,6 @@ public class NetworkPlayerController : NetworkBehaviour
         {
             networkShoot.ProcessLocalShoot();
         }
-
-        if (switchProjectileAction.triggered)
-        {
-            networkShoot.CycleProjectileForward();
-        }
-
-        HandleScroll();
     }
 
     void HandleMovement()
@@ -138,7 +122,7 @@ public class NetworkPlayerController : NetworkBehaviour
 
         if (hasAnimator)
         {
-            animator.SetFloat(animIDSpeed, animationBlend);   
+            animator.SetFloat(animIDSpeed, animationBlend);
             animator.SetFloat(animIDMotionSpeed, inputMagnitude);
         }
 
@@ -155,7 +139,7 @@ public class NetworkPlayerController : NetworkBehaviour
             if (jumpAction.triggered)
             {
                 verticalVelocity = jumpForce;
-                
+
                 if (hasAnimator)
                 {
                     animator.SetBool(animIDJump, true);
@@ -205,24 +189,6 @@ public class NetworkPlayerController : NetworkBehaviour
 
         transform.Rotate(Vector3.up * mouseDelta.x);
         playerCamera.localRotation = Quaternion.Euler(rotationX, 0, 0);
-    }
-
-    void HandleScroll()
-    {
-        if (Time.time < lastScrollTime + scrollCooldown) return;
-
-        float scrollValue = scrollAction.ReadValue<float>();
-
-        if (scrollValue > 0f)
-        {
-            networkShoot.CycleProjectileForward();
-            lastScrollTime = Time.time;
-        }
-        else if (scrollValue < 0f)
-        {
-            networkShoot.CycleProjectileBackward();
-            lastScrollTime = Time.time;
-        }
     }
 
     [ClientRpc]

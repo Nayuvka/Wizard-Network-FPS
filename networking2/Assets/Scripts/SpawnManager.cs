@@ -6,19 +6,26 @@ using Unity.Netcode;
 public class SpawnManager : NetworkBehaviour
 {
     public static SpawnManager Instance { get; private set; }
+
+    [Header("Enemy Settings")]
     public GameObject[] enemyPrefabs;
     public GameObject[] enemySpawnPoints;
     public List<NetworkObject> spawnedList = new List<NetworkObject>();
     public float enemySpawnDelay;
     public int baseSpawnAmount;
     public int spawnIncrease;
-    public int currentRound = 0; 
-
-    //Use this to decide the interval at which a new type of enemy will appear e.g. a value of 5 will introduce a new enemy on round 5, 10, 15 etc.
     public int difficultyInterval;
-    //starts at 1 to avoid confusing logic
     private int currentDifficulty = 1;
 
+    [Header("Round UI")]
+    public NetworkVariable<int> currentRound = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    [Header("Statue Settings")]
+    public GameObject statuePrefab;
+    public Transform[] statueSpawnPoints; // Set 5 points in inspector
+    private GameObject activeStatue;
+
+    [Header("Visuals")]
     public GameObject spawnIndicatorPrefab;
     public float spawnIndicatorTime = 1.5f;
     public float indicatorHeight = 3f;
@@ -37,30 +44,55 @@ public class SpawnManager : NetworkBehaviour
     {
         if (IsServer)
         {
-            RoundStart();
+            PrepareNextRound();
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    void RoundStart()
+    public void PrepareNextRound()
     {
         if (!IsServer) return;
 
-        currentRound++;
-        int spawnAmount = baseSpawnAmount + (spawnIncrease * currentRound);
-        if (currentRound % difficultyInterval == 0)
+        currentRound.Value++;
+
+        // Spawn Statue at the point corresponding to the round
+        if (statuePrefab != null && statueSpawnPoints.Length >= currentRound.Value)
+        {
+            Vector3 spawnPos = statueSpawnPoints[currentRound.Value - 1].position;
+            activeStatue = Instantiate(statuePrefab, spawnPos, statueSpawnPoints[currentRound.Value - 1].rotation);
+            activeStatue.GetComponent<NetworkObject>().Spawn();
+        }
+        else
+        {
+            // If no statue or points left, just start enemies
+            StartCoroutine(BeginEnemySpawning());
+        }
+    }
+
+    public void OnStatueInteracted()
+    {
+        if (!IsServer) return;
+
+        if (activeStatue != null)
+        {
+            activeStatue.GetComponent<NetworkObject>().Despawn();
+            activeStatue = null;
+        }
+
+        StartCoroutine(BeginEnemySpawning());
+    }
+
+    IEnumerator BeginEnemySpawning()
+    {
+        int spawnAmount = baseSpawnAmount + (spawnIncrease * currentRound.Value);
+
+        if (currentRound.Value % difficultyInterval == 0)
         {
             if (currentDifficulty < enemyPrefabs.Length)
             {
                 currentDifficulty++;
             }
         }
-        
+
         for (int index = 0; index < spawnAmount; index++)
         {
             int randomEnemyIndex = Random.Range(0, currentDifficulty);
@@ -69,27 +101,23 @@ public class SpawnManager : NetworkBehaviour
             float spawnTimeOffset = index * enemySpawnDelay;
             StartCoroutine(SpawnEnemy(prefabToSpawn, enemySpawnPoints[randomIndex].transform.position, spawnTimeOffset));
         }
+        yield return null;
     }
 
     IEnumerator SpawnEnemy(GameObject enemyPrefab, Vector3 spawnPosition, float spawnTimeOffset)
     {
         yield return new WaitForSeconds(spawnTimeOffset);
 
-        // Raise indicator slightly above ground
         Vector3 indicatorPos = spawnPosition + Vector3.up * indicatorHeight;
 
-        // Spawn indicator
         GameObject indicator = Instantiate(spawnIndicatorPrefab, indicatorPos, Quaternion.Euler(90, 0, 0));
         NetworkObject indicatorNet = indicator.GetComponent<NetworkObject>();
         indicatorNet.Spawn();
 
-        // Wait before spawning enemy
         yield return new WaitForSeconds(spawnIndicatorTime);
 
-        // Remove indicator
-        indicatorNet.Despawn(true);
+        if (indicatorNet != null && indicatorNet.IsSpawned) indicatorNet.Despawn();
 
-        // Spawn enemy
         GameObject spawnedEnemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
         NetworkObject netObj = spawnedEnemy.GetComponent<NetworkObject>();
         netObj.Spawn();
@@ -97,7 +125,6 @@ public class SpawnManager : NetworkBehaviour
         spawnedList.Add(netObj);
     }
 
-    //IMPORTANT: Make Sure the enemyScript calls this function with itself as the input variable
     public void EnemyDeath(NetworkObject enemy)
     {
         if (!IsServer) return;
@@ -109,7 +136,7 @@ public class SpawnManager : NetworkBehaviour
 
         if (spawnedList.Count == 0)
         {
-            RoundStart();
+            PrepareNextRound();
         }
     }
 }

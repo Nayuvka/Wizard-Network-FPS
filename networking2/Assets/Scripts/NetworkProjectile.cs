@@ -4,96 +4,146 @@ using System.Collections;
 
 public class NetworkProjectile : NetworkBehaviour
 {
-    [SerializeField] private float speed = 50f;
-    [SerializeField] private float damage = 25f;
+    public enum ProjectileType { Fireball, Frostball, Lightning, Slime, Normal }
+
+    [Header("Base Settings")]
+    [SerializeField] private ProjectileType type;
+    [SerializeField] private float speed = 20f;
+    [SerializeField] private float baseDamage = 10f;
     [SerializeField] private float lifetime = 5f;
-    [SerializeField] private GameObject vfxPrefab;
-    [SerializeField] private LayerMask layersToHit;
+    [SerializeField] private GameObject impactEffect;
 
-    private NetworkVariable<Vector3> moveDir = new NetworkVariable<Vector3>(
-        default,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
+    [Header("Special Effect Settings")]
+    [SerializeField] private float effectRadius = 5f;
+    [SerializeField] private LayerMask enemyLayer;
 
-    private Rigidbody rb;
+    private Vector3 moveDirection;
+    private int additionalDamage = 0;
 
-    public override void OnNetworkSpawn()
+    public void Initialize(Vector3 direction, int extraDamage)
     {
-        rb = GetComponent<Rigidbody>();
-        if (rb != null)
+        moveDirection = direction;
+        additionalDamage = extraDamage;
+
+        if (IsServer)
         {
-            rb.linearVelocity = moveDir.Value * speed;
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+            StartCoroutine(DestroyAfterDelay(lifetime));
         }
-        moveDir.OnValueChanged += OnMoveDirChanged;
     }
 
-    public override void OnNetworkDespawn()
+    void Update()
     {
-        moveDir.OnValueChanged -= OnMoveDirChanged;
-    }
-
-    private void OnMoveDirChanged(Vector3 previous, Vector3 current)
-    {
-        if (rb != null) rb.linearVelocity = current * speed;
-    }
-
-    public void Initialize(Vector3 direction, int index)
-    {
-        if (!IsServer) return;
-        moveDir.Value = direction;
-        if (rb != null) rb.linearVelocity = direction * speed;
-        StartCoroutine(LifetimeTimer());
-    }
-
-    private void FixedUpdate()
-    {
-        if (!IsServer || !IsSpawned) return;
-
-        float stepDistance = speed * Time.fixedDeltaTime;
-        Vector3 direction = rb.linearVelocity.normalized;
-
-        if (Physics.Raycast(transform.position, direction, out RaycastHit hit, stepDistance, layersToHit))
-        {
-            HandleHit(hit.collider, hit.point);
-        }
+        transform.position += moveDirection * speed * Time.deltaTime;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!IsServer || !IsSpawned) return;
+        if (!IsServer) return;
 
-        if (((1 << other.gameObject.layer) & layersToHit) != 0)
+        if (other.TryGetComponent(out NetworkEnemy enemy))
         {
-            HandleHit(other, other.ClosestPoint(transform.position));
+            ApplyTypeEffect(enemy);
+            SpawnImpactVisualsClientRpc(transform.position);
+
+            if (type != ProjectileType.Slime)
+            {
+                DespawnProjectile();
+            }
         }
     }
 
-    private void HandleHit(Collider other, Vector3 hitPoint)
+    private void ApplyTypeEffect(NetworkEnemy enemy)
     {
-        if (other.CompareTag("Enemy"))
+        float finalDamage = baseDamage + additionalDamage;
+
+        switch (type)
         {
-            NetworkEnemy enemy = other.GetComponent<NetworkEnemy>();
-            if (enemy != null)
+            case ProjectileType.Fireball:
+                enemy.TakeDamage(finalDamage);
+                StartCoroutine(BurnEffect(enemy, 5));
+                break;
+
+            case ProjectileType.Frostball:
+                enemy.TakeDamage(finalDamage);
+                StartCoroutine(FreezeEffect(enemy, 3f));
+                break;
+
+            case ProjectileType.Lightning:
+                ChainLightning(transform.position, finalDamage);
+                break;
+
+            case ProjectileType.Slime:
+                AttachSticky(enemy.transform, finalDamage);
+                break;
+
+            case ProjectileType.Normal:
+                enemy.TakeDamage(finalDamage);
+                break;
+        }
+    }
+
+    private IEnumerator BurnEffect(NetworkEnemy enemy, int ticks)
+    {
+        for (int i = 0; i < ticks; i++)
+        {
+            yield return new WaitForSeconds(1f);
+            if (enemy != null) enemy.TakeDamage(2f + (additionalDamage * 0.1f));
+        }
+    }
+
+    private IEnumerator FreezeEffect(NetworkEnemy enemy, float duration)
+    {
+        if (enemy.TryGetComponent(out UnityEngine.AI.NavMeshAgent agent))
+        {
+            float originalSpeed = agent.speed;
+            agent.speed *= 0.5f;
+            yield return new WaitForSeconds(duration);
+            if (agent != null) agent.speed = originalSpeed;
+        }
+    }
+
+    private void ChainLightning(Vector3 pos, float damage)
+    {
+        Collider[] hitEnemies = Physics.OverlapSphere(pos, effectRadius, enemyLayer);
+        foreach (var col in hitEnemies)
+        {
+            if (col.TryGetComponent(out NetworkEnemy enemy))
             {
                 enemy.TakeDamage(damage);
             }
         }
+    }
 
-        ExplodeClientRpc(hitPoint);
-        GetComponent<NetworkObject>().Despawn();
+    private void AttachSticky(Transform target, float damage)
+    {
+        transform.SetParent(target);
+        moveDirection = Vector3.zero;
+        speed = 0;
+        StartCoroutine(StickyExplosion(damage));
+    }
+
+    private IEnumerator StickyExplosion(float damage)
+    {
+        yield return new WaitForSeconds(2f);
+        ChainLightning(transform.position, damage);
+        DespawnProjectile();
     }
 
     [ClientRpc]
-    private void ExplodeClientRpc(Vector3 pos)
+    private void SpawnImpactVisualsClientRpc(Vector3 pos)
     {
-        if (vfxPrefab != null) Instantiate(vfxPrefab, pos, Quaternion.identity);
+        if (impactEffect != null) Instantiate(impactEffect, pos, Quaternion.identity);
     }
 
-    private IEnumerator LifetimeTimer()
+    private void DespawnProjectile()
     {
-        yield return new WaitForSeconds(lifetime);
-        if (IsServer && IsSpawned) GetComponent<NetworkObject>().Despawn();
+        if (NetworkObject != null && NetworkObject.IsSpawned)
+            NetworkObject.Despawn();
+    }
+
+    private IEnumerator DestroyAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        DespawnProjectile();
     }
 }
