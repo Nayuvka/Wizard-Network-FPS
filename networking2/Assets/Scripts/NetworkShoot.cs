@@ -1,45 +1,61 @@
 using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
+using Unity.Cinemachine;
 
 public class NetworkShoot : NetworkBehaviour
 {
     [Header("References")]
-    [Space(5)]
-
     private NetworkPlayerController playerController;
-    [SerializeField] private NetworkCameraShake cameraShake;
+    [SerializeField] private CinemachineImpulseSource impulseSource;
 
     [Header("Shoot Settings")]
-    [Space(5)]
-
     [SerializeField] private ParticleSystem wandSmoke;
     [SerializeField] private Animator wandAnimator;
     [SerializeField] private float shootCooldown = 0.5f;
     [SerializeField] private float wandRange = 100f;
     [SerializeField] private Transform wandFirePoint;
-    [SerializeField] private LayerMask enemyLayer;
-    [SerializeField] private ProjectileData[] projectiles;
+    
+    [Header("Projectile Inventory")]
+    [SerializeField] private GameObject[] projectilePrefabs; 
     private int currentProjectileIndex = 0;
-    private ProjectileData CurrentProjectile => projectiles[currentProjectileIndex];
     private bool canShoot = true;
 
+    [Header("Visuals")]
     [SerializeField] private Renderer staffRenderer;
     [SerializeField] private int gemMaterialIndex = 1;
+    [SerializeField] private Material[] gemMaterials;
 
     public override void OnNetworkSpawn()
     {
-        if (!IsOwner) return;
         playerController = GetComponent<NetworkPlayerController>();
+        
+        if (impulseSource == null) 
+            impulseSource = GetComponent<CinemachineImpulseSource>();
 
+        if (!IsOwner)
+        {
+            if (playerController != null && playerController.playerCamera != null)
+            {
+                playerController.playerCamera.GetComponent<Camera>().enabled = false;
+            }
+            
+            if (impulseSource != null) 
+                impulseSource.enabled = false;
+            
+            this.enabled = false;
+            return;
+        }
 
         UpdateGemMaterial();
     }
 
     void UpdateGemMaterial()
     {
+        if (staffRenderer == null || gemMaterials.Length == 0) return;
+        
         Material[] mats = staffRenderer.materials;
-        mats[gemMaterialIndex] = CurrentProjectile.projectileMaterial;
+        mats[gemMaterialIndex] = gemMaterials[currentProjectileIndex];
         staffRenderer.materials = mats;
     }
 
@@ -47,107 +63,69 @@ public class NetworkShoot : NetworkBehaviour
     {
         if (!canShoot) return;
 
-
+        if (impulseSource != null) 
+            impulseSource.GenerateImpulse();
+            
         wandSmoke.Play();
-        if(cameraShake != null)
-        {
-            cameraShake.ShakeCamera();
-        }
         wandAnimator.SetTrigger("Shoot");
         
         StartCoroutine(ShootTimer());
 
         Vector3 cameraOrigin = playerController.playerCamera.transform.position;
         Vector3 cameraForward = playerController.playerCamera.transform.forward;
+        
         Vector3 targetPoint = cameraOrigin + (cameraForward * wandRange);
 
-        if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
+        if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange))
         {
             targetPoint = hit.point;
         }
 
-        ShootServerRpc(wandFirePoint.position, targetPoint, cameraOrigin, cameraForward, currentProjectileIndex);
+        ShootServerRpc(wandFirePoint.position, targetPoint, currentProjectileIndex);
     }
 
     [ServerRpc]
-    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, Vector3 cameraOrigin, Vector3 cameraForward, int projectileIndex)
+    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, int index)
     {
-        if (projectileIndex < 0 || projectileIndex >= projectiles.Length)
-            projectileIndex = 0;
-
-        ProjectileData selectedProjectile = projectiles[projectileIndex];
-
-        //Hitscan method
-        /*if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
-        {
-            if (hit.collider.CompareTag("Enemy"))
-            {
-                EnemyHealth health = hit.collider.GetComponent<EnemyHealth>();
-
-                if(health != null)
-                {
-                    Vector3 hitDir = cameraForward;
-                    health.TakeDamage(selectedProjectile.damage, hitDir);
-                }
-                
-            }
-        }*/
+        if (index < 0 || index >= projectilePrefabs.Length) index = 0;
 
         Vector3 moveDir = (targetPoint - spawnPos).normalized;
 
-        GameObject bullet = Instantiate(
-            selectedProjectile.projectilePrefab,
-            spawnPos,
-            Quaternion.LookRotation(moveDir)
-        );
-
+        GameObject bullet = Instantiate(projectilePrefabs[index], spawnPos, Quaternion.LookRotation(moveDir));
+        
+        NetworkObject bulletNetObj = bullet.GetComponent<NetworkObject>();
+        bulletNetObj.Spawn();
 
         NetworkProjectile projectile = bullet.GetComponent<NetworkProjectile>();
         if (projectile != null)
         {
-            projectile.projectileData = selectedProjectile;
+            projectile.Initialize(moveDir, index);
         }
 
-        NetworkObject bulletNetObj = bullet.GetComponent<NetworkObject>();
-        if (bulletNetObj != null)
-            bulletNetObj.Spawn();
-
-
-        if (projectile != null)
-            projectile.Initialize(moveDir, projectileIndex);
-
         ShootObserversClientRpc();
-    }
-
-    public void CycleProjectileForward()
-    {
-        currentProjectileIndex++;
-
-        if (currentProjectileIndex >= projectiles.Length)
-            currentProjectileIndex = 0;
-
-        UpdateGemMaterial();
-        Debug.Log("Switched to: " + CurrentProjectile.name);
-    }
-
-    public void CycleProjectileBackward()
-    {
-        currentProjectileIndex--;
-
-        if (currentProjectileIndex < 0)
-            currentProjectileIndex = projectiles.Length - 1;
-
-        UpdateGemMaterial();
-        Debug.Log("Switched to: " + CurrentProjectile.name);
     }
 
     [ClientRpc]
     void ShootObserversClientRpc()
     {
         if (IsOwner) return;
-
         wandSmoke.Play();
         wandAnimator.SetTrigger("Shoot");
+    }
+
+    public void CycleProjectileForward()
+    {
+        currentProjectileIndex = (currentProjectileIndex + 1) % projectilePrefabs.Length;
+        UpdateGemMaterial();
+    }
+
+    public void CycleProjectileBackward()
+    {
+        currentProjectileIndex--;
+        if (currentProjectileIndex < 0) 
+            currentProjectileIndex = projectilePrefabs.Length - 1;
+            
+        UpdateGemMaterial();
     }
 
     IEnumerator ShootTimer()
@@ -156,6 +134,4 @@ public class NetworkShoot : NetworkBehaviour
         yield return new WaitForSeconds(shootCooldown);
         canShoot = true;
     }
-
-    
 }

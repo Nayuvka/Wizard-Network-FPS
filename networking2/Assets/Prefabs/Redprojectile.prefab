@@ -111,7 +111,7 @@ SphereCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -182,8 +182,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkProjectile
   ShowTopMostFoldoutHeaderGroup: 1
-  projectiles: []
-  projectileData: {fileID: 11400000, guid: f60794de55710c9489bd47afc1265f15, type: 2}
+  speed: 50
+  damage: 25
+  lifetime: 5
+  vfxPrefab: {fileID: 613433886817584986, guid: 9f5fbcfb6299c2b4c912f3ff44f14463, type: 3}
+  layersToHit:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!96 &7021469668483005376
 TrailRenderer:
   serializedVersion: 4

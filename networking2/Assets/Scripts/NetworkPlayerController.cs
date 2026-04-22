@@ -1,28 +1,23 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.XR;
 
 public class NetworkPlayerController : NetworkBehaviour
 {
     [Header("References")]
-    [Space(5)]
-    [SerializeField] NetworkShoot networkShoot;
+    [SerializeField] private NetworkShoot networkShoot;
     public Transform playerCamera;
     [SerializeField] private CharacterController charController;
-    [SerializeField] private PlayerHealthScript playerHealthScript;
+    [SerializeField] private PlayerHealth playerHealth;
 
     [Header("Player Movement Settings")]
-    [Space(5)]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float gravity = -9.81f;
     [SerializeField] private float sensitivity = 0.1f;
     
-    private PlayerHealthScript health;
     private float rotationX = 0f;
     private float verticalVelocity;
-
 
     private float scrollCooldown = 0.2f;
     private float lastScrollTime;
@@ -48,11 +43,13 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private float animationSmoothSpeed = 10f;
 
     [Header("Player SFX")]
-    [Space(5)]
-
     public AudioClip LandingAudioClip;
     public AudioClip[] FootstepAudioClips;
     [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
+
+    [Header("Misc")]
+    [SerializeField] private GameObject playerHat;
+    [SerializeField] private LayerMask hideLayerMask;
 
     public override void OnNetworkSpawn()
     {
@@ -60,19 +57,25 @@ public class NetworkPlayerController : NetworkBehaviour
         playerInput = GetComponent<PlayerInput>();
         networkShoot = GetComponent<NetworkShoot>();
         hasAnimator = TryGetComponent(out animator);
-        playerHealthScript = GetComponent<PlayerHealthScript>();
-
+        playerHealth = GetComponent<PlayerHealth>();
 
         if (!IsOwner)
         {
-            if (playerCamera != null) playerCamera.gameObject.SetActive(false);
+            if (playerCamera != null) 
+            {
+                playerCamera.GetComponent<Camera>().enabled = false;
+            }
 
             if (playerInput != null)
                 playerInput.enabled = false;
 
             enabled = false;
-
             return;
+        }
+
+        if (IsOwner && playerHat != null)
+        {
+            SetLayerRecursive(playerHat, MaskToLayer(hideLayerMask));
         }
 
         AssignAnimationIDs();
@@ -93,13 +96,11 @@ public class NetworkPlayerController : NetworkBehaviour
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-        health = GetComponent<PlayerHealthScript>();
     }
 
     void Update()
     {
         if (!IsOwner) return;
-        //if (charController == null || !charController.enabled) return;
 
         HandleLook();
         HandleMovement();
@@ -117,8 +118,6 @@ public class NetworkPlayerController : NetworkBehaviour
         HandleScroll();
     }
 
-
-
     void HandleMovement()
     {
         Vector2 input = moveAction.ReadValue<Vector2>();
@@ -131,7 +130,6 @@ public class NetworkPlayerController : NetworkBehaviour
         right.Normalize();
 
         Vector3 moveDirection = (forward * input.y) + (right * input.x);
-
 
         float inputMagnitude = input.magnitude;
         float targetSpeed = moveSpeed * inputMagnitude;
@@ -148,7 +146,6 @@ public class NetworkPlayerController : NetworkBehaviour
         {
             verticalVelocity = -2f;
 
-      
             if (hasAnimator)
             {
                 animator.SetBool(animIDGrounded, true);
@@ -158,9 +155,7 @@ public class NetworkPlayerController : NetworkBehaviour
             if (jumpAction.triggered)
             {
                 verticalVelocity = jumpForce;
-                playerHealthScript.TakeDamage(20f);
-
-          
+                
                 if (hasAnimator)
                 {
                     animator.SetBool(animIDJump, true);
@@ -178,7 +173,6 @@ public class NetworkPlayerController : NetworkBehaviour
         {
             verticalVelocity += gravity * Time.deltaTime;
 
-     
             if (hasAnimator)
             {
                 animator.SetBool(animIDGrounded, false);
@@ -237,6 +231,7 @@ public class NetworkPlayerController : NetworkBehaviour
         this.enabled = enabled;
         if (charController != null) charController.enabled = enabled;
     }
+
     [ClientRpc]
     public void ResetCameraRotationClientRpc(Quaternion targetRotation)
     {
@@ -264,6 +259,28 @@ public class NetworkPlayerController : NetworkBehaviour
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
             AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(charController.center), FootstepAudioVolume);
+        }
+    }
+
+    private int MaskToLayer(LayerMask mask)
+    {
+        int bitmask = mask.value;
+        int layer = 0;
+        while (bitmask > 1)
+        {
+            bitmask >>= 1;
+            layer++;
+        }
+        return layer;
+    }
+
+    private void SetLayerRecursive(GameObject obj, int newLayer)
+    {
+        if (obj == null) return;
+        obj.layer = newLayer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursive(child.gameObject, newLayer);
         }
     }
 }

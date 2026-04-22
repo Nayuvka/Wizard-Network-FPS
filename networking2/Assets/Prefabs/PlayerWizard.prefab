@@ -564,10 +564,11 @@ GameObject:
   - component: {fileID: 4021408388055237309}
   - component: {fileID: 6244465903204738980}
   - component: {fileID: 5227061301967171794}
-  - component: {fileID: 4957377676983409781}
   - component: {fileID: 5679372177977316126}
   - component: {fileID: 1900256996671510817}
   - component: {fileID: 638526374937978859}
+  - component: {fileID: 9118284239065123216}
+  - component: {fileID: 5085481187169098295}
   m_Layer: 0
   m_Name: PlayerWizard
   m_TagString: Untagged
@@ -755,6 +756,7 @@ MonoBehaviour:
   networkShoot: {fileID: 6244465903204738980}
   playerCamera: {fileID: 5823579226646978277}
   charController: {fileID: 6655477826426146115}
+  playerHealth: {fileID: 0}
   moveSpeed: 5
   jumpForce: 5
   gravity: -9.81
@@ -796,18 +798,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkShoot
   ShowTopMostFoldoutHeaderGroup: 1
+  impulseSource: {fileID: 0}
   wandSmoke: {fileID: 5930197824818071405}
   wandAnimator: {fileID: 7153999416306759162}
   shootCooldown: 0.5
   wandRange: 100
   wandFirePoint: {fileID: 2795216186993521067}
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 129
-  projectiles:
-  - {fileID: 11400000, guid: 99a701f1323c4b649bc4385226fb5e2b, type: 2}
-  - {fileID: 11400000, guid: f60794de55710c9489bd47afc1265f15, type: 2}
-  - {fileID: 11400000, guid: a7352ce090d32e243afdd63e15cf58a2, type: 2}
+  projectilePrefabs:
+  - {fileID: 940489568176787497, guid: 9280af62429a77f49bfab0aa7377b7aa, type: 3}
+  - {fileID: 940489568176787497, guid: fe69d680b4bdbd24285513625c0979fd, type: 3}
+  - {fileID: 940489568176787497, guid: 93a66fa2969781644a73ba92bcacbc37, type: 3}
+  staffRenderer: {fileID: 0}
+  gemMaterialIndex: 1
+  gemMaterials: []
 --- !u!114 &5227061301967171794
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -828,30 +831,6 @@ MonoBehaviour:
   smoothSpeed: 10
   maxLookUp: 60
   maxLookDown: 45
---- !u!114 &4957377676983409781
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1086911277809186475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0cc95a610b1c90545895bd51739b46dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealthScript
-  ShowTopMostFoldoutHeaderGroup: 1
-  currentHealth:
-    UpdateTraits:
-      MinSecondsBetweenUpdates: 0
-      MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 100
-  maxHealth: 100
-  respawn: {fileID: 0}
-  healthBarFill: {fileID: 0}
-  fullhealthColour: {r: 0.34448498, g: 0.78113204, b: 0, a: 1}
-  lowhealthColour: {r: 0.7283019, g: 0, b: 0, a: 1}
-  lerpSpeed: 3
 --- !u!114 &5679372177977316126
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -919,6 +898,78 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &9118284239065123216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1086911277809186475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 180ecf9b41d478f468eb3e9083753217, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineImpulseSource
+  ImpulseDefinition:
+    ImpulseChannel: 1
+    ImpulseShape: 2
+    CustomImpulseShape:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    ImpulseDuration: 0.2
+    ImpulseType: 0
+    DissipationRate: 0.25
+    RawSignal: {fileID: 0}
+    AmplitudeGain: 1
+    FrequencyGain: 1
+    RepeatMode: 0
+    Randomize: 1
+    TimeEnvelope:
+      AttackShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      DecayShape:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      AttackTime: 0
+      SustainTime: 0.2
+      DecayTime: 0.7
+      ScaleWithImpact: 1
+      HoldForever: 0
+    ImpactRadius: 100
+    DirectionMode: 0
+    DissipationMode: 2
+    DissipationDistance: 100
+    PropagationSpeed: 343
+  DefaultVelocity: {x: 0, y: -1, z: 0}
+--- !u!114 &5085481187169098295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1086911277809186475}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50f9b6fefb7ac63499980c62e116a235, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 100
+  currentHealth:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 100
 --- !u!1 &1271477687337283505
 GameObject:
   m_ObjectHideFlags: 0
