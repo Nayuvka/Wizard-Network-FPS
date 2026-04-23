@@ -5,7 +5,7 @@ using UnityEngine.AI;
 
 public class NetworkProjectile : NetworkBehaviour
 {
-    public enum ProjectileType { Fireball, Frostball, Lightning, Slime, Normal }
+    public enum ProjectileType { Fireball, Frostball, Lightning, Normal }
 
     [Header("Base Settings")]
     [SerializeField] private ProjectileType type;
@@ -46,17 +46,29 @@ public class NetworkProjectile : NetworkBehaviour
         if (other.TryGetComponent(out NetworkEnemy enemy))
         {
             hasHit = true;
-            ApplyTypeEffect(enemy);
-            SpawnImpactVisualsClientRpc(transform.position);
+            Vector3 impactPoint = other.ClosestPoint(transform.position);
 
-            if (type != ProjectileType.Slime)
-            {
-                StopProjectileVisuals();
-                if (type == ProjectileType.Normal || type == ProjectileType.Lightning)
-                {
-                    DespawnProjectile();
-                }
-            }
+            ApplyTypeEffect(enemy);
+            SpawnImpactVisualsClientRpc(impactPoint);
+        }
+        else if (other.TryGetComponent(out NetworkBoss boss))
+        {
+            hasHit = true;
+            Vector3 impactPoint = other.ClosestPoint(transform.position);
+
+            float finalDamage = baseDamage + additionalDamage;
+            boss.TakeDamage(finalDamage);
+
+            SpawnImpactVisualsClientRpc(impactPoint);
+            DespawnProjectile();
+        }
+        else if (!other.CompareTag("Player"))
+        {
+            hasHit = true;
+            Vector3 impactPoint = other.ClosestPoint(transform.position);
+
+            SpawnImpactVisualsClientRpc(impactPoint);
+            DespawnProjectile();
         }
     }
 
@@ -90,14 +102,12 @@ public class NetworkProjectile : NetworkBehaviour
 
             case ProjectileType.Lightning:
                 ChainLightning(transform.position, finalDamage);
-                break;
-
-            case ProjectileType.Slime:
-                AttachSticky(enemy, finalDamage);
+                DespawnProjectile();
                 break;
 
             case ProjectileType.Normal:
                 enemy.TakeDamage(finalDamage);
+                DespawnProjectile();
                 break;
         }
     }
@@ -139,29 +149,6 @@ public class NetworkProjectile : NetworkBehaviour
         }
     }
 
-    private void AttachSticky(NetworkEnemy target, float damage)
-    {
-        transform.SetParent(target.transform);
-        transform.localPosition = new Vector3(0, 1, 0);
-        moveDirection = Vector3.zero;
-        speed = 0;
-
-        if (TryGetComponent(out Rigidbody rb)) rb.isKinematic = true;
-        if (TryGetComponent(out Collider col)) col.enabled = false;
-
-        StartCoroutine(StickyExplosion(damage));
-    }
-
-    private IEnumerator StickyExplosion(float damage)
-    {
-        yield return new WaitForSeconds(2.5f);
-
-        ChainLightning(transform.position, damage);
-
-        SpawnImpactVisualsClientRpc(transform.position);
-        DespawnProjectile();
-    }
-
     [ClientRpc]
     private void SpawnImpactVisualsClientRpc(Vector3 pos)
     {
@@ -177,7 +164,7 @@ public class NetworkProjectile : NetworkBehaviour
     private IEnumerator DestroyAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        if (!hasHit)
+        if (NetworkObject != null && NetworkObject.IsSpawned)
         {
             DespawnProjectile();
         }
