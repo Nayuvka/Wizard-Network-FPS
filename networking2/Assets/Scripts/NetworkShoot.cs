@@ -1,57 +1,64 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using System.Collections;
 
 public class NetworkShoot : NetworkBehaviour
 {
+    [Header("References")]
+    [Space(5)]
+
+    private NetworkPlayerController playerController;
+    [SerializeField] private NetworkCameraShake cameraShake;
+
+    [Header("Shoot Settings")]
+    [Space(5)]
+
     [SerializeField] private ParticleSystem wandSmoke;
     [SerializeField] private Animator wandAnimator;
     [SerializeField] private float shootCooldown = 0.5f;
     [SerializeField] private float wandRange = 100f;
-    [SerializeField] private Transform wandMuzzle;
+    [SerializeField] private Transform wandFirePoint;
     [SerializeField] private LayerMask enemyLayer;
-    [SerializeField] private GameObject projectilePrefab;
-
-    private Camera playerCamera;
-    private PlayerInput playerInput;
-    private InputAction shootAction;
+    [SerializeField] private ProjectileData[] projectiles;
+    private int currentProjectileIndex = 0;
+    private ProjectileData CurrentProjectile => projectiles[currentProjectileIndex];
     private bool canShoot = true;
+
+    [SerializeField] private Renderer staffRenderer;
+    [SerializeField] private int gemMaterialIndex = 1;
 
     public override void OnNetworkSpawn()
     {
-        if (!IsOwner)
-        {
-            enabled = false;
-            return;
-        }
+        if (!IsOwner) return;
+        playerController = GetComponent<NetworkPlayerController>();
 
-        playerCamera = GetComponentInParent<Camera>();
-        if (playerCamera == null)
-            playerCamera = Camera.main;
 
-        playerInput = GetComponentInParent<PlayerInput>();
-        shootAction = playerInput.actions["Shoot"];
+        UpdateGemMaterial();
     }
 
-    void Update()
+    void UpdateGemMaterial()
     {
-        if (!IsOwner || !IsSpawned) return;
-
-        if (shootAction.triggered && canShoot)
-        {
-            ProcessLocalShoot();
-        }
+        Material[] mats = staffRenderer.materials;
+        mats[gemMaterialIndex] = CurrentProjectile.projectileMaterial;
+        staffRenderer.materials = mats;
     }
 
-    void ProcessLocalShoot()
+    public void ProcessLocalShoot()
     {
+        if (!canShoot) return;
+
+
         wandSmoke.Play();
+        if(cameraShake != null)
+        {
+            cameraShake.ShakeCamera();
+        }
         wandAnimator.SetTrigger("Shoot");
+        
         StartCoroutine(ShootTimer());
 
-        Vector3 cameraOrigin = playerCamera.transform.position;
-        Vector3 cameraForward = playerCamera.transform.forward;
+        Vector3 cameraOrigin = playerController.playerCamera.transform.position;
+        Vector3 cameraForward = playerController.playerCamera.transform.forward;
         Vector3 targetPoint = cameraOrigin + (cameraForward * wandRange);
 
         if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
@@ -59,36 +66,79 @@ public class NetworkShoot : NetworkBehaviour
             targetPoint = hit.point;
         }
 
-        ShootServerRpc(wandMuzzle.position, targetPoint, cameraOrigin, cameraForward);
+        ShootServerRpc(wandFirePoint.position, targetPoint, cameraOrigin, cameraForward, currentProjectileIndex);
     }
 
     [ServerRpc]
-    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, Vector3 cameraOrigin, Vector3 cameraForward)
+    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, Vector3 cameraOrigin, Vector3 cameraForward, int projectileIndex)
     {
-        if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
+        if (projectileIndex < 0 || projectileIndex >= projectiles.Length)
+            projectileIndex = 0;
+
+        ProjectileData selectedProjectile = projectiles[projectileIndex];
+
+        //Hitscan method
+        /*if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, enemyLayer))
         {
             if (hit.collider.CompareTag("Enemy"))
             {
-                NetworkObject enemyNetObj = hit.collider.GetComponent<NetworkObject>();
-                if (enemyNetObj != null)
-                    enemyNetObj.Despawn();
+                EnemyHealth health = hit.collider.GetComponent<EnemyHealth>();
+
+                if(health != null)
+                {
+                    Vector3 hitDir = cameraForward;
+                    health.TakeDamage(selectedProjectile.damage, hitDir);
+                }
+                
             }
-        }
+        }*/
 
         Vector3 moveDir = (targetPoint - spawnPos).normalized;
 
-        GameObject bullet = Instantiate(projectilePrefab, spawnPos, Quaternion.LookRotation(moveDir));
+        GameObject bullet = Instantiate(
+            selectedProjectile.projectilePrefab,
+            spawnPos,
+            Quaternion.LookRotation(moveDir)
+        );
+
 
         NetworkProjectile projectile = bullet.GetComponent<NetworkProjectile>();
+        if (projectile != null)
+        {
+            projectile.projectileData = selectedProjectile;
+        }
 
         NetworkObject bulletNetObj = bullet.GetComponent<NetworkObject>();
         if (bulletNetObj != null)
             bulletNetObj.Spawn();
 
+
         if (projectile != null)
-            projectile.Initialize(moveDir);
+            projectile.Initialize(moveDir, projectileIndex);
 
         ShootObserversClientRpc();
+    }
+
+    public void CycleProjectileForward()
+    {
+        currentProjectileIndex++;
+
+        if (currentProjectileIndex >= projectiles.Length)
+            currentProjectileIndex = 0;
+
+        UpdateGemMaterial();
+        Debug.Log("Switched to: " + CurrentProjectile.name);
+    }
+
+    public void CycleProjectileBackward()
+    {
+        currentProjectileIndex--;
+
+        if (currentProjectileIndex < 0)
+            currentProjectileIndex = projectiles.Length - 1;
+
+        UpdateGemMaterial();
+        Debug.Log("Switched to: " + CurrentProjectile.name);
     }
 
     [ClientRpc]
@@ -106,4 +156,6 @@ public class NetworkShoot : NetworkBehaviour
         yield return new WaitForSeconds(shootCooldown);
         canShoot = true;
     }
+
+    
 }

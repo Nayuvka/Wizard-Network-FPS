@@ -383,7 +383,6 @@ GameObject:
   - component: {fileID: 5434532838313601351}
   - component: {fileID: 1303773167600969325}
   - component: {fileID: 6613153598536324230}
-  - component: {fileID: 4617964585753784819}
   - component: {fileID: 3582940992832988620}
   - component: {fileID: 8820386040746956616}
   - component: {fileID: 6631064334617877288}
@@ -470,27 +469,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &4617964585753784819
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7793954097118988265}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3582940992832988620
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -605,12 +583,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BasicPlayer
   ShowTopMostFoldoutHeaderGroup: 1
+  networkShoot: {fileID: 3952714872594754878}
+  playerCamera: {fileID: 2689697976559580038}
+  charController: {fileID: 1986648789784123021}
   moveSpeed: 5
   jumpForce: 5
   gravity: -9.81
   sensitivity: 0.1
-  playerCamera: {fileID: 7176495632402646145}
-  charController: {fileID: 0}
+  shootAction:
+    m_Name: Shoot
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 9ed24b51-8cae-4373-8ed6-d8a845f16dd5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings: []
+    m_Flags: 0
 --- !u!143 &1986648789784123021
 CharacterController:
   m_ObjectHideFlags: 0
@@ -654,10 +642,11 @@ MonoBehaviour:
   shootCooldown: 1
   wandRange: 100
   wandMuzzle: {fileID: 7161025565784555389}
+  wandFlash: {fileID: 0}
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
-  projectilePrefab: {fileID: 940489568176787497, guid: 9280af62429a77f49bfab0aa7377b7aa, type: 3}
+  projectiles: []
 --- !u!1 &9113889050801947885
 GameObject:
   m_ObjectHideFlags: 0
