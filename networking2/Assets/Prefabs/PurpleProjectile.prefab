@@ -182,7 +182,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkProjectile
   ShowTopMostFoldoutHeaderGroup: 1
-  type: 0
+  type: 4
   speed: 50
   baseDamage: 10
   lifetime: 5
@@ -319,11 +319,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Color.g
-      value: 0
+      value: 0.24848175
       objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Color.r
-      value: 0.5547161
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Intensity

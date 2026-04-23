@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.AI;
 
 public class NetworkProjectile : NetworkBehaviour
 {
@@ -19,6 +20,7 @@ public class NetworkProjectile : NetworkBehaviour
 
     private Vector3 moveDirection;
     private int additionalDamage = 0;
+    private bool hasHit = false;
 
     public void Initialize(Vector3 direction, int extraDamage)
     {
@@ -33,22 +35,38 @@ public class NetworkProjectile : NetworkBehaviour
 
     void Update()
     {
+        if (hasHit) return;
         transform.position += moveDirection * speed * Time.deltaTime;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!IsServer) return;
+        if (!IsServer || hasHit) return;
 
         if (other.TryGetComponent(out NetworkEnemy enemy))
         {
+            hasHit = true;
             ApplyTypeEffect(enemy);
             SpawnImpactVisualsClientRpc(transform.position);
 
             if (type != ProjectileType.Slime)
             {
-                DespawnProjectile();
+                StopProjectileVisuals();
+                if (type == ProjectileType.Normal || type == ProjectileType.Lightning)
+                {
+                    DespawnProjectile();
+                }
             }
+        }
+    }
+
+    private void StopProjectileVisuals()
+    {
+        if (TryGetComponent(out Collider col)) col.enabled = false;
+        if (TryGetComponent(out Renderer ren)) ren.enabled = false;
+        foreach (Transform child in transform)
+        {
+            child.gameObject.SetActive(false);
         }
     }
 
@@ -60,11 +78,13 @@ public class NetworkProjectile : NetworkBehaviour
         {
             case ProjectileType.Fireball:
                 enemy.TakeDamage(finalDamage);
+                StopProjectileVisuals();
                 StartCoroutine(BurnEffect(enemy, 5));
                 break;
 
             case ProjectileType.Frostball:
                 enemy.TakeDamage(finalDamage);
+                StopProjectileVisuals();
                 StartCoroutine(FreezeEffect(enemy, 3f));
                 break;
 
@@ -73,7 +93,7 @@ public class NetworkProjectile : NetworkBehaviour
                 break;
 
             case ProjectileType.Slime:
-                AttachSticky(enemy.transform, finalDamage);
+                AttachSticky(enemy, finalDamage);
                 break;
 
             case ProjectileType.Normal:
@@ -87,19 +107,24 @@ public class NetworkProjectile : NetworkBehaviour
         for (int i = 0; i < ticks; i++)
         {
             yield return new WaitForSeconds(1f);
-            if (enemy != null) enemy.TakeDamage(2f + (additionalDamage * 0.1f));
+            if (enemy != null)
+            {
+                enemy.TakeDamage(5f + (additionalDamage * 0.2f));
+            }
         }
+        DespawnProjectile();
     }
 
     private IEnumerator FreezeEffect(NetworkEnemy enemy, float duration)
     {
-        if (enemy.TryGetComponent(out UnityEngine.AI.NavMeshAgent agent))
+        if (enemy != null && enemy.TryGetComponent(out NavMeshAgent agent))
         {
             float originalSpeed = agent.speed;
-            agent.speed *= 0.5f;
+            agent.speed *= 0.2f;
             yield return new WaitForSeconds(duration);
             if (agent != null) agent.speed = originalSpeed;
         }
+        DespawnProjectile();
     }
 
     private void ChainLightning(Vector3 pos, float damage)
@@ -114,18 +139,26 @@ public class NetworkProjectile : NetworkBehaviour
         }
     }
 
-    private void AttachSticky(Transform target, float damage)
+    private void AttachSticky(NetworkEnemy target, float damage)
     {
-        transform.SetParent(target);
+        transform.SetParent(target.transform);
+        transform.localPosition = new Vector3(0, 1, 0);
         moveDirection = Vector3.zero;
         speed = 0;
+
+        if (TryGetComponent(out Rigidbody rb)) rb.isKinematic = true;
+        if (TryGetComponent(out Collider col)) col.enabled = false;
+
         StartCoroutine(StickyExplosion(damage));
     }
 
     private IEnumerator StickyExplosion(float damage)
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(2.5f);
+
         ChainLightning(transform.position, damage);
+
+        SpawnImpactVisualsClientRpc(transform.position);
         DespawnProjectile();
     }
 
@@ -144,6 +177,9 @@ public class NetworkProjectile : NetworkBehaviour
     private IEnumerator DestroyAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        DespawnProjectile();
+        if (!hasHit)
+        {
+            DespawnProjectile();
+        }
     }
 }

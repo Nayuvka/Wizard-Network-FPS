@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 6714680512739574179}
   - component: {fileID: 7021469668483005376}
   m_Layer: 0
-  m_Name: GreenProjectile
+  m_Name: FrostBallBlue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -72,7 +72,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 33ba0c53d763ce449a6c35c00dca0b9a, type: 2}
+  - {fileID: 2100000, guid: d79a08a19a4e8894dbed444e77e8b921, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -156,14 +156,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 601492730
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 2184940228
+  InScenePlacedSourceGlobalObjectIdHash: 2184940228
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
   ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
+  SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
@@ -182,12 +182,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkProjectile
   ShowTopMostFoldoutHeaderGroup: 1
-  type: 3
+  type: 1
   speed: 50
   baseDamage: 10
   lifetime: 5
   impactEffect: {fileID: 613433886817584986, guid: 6e845b0e80fad2d4c93ff505a0750129, type: 3}
-  effectRadius: 15
+  effectRadius: 5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -262,16 +262,16 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 0.87872064, b: 0, a: 1}
-      key1: {r: 1, g: 0.8784314, b: 0, a: 0}
-      key2: {r: 1, g: 1, b: 1, a: 0}
+      key0: {r: 0, g: 0.5291481, b: 1, a: 1}
+      key1: {r: 0.008941178, g: 0.5185651, b: 1, a: 0}
+      key2: {r: 0, g: 0.5735016, b: 1, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
       key6: {r: 0, g: 0, b: 0, a: 0}
       key7: {r: 0, g: 0, b: 0, a: 0}
       ctime0: 0
-      ctime1: 65535
+      ctime1: 9021
       ctime2: 65535
       ctime3: 0
       ctime4: 0
@@ -288,7 +288,7 @@ TrailRenderer:
       atime7: 0
       m_Mode: 0
       m_ColorSpace: 0
-      m_NumColorKeys: 2
+      m_NumColorKeys: 3
       m_NumAlphaKeys: 2
     numCornerVertices: 0
     numCapVertices: 0
@@ -314,12 +314,16 @@ PrefabInstance:
       value: WandFlash
       objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
-      propertyPath: m_Color.g
+      propertyPath: m_Color.b
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
+      propertyPath: m_Color.g
+      value: 0.40302134
+      objectReference: {fileID: 0}
+    - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Color.r
-      value: 0.015545845
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Intensity

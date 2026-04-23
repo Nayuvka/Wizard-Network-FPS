@@ -889,11 +889,11 @@ MonoBehaviour:
   wandRange: 100
   wandFirePoint: {fileID: 4031202592868860110}
   projectilePrefabs:
+  - {fileID: 940489568176787497, guid: 93a66fa2969781644a73ba92bcacbc37, type: 3}
+  - {fileID: 940489568176787497, guid: 6470ceb4f5a2f4c46b7218f83b678c06, type: 3}
+  - {fileID: 1955335079096901883, guid: 37767fafc1418b1448151857c1ce7aaa, type: 3}
   - {fileID: 940489568176787497, guid: 9280af62429a77f49bfab0aa7377b7aa, type: 3}
   - {fileID: 940489568176787497, guid: fe69d680b4bdbd24285513625c0979fd, type: 3}
-  - {fileID: 940489568176787497, guid: 93a66fa2969781644a73ba92bcacbc37, type: 3}
-  - {fileID: 940489568176787497, guid: 93a66fa2969781644a73ba92bcacbc37, type: 3}
-  - {fileID: 940489568176787497, guid: 93a66fa2969781644a73ba92bcacbc37, type: 3}
   staffDefinitions:
   - staffType: Fireball
     gemMaterial: {fileID: 2100000, guid: 94dd1bc84bf4b58409c8b3b85e4e7732, type: 2}
@@ -902,13 +902,13 @@ MonoBehaviour:
     gemMaterial: {fileID: 2100000, guid: 4ce3f3f3d5daff140b6917de324e5c5c, type: 2}
     projectileIndex: 1
   - staffType: Lightning
-    gemMaterial: {fileID: 0}
+    gemMaterial: {fileID: 2100000, guid: ea9ebed640b78b84a9f7b80b792ea62d, type: 2}
     projectileIndex: 2
   - staffType: Slime
-    gemMaterial: {fileID: 2100000, guid: 4ce3f3f3d5daff140b6917de324e5c5c, type: 2}
+    gemMaterial: {fileID: 2100000, guid: 33ba0c53d763ce449a6c35c00dca0b9a, type: 2}
     projectileIndex: 3
   - staffType: Normal
-    gemMaterial: {fileID: 2100000, guid: 4ce3f3f3d5daff140b6917de324e5c5c, type: 2}
+    gemMaterial: {fileID: 2100000, guid: 53d151ff44a563f4c82e65d3a77e0c0e, type: 2}
     projectileIndex: 4
   currentStaffTypeIndex: 3
   baseStaffDamage: 25

@@ -289,6 +289,46 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6244465903204738980, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
+      propertyPath: staffDefinitions.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6244465903204738980, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
+      propertyPath: projectilePrefabs.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6244465903204738980, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
+      propertyPath: 'projectilePrefabs.Array.data[3]'
+      value: 
+      objectReference: {fileID: 940489568176787497, guid: fe69d680b4bdbd24285513625c0979fd, type: 3}
+    - target: {fileID: 6244465903204738980, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
+      propertyPath: 'projectilePrefabs.Array.data[4]'
+      value: 
+      objectReference: {fileID: 940489568176787497, guid: 9280af62429a77f49bfab0aa7377b7aa, type: 3}
+    - target: {fileID: 6244465903204738980, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
+      propertyPath: staffDefinitions.Array.data[3].staffType
+      value: Normal
+      objectReference: {fileID: 0}
+    - target: {fileID: 6244465903204738980, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
+      propertyPath: staffDefinitions.Array.data[4].staffType
+      value: Slime
+      objectReference: {fileID: 0}
+    - target: {fileID: 6244465903204738980, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
+      propertyPath: staffDefinitions.Array.data[3].gemMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 53d151ff44a563f4c82e65d3a77e0c0e, type: 2}
+    - target: {fileID: 6244465903204738980, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
+      propertyPath: staffDefinitions.Array.data[4].gemMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 33ba0c53d763ce449a6c35c00dca0b9a, type: 2}
+    - target: {fileID: 6244465903204738980, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
+      propertyPath: staffDefinitions.Array.data[3].projectileIndex
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6244465903204738980, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
+      propertyPath: staffDefinitions.Array.data[4].projectileIndex
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 8998809921488914027, guid: 92b8016c7c1c9f8469dc511d319457b8, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.7615886
