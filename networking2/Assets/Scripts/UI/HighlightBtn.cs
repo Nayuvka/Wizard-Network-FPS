@@ -3,7 +3,13 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class HighlightBtn : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
+public class HighlightBtn : MonoBehaviour,
+    IPointerEnterHandler,
+    IPointerExitHandler,
+    IPointerClickHandler,
+    ISelectHandler,
+    IDeselectHandler,
+    ISubmitHandler
 {
     [Header("References")]
     [SerializeField] private Image buttonImage;
@@ -17,6 +23,11 @@ public class HighlightBtn : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     [SerializeField] private Color highlightBackgroundColour = Color.black;
     [SerializeField] private Color highlightTextColour = Color.white;
 
+    [Header("UI SFX")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip hoverSFX;
+    [SerializeField] private AudioClip clickSFX;
+
     private bool isHovered;
     private bool isSelected;
 
@@ -24,6 +35,7 @@ public class HighlightBtn : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         buttonImage = GetComponent<Image>();
         buttonText = GetComponentInChildren<TextMeshProUGUI>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -34,6 +46,9 @@ public class HighlightBtn : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         if (buttonText == null)
             buttonText = GetComponentInChildren<TextMeshProUGUI>();
 
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+
         ApplyNormalColours();
     }
 
@@ -41,6 +56,7 @@ public class HighlightBtn : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         isHovered = true;
         ApplyHighlightColours();
+        PlaySFX(hoverSFX);
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -53,10 +69,16 @@ public class HighlightBtn : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
     }
 
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        PlaySFX(clickSFX);
+    }
+
     public void OnSelect(BaseEventData eventData)
     {
         isSelected = true;
         ApplyHighlightColours();
+        PlaySFX(hoverSFX);
     }
 
     public void OnDeselect(BaseEventData eventData)
@@ -67,6 +89,11 @@ public class HighlightBtn : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         {
             ApplyNormalColours();
         }
+    }
+
+    public void OnSubmit(BaseEventData eventData)
+    {
+        PlaySFX(clickSFX);
     }
 
     private void ApplyNormalColours()
@@ -85,5 +112,13 @@ public class HighlightBtn : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
         if (buttonText != null)
             buttonText.color = highlightTextColour;
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioSource == null || clip == null)
+            return;
+
+        audioSource.PlayOneShot(clip);
     }
 }
