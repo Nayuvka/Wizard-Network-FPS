@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/NGOINTRO.unity
     guid: aab8ce82fbfb5b941859eb83397ee9d3
+  - enabled: 1
+    path: Assets/Scenes/LevelScene.unity
+    guid: c03a991f27b2a2c4697e4567c26aff71
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 23dc29aec6cf712448709b2439b47ca6, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

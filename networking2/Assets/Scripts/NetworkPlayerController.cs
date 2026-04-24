@@ -45,6 +45,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [Header("Misc")]
     [SerializeField] private GameObject playerHat;
     [SerializeField] private LayerMask hideLayerMask;
+    [SerializeField] private Transform playerSpawn;
 
     public override void OnNetworkSpawn()
     {
@@ -87,6 +88,14 @@ public class NetworkPlayerController : NetworkBehaviour
 
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+
+        if (IsOwner)
+        {
+            playerSpawn = GameObject.Find("PlayerSpawn").GetComponent<Transform>();
+            charController.enabled = false;
+            transform.position = playerSpawn.position;
+            charController.enabled = true;
+        }
     }
 
     void Update()

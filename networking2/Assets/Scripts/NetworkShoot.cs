@@ -112,33 +112,36 @@ public class NetworkShoot : NetworkBehaviour
         Vector3 cameraOrigin = playerController.playerCamera.position;
         Vector3 cameraForward = playerController.playerCamera.forward;
         Vector3 targetPoint = cameraOrigin + (cameraForward * wandRange);
+        ulong hitNetworkObjectId = 999999;
 
         if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, shootMask))
         {
             targetPoint = hit.point;
+            if (hit.collider.TryGetComponent(out NetworkObject netObj))
+            {
+                hitNetworkObjectId = netObj.NetworkObjectId;
+            }
         }
 
-        ShootServerRpc(wandFirePoint.position, targetPoint, netStaffTypeIndex.Value, netStaffDamage.Value);
+        ShootServerRpc(wandFirePoint.position, targetPoint, hitNetworkObjectId, netStaffTypeIndex.Value, netStaffDamage.Value);
     }
 
     [ServerRpc]
-    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, int index, int extraDamage)
+    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, ulong targetId, int index, int extraDamage)
     {
         if (index < 0 || index >= staffDefinitions.Length) index = 0;
 
         int prefabIdx = staffDefinitions[index].projectileIndex;
         if (prefabIdx < 0 || prefabIdx >= projectilePrefabs.Length) return;
 
-        Vector3 moveDir = (targetPoint - spawnPos).normalized;
-
-        GameObject bullet = Instantiate(projectilePrefabs[prefabIdx], spawnPos, Quaternion.LookRotation(moveDir));
+        GameObject bullet = Instantiate(projectilePrefabs[prefabIdx], spawnPos, Quaternion.LookRotation(targetPoint - spawnPos));
 
         NetworkObject bulletNetObj = bullet.GetComponent<NetworkObject>();
         bulletNetObj.Spawn();
 
         NetworkProjectile projectile = bullet.GetComponent<NetworkProjectile>();
         if (projectile != null)
-            projectile.Initialize(moveDir, extraDamage);
+            projectile.Initialize(targetPoint, targetId, extraDamage);
 
         ShootObserversClientRpc();
     }

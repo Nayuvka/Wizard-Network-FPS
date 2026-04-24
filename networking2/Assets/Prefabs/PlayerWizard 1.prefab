@@ -688,7 +688,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4247564608
+  GlobalObjectIdHash: 1119263775
   InScenePlacedSourceGlobalObjectIdHash: 1119263775
   DeferredDespawnTick: 0
   Ownership: 1
@@ -869,6 +869,7 @@ MonoBehaviour:
   hideLayerMask:
     serializedVersion: 2
     m_Bits: 512
+  playerSpawn: {fileID: 0}
 --- !u!114 &6244465903204738980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -890,7 +891,7 @@ MonoBehaviour:
   wandFirePoint: {fileID: 4031202592868860110}
   shootMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 129
   projectilePrefabs:
   - {fileID: 940489568176787497, guid: 93a66fa2969781644a73ba92bcacbc37, type: 3}
   - {fileID: 940489568176787497, guid: 6470ceb4f5a2f4c46b7218f83b678c06, type: 3}
