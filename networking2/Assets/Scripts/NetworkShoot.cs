@@ -23,6 +23,7 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private float shootCooldown = 0.5f;
     [SerializeField] private float wandRange = 100f;
     [SerializeField] private Transform wandFirePoint;
+    [SerializeField] private LayerMask shootMask;
 
     [Header("Projectile Library")]
     [SerializeField] private GameObject[] projectilePrefabs;
@@ -52,6 +53,7 @@ public class NetworkShoot : NetworkBehaviour
 
         if (IsServer)
         {
+            if (currentStaffTypeIndex >= staffDefinitions.Length) currentStaffTypeIndex = 0;
             netStaffTypeIndex.Value = currentStaffTypeIndex;
             netStaffDamage.Value = baseStaffDamage;
         }
@@ -67,6 +69,11 @@ public class NetworkShoot : NetworkBehaviour
     void Update()
     {
         if (!IsOwner) return;
+
+        if (currentStaffTypeIndex >= staffDefinitions.Length)
+        {
+            currentStaffTypeIndex = staffDefinitions.Length - 1;
+        }
 
         if (currentStaffTypeIndex != netStaffTypeIndex.Value || baseStaffDamage != netStaffDamage.Value)
         {
@@ -102,34 +109,39 @@ public class NetworkShoot : NetworkBehaviour
 
         StartCoroutine(ShootTimer());
 
-        Vector3 cameraOrigin = playerController.playerCamera.transform.position;
-        Vector3 cameraForward = playerController.playerCamera.transform.forward;
+        Vector3 cameraOrigin = playerController.playerCamera.position;
+        Vector3 cameraForward = playerController.playerCamera.forward;
         Vector3 targetPoint = cameraOrigin + (cameraForward * wandRange);
+        ulong hitNetworkObjectId = 999999;
 
-        if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange))
+        if (Physics.Raycast(cameraOrigin, cameraForward, out RaycastHit hit, wandRange, shootMask))
         {
             targetPoint = hit.point;
+            if (hit.collider.TryGetComponent(out NetworkObject netObj))
+            {
+                hitNetworkObjectId = netObj.NetworkObjectId;
+            }
         }
 
-        ShootServerRpc(wandFirePoint.position, targetPoint, netStaffTypeIndex.Value, netStaffDamage.Value);
+        ShootServerRpc(wandFirePoint.position, targetPoint, hitNetworkObjectId, netStaffTypeIndex.Value, netStaffDamage.Value);
     }
 
     [ServerRpc]
-    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, int index, int extraDamage)
+    void ShootServerRpc(Vector3 spawnPos, Vector3 targetPoint, ulong targetId, int index, int extraDamage)
     {
-        if (index < 0 || index >= staffDefinitions.Length) return;
+        if (index < 0 || index >= staffDefinitions.Length) index = 0;
 
         int prefabIdx = staffDefinitions[index].projectileIndex;
-        Vector3 moveDir = (targetPoint - spawnPos).normalized;
+        if (prefabIdx < 0 || prefabIdx >= projectilePrefabs.Length) return;
 
-        GameObject bullet = Instantiate(projectilePrefabs[prefabIdx], spawnPos, Quaternion.LookRotation(moveDir));
+        GameObject bullet = Instantiate(projectilePrefabs[prefabIdx], spawnPos, Quaternion.LookRotation(targetPoint - spawnPos));
 
         NetworkObject bulletNetObj = bullet.GetComponent<NetworkObject>();
         bulletNetObj.Spawn();
 
         NetworkProjectile projectile = bullet.GetComponent<NetworkProjectile>();
         if (projectile != null)
-            projectile.Initialize(moveDir, extraDamage);
+            projectile.Initialize(targetPoint, targetId, extraDamage);
 
         ShootObserversClientRpc();
     }
@@ -137,6 +149,7 @@ public class NetworkShoot : NetworkBehaviour
     [ServerRpc]
     void SyncStaffSettingsServerRpc(int typeIndex, int damage)
     {
+        if (typeIndex >= staffDefinitions.Length) typeIndex = staffDefinitions.Length - 1;
         netStaffTypeIndex.Value = typeIndex;
         netStaffDamage.Value = damage;
     }

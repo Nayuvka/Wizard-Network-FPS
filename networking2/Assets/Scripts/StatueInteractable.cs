@@ -16,7 +16,7 @@ public class StatueInteractable : NetworkBehaviour
             NetworkShoot shooter = other.GetComponent<NetworkShoot>();
             if (shooter != null)
             {
-                int randomType = Random.Range(0, 5); // Assuming 5 staff types
+                int randomType = Random.Range(0, 4); // Assuming 4 staff types
                 int damageBoost = SpawnManager.Instance.currentRound.Value * 5;
 
                 shooter.currentStaffTypeIndex = randomType;

@@ -17,12 +17,16 @@ public class SpawnManager : NetworkBehaviour
     public int difficultyInterval;
     private int currentDifficulty = 1;
 
+    [Header("Boss Settings")]
+    public GameObject bossPrefab;
+    public int bossRound = 6;
+
     [Header("Round UI")]
     public NetworkVariable<int> currentRound = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     [Header("Statue Settings")]
     public GameObject statuePrefab;
-    public Transform[] statueSpawnPoints; // Set 5 points in inspector
+    public Transform[] statueSpawnPoints; 
     private GameObject activeStatue;
 
     [Header("Visuals")]
@@ -54,7 +58,6 @@ public class SpawnManager : NetworkBehaviour
 
         currentRound.Value++;
 
-        // Spawn Statue at the point corresponding to the round
         if (statuePrefab != null && statueSpawnPoints.Length >= currentRound.Value)
         {
             Vector3 spawnPos = statueSpawnPoints[currentRound.Value - 1].position;
@@ -63,7 +66,6 @@ public class SpawnManager : NetworkBehaviour
         }
         else
         {
-            // If no statue or points left, just start enemies
             StartCoroutine(BeginEnemySpawning());
         }
     }
@@ -83,6 +85,13 @@ public class SpawnManager : NetworkBehaviour
 
     IEnumerator BeginEnemySpawning()
     {
+        if (currentRound.Value == bossRound)
+        {
+            int randomIndex = Random.Range(0, enemySpawnPoints.Length);
+            StartCoroutine(SpawnEnemy(bossPrefab, enemySpawnPoints[randomIndex].transform.position, 0f));
+            yield break;
+        }
+
         int spawnAmount = baseSpawnAmount + (spawnIncrease * currentRound.Value);
 
         if (currentRound.Value % difficultyInterval == 0)
@@ -101,7 +110,6 @@ public class SpawnManager : NetworkBehaviour
             float spawnTimeOffset = index * enemySpawnDelay;
             StartCoroutine(SpawnEnemy(prefabToSpawn, enemySpawnPoints[randomIndex].transform.position, spawnTimeOffset));
         }
-        yield return null;
     }
 
     IEnumerator SpawnEnemy(GameObject enemyPrefab, Vector3 spawnPosition, float spawnTimeOffset)
@@ -109,7 +117,6 @@ public class SpawnManager : NetworkBehaviour
         yield return new WaitForSeconds(spawnTimeOffset);
 
         Vector3 indicatorPos = spawnPosition + Vector3.up * indicatorHeight;
-
         GameObject indicator = Instantiate(spawnIndicatorPrefab, indicatorPos, Quaternion.Euler(90, 0, 0));
         NetworkObject indicatorNet = indicator.GetComponent<NetworkObject>();
         indicatorNet.Spawn();

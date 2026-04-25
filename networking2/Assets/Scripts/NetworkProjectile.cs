@@ -5,11 +5,11 @@ using UnityEngine.AI;
 
 public class NetworkProjectile : NetworkBehaviour
 {
-    public enum ProjectileType { Fireball, Frostball, Lightning, Slime, Normal }
+    public enum ProjectileType { Fireball, Frostball, Lightning, Normal }
 
     [Header("Base Settings")]
     [SerializeField] private ProjectileType type;
-    [SerializeField] private float speed = 20f;
+    [SerializeField] private float speed = 40f;
     [SerializeField] private float baseDamage = 10f;
     [SerializeField] private float lifetime = 5f;
     [SerializeField] private GameObject impactEffect;
@@ -18,14 +18,21 @@ public class NetworkProjectile : NetworkBehaviour
     [SerializeField] private float effectRadius = 5f;
     [SerializeField] private LayerMask enemyLayer;
 
-    private Vector3 moveDirection;
+    private Vector3 targetHitPoint;
+    private ulong targetNetworkObjectId;
     private int additionalDamage = 0;
-    private bool hasHit = false;
+    private bool targetReached = false;
+    private NetworkObject targetNetObj;
+    private Vector3 lastPosition;
 
-    public void Initialize(Vector3 direction, int extraDamage)
+    public void Initialize(Vector3 hitPoint, ulong targetId, int extraDamage)
     {
-        moveDirection = direction;
+        targetHitPoint = hitPoint;
+        targetNetworkObjectId = targetId;
         additionalDamage = extraDamage;
+        lastPosition = transform.position;
+
+        NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkObjectId, out targetNetObj);
 
         if (IsServer)
         {
@@ -35,28 +42,63 @@ public class NetworkProjectile : NetworkBehaviour
 
     void Update()
     {
-        if (hasHit) return;
-        transform.position += moveDirection * speed * Time.deltaTime;
+        if (targetReached) return;
+
+        lastPosition = transform.position;
+        Vector3 destination = (targetNetObj != null) ? targetNetObj.transform.position : targetHitPoint;
+        
+        float step = speed * Time.deltaTime;
+        float distanceToTarget = Vector3.Distance(transform.position, destination);
+
+        if (distanceToTarget <= step)
+        {
+            targetReached = true;
+            if (IsServer) OnTargetReached();
+        }
+        else
+        {
+            Vector3 moveDir = (destination - transform.position).normalized;
+            transform.position += moveDir * step;
+            if (moveDir != Vector3.zero) transform.forward = moveDir;
+        }
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTargetReached()
     {
-        if (!IsServer || hasHit) return;
+        Vector3 finalImpactPos = transform.position;
 
-        if (other.TryGetComponent(out NetworkEnemy enemy))
+        if (targetNetObj != null)
         {
-            hasHit = true;
-            ApplyTypeEffect(enemy);
-            SpawnImpactVisualsClientRpc(transform.position);
-
-            if (type != ProjectileType.Slime)
+            Vector3 rayDir = (targetNetObj.transform.position - lastPosition).normalized;
+            Ray ray = new Ray(lastPosition, rayDir);
+            
+            if (targetNetObj.TryGetComponent(out Collider col))
             {
-                StopProjectileVisuals();
-                if (type == ProjectileType.Normal || type == ProjectileType.Lightning)
+                if (col.Raycast(ray, out RaycastHit hit, 10f))
                 {
-                    DespawnProjectile();
+                    finalImpactPos = hit.point;
+                }
+                else
+                {
+                    finalImpactPos = col.ClosestPoint(lastPosition);
                 }
             }
+
+            if (targetNetObj.TryGetComponent(out NetworkEnemy enemy))
+            {
+                ApplyTypeEffect(enemy, finalImpactPos);
+            }
+            else if (targetNetObj.TryGetComponent(out NetworkBoss boss))
+            {
+                boss.TakeDamage(baseDamage + additionalDamage);
+                SpawnImpactVisualsClientRpc(finalImpactPos);
+                DespawnProjectile();
+            }
+        }
+        else
+        {
+            SpawnImpactVisualsClientRpc(targetHitPoint);
+            DespawnProjectile();
         }
     }
 
@@ -64,13 +106,10 @@ public class NetworkProjectile : NetworkBehaviour
     {
         if (TryGetComponent(out Collider col)) col.enabled = false;
         if (TryGetComponent(out Renderer ren)) ren.enabled = false;
-        foreach (Transform child in transform)
-        {
-            child.gameObject.SetActive(false);
-        }
+        foreach (Transform child in transform) child.gameObject.SetActive(false);
     }
 
-    private void ApplyTypeEffect(NetworkEnemy enemy)
+    private void ApplyTypeEffect(NetworkEnemy enemy, Vector3 impactPos)
     {
         float finalDamage = baseDamage + additionalDamage;
 
@@ -79,25 +118,27 @@ public class NetworkProjectile : NetworkBehaviour
             case ProjectileType.Fireball:
                 enemy.TakeDamage(finalDamage);
                 StopProjectileVisuals();
+                SpawnImpactVisualsClientRpc(impactPos);
                 StartCoroutine(BurnEffect(enemy, 5));
                 break;
 
             case ProjectileType.Frostball:
                 enemy.TakeDamage(finalDamage);
                 StopProjectileVisuals();
+                SpawnImpactVisualsClientRpc(impactPos);
                 StartCoroutine(FreezeEffect(enemy, 3f));
                 break;
 
             case ProjectileType.Lightning:
-                ChainLightning(transform.position, finalDamage);
-                break;
-
-            case ProjectileType.Slime:
-                AttachSticky(enemy, finalDamage);
+                ChainLightning(impactPos, finalDamage);
+                SpawnImpactVisualsClientRpc(impactPos);
+                DespawnProjectile();
                 break;
 
             case ProjectileType.Normal:
                 enemy.TakeDamage(finalDamage);
+                SpawnImpactVisualsClientRpc(impactPos);
+                DespawnProjectile();
                 break;
         }
     }
@@ -107,10 +148,7 @@ public class NetworkProjectile : NetworkBehaviour
         for (int i = 0; i < ticks; i++)
         {
             yield return new WaitForSeconds(1f);
-            if (enemy != null)
-            {
-                enemy.TakeDamage(5f + (additionalDamage * 0.2f));
-            }
+            if (enemy != null) enemy.TakeDamage(5f + (additionalDamage * 0.2f));
         }
         DespawnProjectile();
     }
@@ -132,34 +170,8 @@ public class NetworkProjectile : NetworkBehaviour
         Collider[] hitEnemies = Physics.OverlapSphere(pos, effectRadius, enemyLayer);
         foreach (var col in hitEnemies)
         {
-            if (col.TryGetComponent(out NetworkEnemy enemy))
-            {
-                enemy.TakeDamage(damage);
-            }
+            if (col.TryGetComponent(out NetworkEnemy enemy)) enemy.TakeDamage(damage);
         }
-    }
-
-    private void AttachSticky(NetworkEnemy target, float damage)
-    {
-        transform.SetParent(target.transform);
-        transform.localPosition = new Vector3(0, 1, 0);
-        moveDirection = Vector3.zero;
-        speed = 0;
-
-        if (TryGetComponent(out Rigidbody rb)) rb.isKinematic = true;
-        if (TryGetComponent(out Collider col)) col.enabled = false;
-
-        StartCoroutine(StickyExplosion(damage));
-    }
-
-    private IEnumerator StickyExplosion(float damage)
-    {
-        yield return new WaitForSeconds(2.5f);
-
-        ChainLightning(transform.position, damage);
-
-        SpawnImpactVisualsClientRpc(transform.position);
-        DespawnProjectile();
     }
 
     [ClientRpc]
@@ -177,9 +189,6 @@ public class NetworkProjectile : NetworkBehaviour
     private IEnumerator DestroyAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-        if (!hasHit)
-        {
-            DespawnProjectile();
-        }
+        if (NetworkObject != null && NetworkObject.IsSpawned) DespawnProjectile();
     }
 }
