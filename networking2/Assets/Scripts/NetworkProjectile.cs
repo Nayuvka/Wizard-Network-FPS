@@ -24,6 +24,8 @@ public class NetworkProjectile : NetworkBehaviour
     private bool targetReached = false;
     private NetworkObject targetNetObj;
     private Vector3 lastPosition;
+    private Vector3 hitOffset;
+    private bool hasTargetOffset = false;
 
     public void Initialize(Vector3 hitPoint, ulong targetId, int extraDamage)
     {
@@ -32,7 +34,11 @@ public class NetworkProjectile : NetworkBehaviour
         additionalDamage = extraDamage;
         lastPosition = transform.position;
 
-        NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkObjectId, out targetNetObj);
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkObjectId, out targetNetObj))
+        {
+            hitOffset = hitPoint - targetNetObj.transform.position;
+            hasTargetOffset = true;
+        }
 
         if (IsServer)
         {
@@ -45,61 +51,58 @@ public class NetworkProjectile : NetworkBehaviour
         if (targetReached) return;
 
         lastPosition = transform.position;
-        Vector3 destination = (targetNetObj != null) ? targetNetObj.transform.position : targetHitPoint;
         
-        float step = speed * Time.deltaTime;
-        float distanceToTarget = Vector3.Distance(transform.position, destination);
+        Vector3 destination = (targetNetObj != null && hasTargetOffset) 
+            ? targetNetObj.transform.position + hitOffset 
+            : targetHitPoint;
 
-        if (distanceToTarget <= step)
+        float distanceToTarget = Vector3.Distance(transform.position, destination);
+        float step = speed * Time.deltaTime;
+
+        if (distanceToTarget <= step || distanceToTarget < 0.1f)
         {
+            transform.position = destination;
             targetReached = true;
             if (IsServer) OnTargetReached();
         }
         else
         {
             Vector3 moveDir = (destination - transform.position).normalized;
-            transform.position += moveDir * step;
-            if (moveDir != Vector3.zero) transform.forward = moveDir;
+            if (moveDir != Vector3.zero)
+            {
+                transform.position += moveDir * step;
+                transform.forward = moveDir;
+            }
         }
     }
 
     private void OnTargetReached()
     {
-        Vector3 finalImpactPos = transform.position;
+        Vector3 impactPos = transform.position;
 
         if (targetNetObj != null)
         {
-            Vector3 rayDir = (targetNetObj.transform.position - lastPosition).normalized;
-            Ray ray = new Ray(lastPosition, rayDir);
-            
-            if (targetNetObj.TryGetComponent(out Collider col))
-            {
-                if (col.Raycast(ray, out RaycastHit hit, 10f))
-                {
-                    finalImpactPos = hit.point;
-                }
-                else
-                {
-                    finalImpactPos = col.ClosestPoint(lastPosition);
-                }
-            }
-
             if (targetNetObj.TryGetComponent(out NetworkEnemy enemy))
             {
-                ApplyTypeEffect(enemy, finalImpactPos);
+                ApplyTypeEffect(enemy, impactPos);
+                return;
             }
-            else if (targetNetObj.TryGetComponent(out NetworkBoss boss))
+            
+            if (targetNetObj.TryGetComponent(out NetworkBoss boss))
             {
-                boss.TakeDamage(baseDamage + additionalDamage);
-                SpawnImpactVisualsClientRpc(finalImpactPos);
-                DespawnProjectile();
+                ApplyBossTypeEffect(boss, impactPos);
+                return;
             }
-        }
-        else
-        {
-            SpawnImpactVisualsClientRpc(targetHitPoint);
+            
+            // If we reached here, it's a NetworkObject but NOT an enemy/boss (The Statue)
+            SpawnImpactVisualsClientRpc(impactPos);
             DespawnProjectile();
+            return;
         }
+
+        // Catch-all for non-NetworkObjects (The Ground)
+        SpawnImpactVisualsClientRpc(impactPos);
+        DespawnProjectile();
     }
 
     private void StopProjectileVisuals()
@@ -116,27 +119,56 @@ public class NetworkProjectile : NetworkBehaviour
         switch (type)
         {
             case ProjectileType.Fireball:
-                enemy.TakeDamage(finalDamage);
+                enemy.TakeDamage(finalDamage, lastPosition);
                 StopProjectileVisuals();
                 SpawnImpactVisualsClientRpc(impactPos);
                 StartCoroutine(BurnEffect(enemy, 5));
                 break;
-
             case ProjectileType.Frostball:
-                enemy.TakeDamage(finalDamage);
+                enemy.TakeDamage(finalDamage, lastPosition);
                 StopProjectileVisuals();
                 SpawnImpactVisualsClientRpc(impactPos);
                 StartCoroutine(FreezeEffect(enemy, 3f));
                 break;
-
             case ProjectileType.Lightning:
                 ChainLightning(impactPos, finalDamage);
                 SpawnImpactVisualsClientRpc(impactPos);
                 DespawnProjectile();
                 break;
-
             case ProjectileType.Normal:
-                enemy.TakeDamage(finalDamage);
+                enemy.TakeDamage(finalDamage, lastPosition);
+                SpawnImpactVisualsClientRpc(impactPos);
+                DespawnProjectile();
+                break;
+        }
+    }
+
+    private void ApplyBossTypeEffect(NetworkBoss boss, Vector3 impactPos)
+    {
+        float finalDamage = baseDamage + additionalDamage;
+
+        switch (type)
+        {
+            case ProjectileType.Fireball:
+                boss.TakeDamage(finalDamage, lastPosition);
+                StopProjectileVisuals();
+                SpawnImpactVisualsClientRpc(impactPos);
+                StartCoroutine(BurnEffectBoss(boss, 5));
+                break;
+            case ProjectileType.Frostball:
+                boss.TakeDamage(finalDamage, lastPosition);
+                StopProjectileVisuals();
+                SpawnImpactVisualsClientRpc(impactPos);
+                boss.ApplyFrostEffect(3f, 0.2f);
+                StartCoroutine(FreezeEffectBoss(3f));
+                break;
+            case ProjectileType.Lightning:
+                ChainLightning(impactPos, finalDamage);
+                SpawnImpactVisualsClientRpc(impactPos);
+                DespawnProjectile();
+                break;
+            case ProjectileType.Normal:
+                boss.TakeDamage(finalDamage, lastPosition);
                 SpawnImpactVisualsClientRpc(impactPos);
                 DespawnProjectile();
                 break;
@@ -153,6 +185,16 @@ public class NetworkProjectile : NetworkBehaviour
         DespawnProjectile();
     }
 
+    private IEnumerator BurnEffectBoss(NetworkBoss boss, int ticks)
+    {
+        for (int i = 0; i < ticks; i++)
+        {
+            yield return new WaitForSeconds(1f);
+            if (boss != null) boss.TakeDamage(5f + (additionalDamage * 0.2f));
+        }
+        DespawnProjectile();
+    }
+
     private IEnumerator FreezeEffect(NetworkEnemy enemy, float duration)
     {
         if (enemy != null && enemy.TryGetComponent(out NavMeshAgent agent))
@@ -165,12 +207,19 @@ public class NetworkProjectile : NetworkBehaviour
         DespawnProjectile();
     }
 
+    private IEnumerator FreezeEffectBoss(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+        DespawnProjectile();
+    }
+
     private void ChainLightning(Vector3 pos, float damage)
     {
         Collider[] hitEnemies = Physics.OverlapSphere(pos, effectRadius, enemyLayer);
         foreach (var col in hitEnemies)
         {
-            if (col.TryGetComponent(out NetworkEnemy enemy)) enemy.TakeDamage(damage);
+            if (col.TryGetComponent(out NetworkEnemy enemy)) enemy.TakeDamage(damage, pos);
+            else if (col.TryGetComponent(out NetworkBoss boss)) boss.TakeDamage(damage, pos);
         }
     }
 

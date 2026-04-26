@@ -6,107 +6,75 @@ using System.Collections;
 
 public class NetworkEnemy : NetworkBehaviour
 {
-    [Header("Enemy Settings")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float moveSpeed = 3.5f;
     [SerializeField] private float attackDamage = 10f;
     [SerializeField] private float attackRange = 2f;
     [SerializeField] private float attackInterval = 1.5f;
+    [SerializeField] private GameObject deathVfx;
 
-    [Header("UI")]
+    [Header("Knockback Settings")]
+    [SerializeField] private float knockbackDuration = 0.5f;
+    [SerializeField] private float knockbackIntensity = 2.0f;
+
     [SerializeField] private Slider healthSlider;
     [SerializeField] private CanvasGroup healthCanvasGroup;
 
-    [Header("SFX")]
-    [SerializeField] private AudioClip deathClip;
-    [SerializeField] private AudioClip hitClip;
-    [SerializeField] private AudioClip spawnClip;
-
-    [Header("VFX")]
-    [SerializeField] private GameObject deathVfx;
-
-    [Header("Hit Pop Settings")]
-    [SerializeField] private float popScale = 1.2f;
-    [SerializeField] private float popDuration = 0.12f;
-
-    private NetworkVariable<float> currentHealth = new NetworkVariable<float>(
-        100f,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
+    private NetworkVariable<float> currentHealth = new NetworkVariable<float>(100f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NavMeshAgent agent;
-    private Rigidbody rb;
     private Transform targetPlayer;
     private float nextAttackTime;
-    private bool isDead;
-    private Vector3 originalScale;
+    private bool isKnockedBack = false;
 
     public override void OnNetworkSpawn()
     {
         agent = GetComponent<NavMeshAgent>();
-        rb = GetComponent<Rigidbody>();
-        originalScale = transform.localScale;
-
-        if (agent != null)
-        {
-            agent.speed = moveSpeed;
-        }
-
-        if (healthCanvasGroup != null)
-        {
-            healthCanvasGroup.alpha = 0;
-        }
-
-        if (healthSlider != null)
-        {
-            healthSlider.maxValue = maxHealth;
-            healthSlider.value = maxHealth;
-        }
-
-        if (IsServer)
-        {
-            currentHealth.Value = maxHealth;
-        }
-
+        agent.speed = moveSpeed;
+        if (healthCanvasGroup != null) healthCanvasGroup.alpha = 0;
+        if (healthSlider != null) { healthSlider.maxValue = maxHealth; healthSlider.value = maxHealth; }
+        if (IsServer) currentHealth.Value = maxHealth;
         currentHealth.OnValueChanged += UpdateHealthUI;
-
-        SpawnSFXClientRpc();
     }
 
-    public override void OnNetworkDespawn()
+    public override void OnNetworkDespawn() => currentHealth.OnValueChanged -= UpdateHealthUI;
+
+    private void UpdateHealthUI(float prev, float next)
     {
-        currentHealth.OnValueChanged -= UpdateHealthUI;
+        if (healthSlider != null) healthSlider.value = next;
+        if (next < maxHealth && healthCanvasGroup != null) healthCanvasGroup.alpha = 1;
     }
 
-    private void Update()
+    void Update()
     {
-        if (healthCanvasGroup != null && healthCanvasGroup.alpha > 0)
+        if (healthCanvasGroup != null && healthCanvasGroup.alpha > 0 && Camera.main != null)
+            healthCanvasGroup.transform.LookAt(healthCanvasGroup.transform.position + Camera.main.transform.forward);
+
+        if (!IsServer) return;
+
+        if (isKnockedBack)
         {
-            if (Camera.main != null)
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
             {
-                healthCanvasGroup.transform.LookAt(
-                    healthCanvasGroup.transform.position + Camera.main.transform.forward
-                );
+                agent.isStopped = true;
+                agent.velocity = Vector3.zero;
             }
+            return;
         }
-
-        if (!IsServer || isDead) return;
 
         FindNearestPlayer();
 
         if (targetPlayer != null)
         {
             float distance = Vector3.Distance(transform.position, targetPlayer.position);
-
             if (distance <= attackRange)
             {
-                if (agent != null) agent.isStopped = true;
+                if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+                    agent.isStopped = true;
                 DoDamage();
             }
             else
             {
-                if (agent != null)
+                if (agent.isActiveAndEnabled && agent.isOnNavMesh)
                 {
                     agent.isStopped = false;
                     agent.SetDestination(targetPlayer.position);
@@ -115,21 +83,64 @@ public class NetworkEnemy : NetworkBehaviour
         }
         else
         {
-            if (agent != null) agent.isStopped = true;
+            if (agent.isActiveAndEnabled && agent.isOnNavMesh)
+                agent.isStopped = true;
         }
     }
 
-    private void UpdateHealthUI(float previousValue, float newValue)
+    public void TakeDamage(float damage, Vector3 sourcePosition = default)
     {
-        if (healthSlider != null)
+        if (!IsServer) return;
+        currentHealth.Value -= damage;
+
+        if (currentHealth.Value > 0)
         {
-            healthSlider.value = newValue;
+            StopAllCoroutines();
+            StartCoroutine(KnockbackRoutine(sourcePosition));
         }
 
-        if (newValue < maxHealth && healthCanvasGroup != null)
+        if (currentHealth.Value <= 0) Die();
+    }
+
+    private IEnumerator KnockbackRoutine(Vector3 sourcePosition)
+    {
+        isKnockedBack = true;
+
+        if (agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
-            healthCanvasGroup.alpha = 1;
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+            agent.ResetPath();
         }
+
+        if (sourcePosition != default)
+        {
+            Vector3 direction = (transform.position - sourcePosition).normalized;
+            direction.y = 0;
+            Vector3 targetPos = transform.position + (direction * knockbackIntensity);
+
+            if (NavMesh.SamplePosition(targetPos, out NavMeshHit hit, 2.0f, NavMesh.AllAreas))
+            {
+                agent.enabled = false;
+                transform.position = hit.position;
+                SyncPositionClientRpc(hit.position);
+                agent.enabled = true;
+            }
+        }
+
+        yield return new WaitForSeconds(knockbackDuration);
+
+        isKnockedBack = false;
+
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            agent.isStopped = false;
+    }
+
+    [ClientRpc]
+    private void SyncPositionClientRpc(Vector3 position)
+    {
+        if (IsServer) return;
+        transform.position = position;
     }
 
     private void DoDamage()
@@ -137,12 +148,7 @@ public class NetworkEnemy : NetworkBehaviour
         if (Time.time >= nextAttackTime && targetPlayer != null)
         {
             PlayerHealth pHealth = targetPlayer.GetComponent<PlayerHealth>();
-
-            if (pHealth != null && pHealth.currentHealth.Value > 0)
-            {
-                pHealth.TakeDamage(attackDamage);
-            }
-
+            if (pHealth != null && pHealth.currentHealth.Value > 0) pHealth.TakeDamage(attackDamage);
             nextAttackTime = Time.time + attackInterval;
         }
     }
@@ -151,194 +157,27 @@ public class NetworkEnemy : NetworkBehaviour
     {
         float closestDistance = Mathf.Infinity;
         Transform nearest = null;
-
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
             if (client.PlayerObject != null)
             {
                 PlayerHealth pHealth = client.PlayerObject.GetComponent<PlayerHealth>();
-                RespawnScript pRespawn = client.PlayerObject.GetComponent<RespawnScript>();
-
-                if (pHealth != null &&
-                    pHealth.currentHealth.Value > 0 &&
-                    (pRespawn == null || !pRespawn.isRespawning.Value))
+                if (pHealth != null && pHealth.currentHealth.Value > 0)
                 {
-                    float distance = Vector3.Distance(
-                        transform.position,
-                        client.PlayerObject.transform.position
-                    );
-
-                    if (distance < closestDistance)
-                    {
-                        closestDistance = distance;
-                        nearest = client.PlayerObject.transform;
-                    }
+                    float dist = Vector3.Distance(transform.position, client.PlayerObject.transform.position);
+                    if (dist < closestDistance) { closestDistance = dist; nearest = client.PlayerObject.transform; }
                 }
             }
         }
-
         targetPlayer = nearest;
-    }
-
-    public void TakeDamage(float damage)
-    {
-        if (!IsServer || isDead) return;
-
-        currentHealth.Value -= damage;
-
-        HitFeedbackClientRpc();
-
-        if (currentHealth.Value <= 0)
-        {
-            isDead = true;
-            Die();
-        }
-    }
-
-    public void TakeDamage(float damage, Vector3 hitDirection, float knockBackForce)
-    {
-        if (!IsServer || isDead) return;
-
-        currentHealth.Value -= damage;
-
-        ApplyKnockback(hitDirection, knockBackForce);
-
-        HitFeedbackClientRpc();
-
-        if (currentHealth.Value <= 0)
-        {
-            isDead = true;
-            Die();
-        }
-    }
-
-    private void ApplyKnockback(Vector3 direction, float knockBackForce)
-    {
-        if (!IsServer) return;
-
-        if (rb != null)
-        {
-            rb.AddForce(direction * knockBackForce, ForceMode.Impulse);
-        }
     }
 
     private void Die()
     {
-        if (!IsServer) return;
-
-        if (SpawnManager.Instance != null)
-        {
-            SpawnManager.Instance.EnemyDeath(GetComponent<NetworkObject>());
-        }
-
-        DeathFeedbackClientRpc();
-
-        StartCoroutine(DespawnDelay());
+        if (SpawnManager.Instance != null) SpawnManager.Instance.EnemyDeath(GetComponent<NetworkObject>());
+        PlayDeathVfxClientRpc(transform.position);
+        GetComponent<NetworkObject>().Despawn();
     }
 
-    private IEnumerator DespawnDelay()
-    {
-        yield return new WaitForSeconds(1f);
-
-        NetworkObject networkObject = GetComponent<NetworkObject>();
-
-        if (networkObject != null && networkObject.IsSpawned)
-        {
-            networkObject.Despawn();
-        }
-    }
-
-    private IEnumerator HitPop()
-    {
-        Vector3 targetScale = originalScale * popScale;
-
-        float t = 0;
-
-        while (t < popDuration)
-        {
-            t += Time.deltaTime;
-            transform.localScale = Vector3.Lerp(originalScale, targetScale, t / popDuration);
-            yield return null;
-        }
-
-        t = 0;
-
-        while (t < popDuration)
-        {
-            t += Time.deltaTime;
-            transform.localScale = Vector3.Lerp(targetScale, originalScale, t / popDuration);
-            yield return null;
-        }
-
-        transform.localScale = originalScale;
-    }
-
-    private void HideEnemyVisualsAndColliders()
-    {
-        foreach (Collider col in GetComponentsInChildren<Collider>())
-        {
-            col.enabled = false;
-        }
-
-        foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
-        {
-            renderer.enabled = false;
-        }
-
-        if (healthCanvasGroup != null)
-        {
-            healthCanvasGroup.alpha = 0;
-        }
-
-        if (agent != null)
-        {
-            agent.enabled = false;
-        }
-
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = true;
-        }
-    }
-
-    [ClientRpc]
-    private void HitFeedbackClientRpc()
-    {
-        if (hitClip != null)
-        {
-            AudioSource.PlayClipAtPoint(hitClip, transform.position);
-        }
-
-        GetComponent<EnemyHitFlash>()?.PlayFlash();
-
-        StopAllCoroutines();
-        StartCoroutine(HitPop());
-    }
-
-    [ClientRpc]
-    private void DeathFeedbackClientRpc()
-    {
-        HideEnemyVisualsAndColliders();
-
-        if (deathVfx != null)
-        {
-            Instantiate(deathVfx, transform.position, Quaternion.identity);
-        }
-
-        if (deathClip != null)
-        {
-            AudioSource.PlayClipAtPoint(deathClip, transform.position);
-        }
-    }
-
-    [ClientRpc]
-    private void SpawnSFXClientRpc()
-    {
-        if (spawnClip != null)
-        {
-            AudioSource.PlayClipAtPoint(spawnClip, transform.position);
-        }
-    }
+    [ClientRpc] private void PlayDeathVfxClientRpc(Vector3 pos) { if (deathVfx != null) Instantiate(deathVfx, pos, Quaternion.identity); }
 }
