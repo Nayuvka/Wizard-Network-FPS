@@ -1,34 +1,51 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class EnemyHitFlash : MonoBehaviour
 {
-    [SerializeField] private Renderer meshRenderer;
+    [Header("Flash Settings")]
     [SerializeField] private Color flashColor = Color.white;
     [SerializeField] private float flashDuration = 0.1f;
 
-    private Material material;
-    private Color originalColor;
+    private Renderer[] renderers;
+    private readonly List<Material> materials = new List<Material>();
+    private readonly List<Color> originalColors = new List<Color>();
 
-    void Awake()
+    private void Awake()
     {
-        if (meshRenderer != null)
+        renderers = GetComponentsInChildren<Renderer>();
+
+        foreach (Renderer renderer in renderers)
         {
-            material = meshRenderer.material;
-            originalColor = material.color;
+            foreach (Material mat in renderer.materials)
+            {
+                materials.Add(mat);
+                originalColors.Add(mat.color);
+            }
         }
     }
 
     public void PlayFlash()
     {
+        if (materials.Count == 0) return;
+
         StopAllCoroutines();
         StartCoroutine(FlashRoutine());
     }
 
-    IEnumerator FlashRoutine()
+    private IEnumerator FlashRoutine()
     {
-        material.color = flashColor;
+        for (int i = 0; i < materials.Count; i++)
+        {
+            materials[i].color = flashColor;
+        }
+
         yield return new WaitForSeconds(flashDuration);
-        material.color = originalColor;
+
+        for (int i = 0; i < materials.Count; i++)
+        {
+            materials[i].color = originalColors[i];
+        }
     }
 }
