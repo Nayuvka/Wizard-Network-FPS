@@ -16,6 +16,14 @@ public class NetworkEnemy : NetworkBehaviour
     [Header("VFX")]
     [SerializeField] private GameObject deathVfx;
 
+    [Header("Status VFX")]
+    [SerializeField] private GameObject burnVfxPrefab;
+    [SerializeField] private GameObject frostVfxPrefab;
+    [SerializeField] private Transform statusVfxPoint;
+
+    private GameObject activeBurnVfx;
+    private GameObject activeFrostVfx;
+
     [Header("SFX")]
     [SerializeField] private AudioClip deathClip;
     [SerializeField] private AudioClip hitClip;
@@ -398,6 +406,62 @@ public class NetworkEnemy : NetworkBehaviour
         {
             AudioSource.PlayClipAtPoint(deathClip, pos);
         }
+    }
+
+    public void PlayBurnVfx(float duration)
+    {
+        if (!IsServer) return;
+        PlayBurnVfxClientRpc(duration);
+    }
+
+    public void PlayFrostVfx(float duration)
+    {
+        if (!IsServer) return;
+        PlayFrostVfxClientRpc(duration);
+    }
+
+    [ClientRpc]
+    private void PlayBurnVfxClientRpc(float duration)
+    {
+        if (burnVfxPrefab == null) return;
+
+        if (activeBurnVfx != null)
+        {
+            Destroy(activeBurnVfx);
+        }
+
+        Transform attachPoint = statusVfxPoint != null ? statusVfxPoint : transform;
+
+        activeBurnVfx = Instantiate(
+            burnVfxPrefab,
+            attachPoint.position,
+            attachPoint.rotation,
+            attachPoint
+        );
+
+        Destroy(activeBurnVfx, duration);
+    }
+
+    [ClientRpc]
+    private void PlayFrostVfxClientRpc(float duration)
+    {
+        if (frostVfxPrefab == null) return;
+
+        if (activeFrostVfx != null)
+        {
+            Destroy(activeFrostVfx);
+        }
+
+        Transform attachPoint = statusVfxPoint != null ? statusVfxPoint : transform;
+
+        activeFrostVfx = Instantiate(
+            frostVfxPrefab,
+            attachPoint.position,
+            attachPoint.rotation,
+            attachPoint
+        );
+
+        Destroy(activeFrostVfx, duration);
     }
 
     [ClientRpc]
