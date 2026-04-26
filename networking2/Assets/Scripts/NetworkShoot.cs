@@ -35,6 +35,10 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private LayerMask shootMask;
     [SerializeField] private float shakeForce = 1.0f;
 
+    [Header("SFX")]
+    [SerializeField] private AudioClip shootSound;
+    [SerializeField] private float shootVolume = 0.5f;
+
     [Header("Projectile Library")]
     [SerializeField] private GameObject[] projectilePrefabs;
     [SerializeField] private StaffData[] staffDefinitions;
@@ -194,6 +198,8 @@ public class NetworkShoot : NetworkBehaviour
         if (wandAnimator != null)
             wandAnimator.SetTrigger("Shoot");
 
+        PlayShootSound(wandFirePoint.position);
+
         StartCoroutine(ShootTimer());
 
         Vector3 cameraOrigin = playerController.playerCamera.transform.position;
@@ -246,7 +252,7 @@ public class NetworkShoot : NetworkBehaviour
         if (projectile != null)
             projectile.Initialize(targetPoint, targetId, extraDamage);
 
-        ShootObserversClientRpc();
+        ShootObserversClientRpc(spawnPos);
     }
 
     [ServerRpc]
@@ -265,7 +271,7 @@ public class NetworkShoot : NetworkBehaviour
     }
 
     [ClientRpc]
-    void ShootObserversClientRpc()
+    void ShootObserversClientRpc(Vector3 spawnPos)
     {
         if (IsOwner) return;
 
@@ -274,6 +280,16 @@ public class NetworkShoot : NetworkBehaviour
 
         if (wandAnimator != null)
             wandAnimator.SetTrigger("Shoot");
+
+        PlayShootSound(spawnPos);
+    }
+
+    private void PlayShootSound(Vector3 position)
+    {
+        if (shootSound != null)
+        {
+            AudioSource.PlayClipAtPoint(shootSound, position, shootVolume);
+        }
     }
 
     IEnumerator ShootTimer()

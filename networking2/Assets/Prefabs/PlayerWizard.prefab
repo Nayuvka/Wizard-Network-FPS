@@ -563,7 +563,6 @@ GameObject:
   - component: {fileID: 6655477826426146115}
   - component: {fileID: 4021408388055237309}
   - component: {fileID: 6244465903204738980}
-  - component: {fileID: 5227061301967171794}
   - component: {fileID: 5679372177977316126}
   - component: {fileID: 1900256996671510817}
   - component: {fileID: 638526374937978859}
@@ -754,24 +753,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerController
   ShowTopMostFoldoutHeaderGroup: 1
   networkShoot: {fileID: 6244465903204738980}
-  playerCamera: {fileID: 5823579226646978277}
   charController: {fileID: 6655477826426146115}
   playerHealth: {fileID: 0}
+  cinemachineCameraTarget: {fileID: 0}
+  playerCamera: {fileID: 5823579226646978277}
+  analogMovement: 0
+  cursorLocked: 1
+  cursorInputForLook: 1
   moveSpeed: 5
-  jumpForce: 5
+  sprintSpeed: 6
+  speedChangeRate: 10
+  mouseSensitivity: 0.07
+  gamepadSensitivity: 120
+  jumpHeight: 1.2
   gravity: -9.81
-  sensitivity: 0.1
-  shootAction:
-    m_Name: Shoot
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: ca146bcf-e8bb-452d-9b13-4b57579b1bc1
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings: []
-    m_Flags: 0
+  jumpTimeout: 0.1
+  fallTimeout: 0.15
+  grounded: 1
+  groundedOffset: -0.14
+  groundedRadius: 0.5
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  topClamp: 75
+  bottomClamp: -75
+  cameraNoise: {fileID: 0}
+  walkNoiseAmplitude: 0.15
+  walkNoiseFrequency: 0.25
+  sprintNoiseAmplitude: 0.35
+  sprintNoiseFrequency: 0.8
+  noiseBlendSpeed: 8
   animator: {fileID: 638526374937978859}
-  animationSmoothSpeed: 10
   LandingAudioClip: {fileID: 8300000, guid: ff697d3070687ce4583faa0561a145a2, type: 3}
   FootstepAudioClips:
   - {fileID: 8300000, guid: 72f526a6a9890f643a88e85a61c86c8a, type: 3}
@@ -785,6 +797,11 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 274649b0e221539409070ebf6c18918b, type: 3}
   - {fileID: 8300000, guid: a3194b8bbc96ef84fab1f98f4b7dae3e, type: 3}
   FootstepAudioVolume: 0.5
+  playerHat: {fileID: 0}
+  hideLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  playerSpawn: {fileID: 0}
 --- !u!114 &6244465903204738980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -798,39 +815,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkShoot
   ShowTopMostFoldoutHeaderGroup: 1
+  normalState: 0
+  cameraShakeManager: {fileID: 0}
   impulseSource: {fileID: 0}
   wandSmoke: {fileID: 5930197824818071405}
   wandAnimator: {fileID: 7153999416306759162}
   shootCooldown: 0.5
   wandRange: 100
   wandFirePoint: {fileID: 2795216186993521067}
+  shootMask:
+    serializedVersion: 2
+    m_Bits: 0
+  shakeForce: 1
+  shootSound: {fileID: 8300000, guid: 8a50a051388141f4fbb4ae6f7751b144, type: 3}
+  shootVolume: 0.5
   projectilePrefabs:
   - {fileID: 940489568176787497, guid: 9280af62429a77f49bfab0aa7377b7aa, type: 3}
   - {fileID: 940489568176787497, guid: fe69d680b4bdbd24285513625c0979fd, type: 3}
   - {fileID: 940489568176787497, guid: 93a66fa2969781644a73ba92bcacbc37, type: 3}
+  staffDefinitions: []
+  currentStaffTypeIndex: 0
+  baseStaffDamage: 0
   staffRenderer: {fileID: 0}
   gemMaterialIndex: 1
-  gemMaterials: []
---- !u!114 &5227061301967171794
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1086911277809186475}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd803f0e18b0f0341b5be8085ec60fe2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerHeadTilt
-  ShowTopMostFoldoutHeaderGroup: 1
-  rig: {fileID: 1835408215106211307}
-  headTarget: {fileID: 7611991163303178735}
-  playerCamera: {fileID: 5823579226646978277}
-  targetWeight: 1
-  smoothSpeed: 10
-  maxLookUp: 60
-  maxLookDown: 45
 --- !u!114 &5679372177977316126
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -844,8 +851,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RespawnScript
   ShowTopMostFoldoutHeaderGroup: 1
+  respawnTime: 5
   playerHUD: {fileID: 3725263954644618378}
   deathParticlePrefab: {fileID: 3645460515654626844, guid: 0fd6c9683f338dc408502501392511e5, type: 3}
+  normalCamera: {fileID: 0}
+  deathCamera: {fileID: 0}
+  activeCameraPriority: 20
+  inactiveCameraPriority: 5
+  respawnTimer:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
+  isRespawning:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 0
 --- !u!114 &1900256996671510817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -965,6 +987,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
   ShowTopMostFoldoutHeaderGroup: 1
   maxHealth: 100
+  healthUIParent: {fileID: 0}
+  healthSlider: {fileID: 0}
+  healthText: {fileID: 0}
+  globalVolume: {fileID: 0}
+  lowHealthThreshold: 60
+  vignetteIntensity: 0.45
   currentHealth:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -1011,7 +1039,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2093477004692541265}
-  - component: {fileID: 7909380308468417492}
   m_Layer: 0
   m_Name: WandGroup
   m_TagString: Untagged
@@ -1036,23 +1063,6 @@ Transform:
   - {fileID: 2919581959830999725}
   m_Father: {fileID: 5823579226646978277}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7909380308468417492
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1882973152422635142}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79d8a3a8d0800dd438fecd0080208564, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WandFollow
-  ShowTopMostFoldoutHeaderGroup: 1
-  wand: {fileID: 2093477004692541265}
-  cameraTransform: {fileID: 5823579226646978277}
-  positionOffset: {x: 0.2, y: -0.5, z: 0}
-  rotationOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &1949276059324328988
 GameObject:
   m_ObjectHideFlags: 0
