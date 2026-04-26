@@ -887,7 +887,7 @@ Transform:
   m_GameObject: {fileID: 2447226675645888691}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.4511, y: -1, z: 9.09637}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1017,6 +1017,9 @@ MonoBehaviour:
   attackRange: 2
   attackInterval: 3
   deathVfx: {fileID: 2360125799386554154, guid: 85ca7922df4ba3a41b57ed819e3d8c68, type: 3}
+  burnVfxPrefab: {fileID: 7251879486380165639, guid: c2f6a8962aac3814aa56cb9647c93470, type: 3}
+  frostVfxPrefab: {fileID: 0}
+  statusVfxPoint: {fileID: 0}
   deathClip: {fileID: 8300000, guid: f51e0d5712586db44bcd880e5889b723, type: 3}
   hitClip: {fileID: 8300000, guid: a3c79fc1fd29f194d98ddab5bc4d2c74, type: 3}
   spawnClip: {fileID: 0}

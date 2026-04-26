@@ -21,6 +21,10 @@ public class NetworkEnemy : NetworkBehaviour
     [SerializeField] private GameObject frostVfxPrefab;
     [SerializeField] private Transform statusVfxPoint;
 
+    [Header("Status VFX Offsets")]
+    [SerializeField] private Vector3 burnVfxOffset = new Vector3(0f, 1f, 0f);
+    [SerializeField] private Vector3 frostVfxOffset = new Vector3(0f, 1f, 0f);
+
     private GameObject activeBurnVfx;
     private GameObject activeFrostVfx;
 
@@ -423,45 +427,52 @@ public class NetworkEnemy : NetworkBehaviour
     [ClientRpc]
     private void PlayBurnVfxClientRpc(float duration)
     {
-        if (burnVfxPrefab == null) return;
-
-        if (activeBurnVfx != null)
-        {
-            Destroy(activeBurnVfx);
-        }
-
-        Transform attachPoint = statusVfxPoint != null ? statusVfxPoint : transform;
-
-        activeBurnVfx = Instantiate(
+        SpawnStatusVfx(
             burnVfxPrefab,
-            attachPoint.position,
-            attachPoint.rotation,
-            attachPoint
+            ref activeBurnVfx,
+            burnVfxOffset,
+            duration
         );
-
-        Destroy(activeBurnVfx, duration);
     }
 
     [ClientRpc]
     private void PlayFrostVfxClientRpc(float duration)
     {
-        if (frostVfxPrefab == null) return;
+        SpawnStatusVfx(
+            frostVfxPrefab,
+            ref activeFrostVfx,
+            frostVfxOffset,
+            duration
+        );
+    }
 
-        if (activeFrostVfx != null)
+    private void SpawnStatusVfx(
+        GameObject prefab,
+        ref GameObject activeVfx,
+        Vector3 localOffset,
+        float duration
+    )
+    {
+        if (prefab == null) return;
+
+        if (activeVfx != null)
         {
-            Destroy(activeFrostVfx);
+            Destroy(activeVfx);
         }
 
         Transform attachPoint = statusVfxPoint != null ? statusVfxPoint : transform;
 
-        activeFrostVfx = Instantiate(
-            frostVfxPrefab,
+        activeVfx = Instantiate(
+            prefab,
             attachPoint.position,
             attachPoint.rotation,
             attachPoint
         );
 
-        Destroy(activeFrostVfx, duration);
+        activeVfx.transform.localPosition = localOffset;
+        activeVfx.transform.localRotation = Quaternion.identity;
+
+        Destroy(activeVfx, duration);
     }
 
     [ClientRpc]
