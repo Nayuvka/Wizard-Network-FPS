@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 6714680512739574179}
   - component: {fileID: 7021469668483005376}
   m_Layer: 0
-  m_Name: Redprojectile
+  m_Name: FireBallProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -72,7 +72,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 465e10759de59204f8e57f902444d809, type: 2}
+  - {fileID: 2100000, guid: 94dd1bc84bf4b58409c8b3b85e4e7732, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -186,12 +186,11 @@ MonoBehaviour:
   speed: 100
   baseDamage: 10
   lifetime: 5
-  impactEffect: {fileID: 613433886817584986, guid: 6e845b0e80fad2d4c93ff505a0750129, type: 3}
+  impactEffect: {fileID: 613433886817584986, guid: 9f5fbcfb6299c2b4c912f3ff44f14463, type: 3}
   effectRadius: 5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
-  validationRadius: 4
 --- !u!96 &7021469668483005376
 TrailRenderer:
   serializedVersion: 4
@@ -263,16 +262,16 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 0.019799175, b: 0, a: 1}
-      key1: {r: 1, g: 0.06637518, b: 0, a: 0}
-      key2: {r: 1, g: 1, b: 1, a: 0}
+      key0: {r: 1, g: 0.37669903, b: 0, a: 1}
+      key1: {r: 1, g: 0.7601429, b: 0, a: 0}
+      key2: {r: 1, g: 0.8279985, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
       key6: {r: 0, g: 0, b: 0, a: 0}
       key7: {r: 0, g: 0, b: 0, a: 0}
       ctime0: 0
-      ctime1: 65535
+      ctime1: 24903
       ctime2: 65535
       ctime3: 0
       ctime4: 0
@@ -289,7 +288,7 @@ TrailRenderer:
       atime7: 0
       m_Mode: 0
       m_ColorSpace: 0
-      m_NumColorKeys: 2
+      m_NumColorKeys: 3
       m_NumAlphaKeys: 2
     numCornerVertices: 0
     numCapVertices: 0
@@ -316,7 +315,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Color.g
-      value: 0.19275677
+      value: 0.5508574
       objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Intensity
