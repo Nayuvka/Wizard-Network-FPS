@@ -191,8 +191,8 @@ public class NetworkShoot : NetworkBehaviour
 
         StartCoroutine(ShootTimer());
 
-        Vector3 cameraOrigin = playerController.playerCamera.position;
-        Vector3 cameraForward = playerController.playerCamera.forward;
+        Vector3 cameraOrigin = playerController.playerCamera.transform.position;
+        Vector3 cameraForward = playerController.playerCamera.transform.forward;
 
         Vector3 targetPoint = cameraOrigin + (cameraForward * wandRange);
         ulong hitNetworkObjectId = 999999;
