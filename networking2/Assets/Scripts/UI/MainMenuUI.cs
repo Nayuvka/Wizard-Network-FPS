@@ -9,6 +9,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private GameObject networkPanel;
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject controlsPanel;
+    [SerializeField] private GameObject howToPlayPanel;
 
     [Header("Optional Menu Elements")]
     [SerializeField] private bool hasMenuElements;
@@ -19,6 +20,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private GameObject networkFirstSelected;
     [SerializeField] private GameObject settingsFirstSelected;
     [SerializeField] private GameObject controlsFirstSelected;
+    [SerializeField] private GameObject howToPlayFirstSelected;
 
     private void Start()
     {
@@ -31,6 +33,7 @@ public class MainMenuUI : MonoBehaviour
         networkPanel.SetActive(false);
         settingsPanel.SetActive(false);
         controlsPanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
 
         SetMenuElementsVisible(true);
         SetSelected(mainMenuFirstSelected);
@@ -42,6 +45,7 @@ public class MainMenuUI : MonoBehaviour
         networkPanel.SetActive(true);
         settingsPanel.SetActive(false);
         controlsPanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
 
         SetMenuElementsVisible(false);
         SetSelected(networkFirstSelected);
@@ -51,6 +55,7 @@ public class MainMenuUI : MonoBehaviour
     {
         settingsPanel.SetActive(true);
         controlsPanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
 
         if (mainMenuPanel.activeSelf || networkPanel.activeSelf)
         {
@@ -84,6 +89,7 @@ public class MainMenuUI : MonoBehaviour
     {
         controlsPanel.SetActive(true);
         settingsPanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
 
         if (mainMenuPanel.activeSelf || networkPanel.activeSelf)
         {
@@ -111,6 +117,32 @@ public class MainMenuUI : MonoBehaviour
             CloseControls();
         else
             OpenControls();
+    }
+
+    public void OpenHowToPlay()
+    {
+        howToPlayPanel.SetActive(true);
+        mainMenuPanel.SetActive(false);
+        networkPanel.SetActive(false);
+        settingsPanel.SetActive(false);
+        controlsPanel.SetActive(false);
+
+        SetMenuElementsVisible(false);
+        SetSelected(howToPlayFirstSelected);
+    }
+
+    public void CloseHowToPlay()
+    {
+        howToPlayPanel.SetActive(false);
+        ShowMainMenu();
+    }
+
+    public void ToggleHowToPlay()
+    {
+        if (howToPlayPanel.activeSelf)
+            CloseHowToPlay();
+        else
+            OpenHowToPlay();
     }
 
     public void BackFromNetworkMenu()
