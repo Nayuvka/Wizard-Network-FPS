@@ -2,6 +2,7 @@ using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class NetworkPlayerController : NetworkBehaviour
 {
@@ -94,6 +95,22 @@ public class NetworkPlayerController : NetworkBehaviour
         return Mouse.current != null && Mouse.current.delta.ReadValue() != Vector2.zero;
     }
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (!IsOwner) return;
+        TeleportToSpawn();
+    }
+
     public override void OnNetworkSpawn()
     {
         charController = GetComponent<CharacterController>();
@@ -107,44 +124,33 @@ public class NetworkPlayerController : NetworkBehaviour
             if (playerCamera != null)
             {
                 playerCamera.enabled = false;
-
                 AudioListener listener = playerCamera.GetComponent<AudioListener>();
-                if (listener != null)
-                {
-                    listener.enabled = false;
-                }
+                if (listener != null) listener.enabled = false;
             }
 
-            if (playerInput != null)
-            {
-                playerInput.enabled = false;
-            }
-
+            if (playerInput != null) playerInput.enabled = false;
             enabled = false;
             return;
         }
 
-        if (playerHat != null)
-        {
-            SetLayerRecursive(playerHat, MaskToLayer(hideLayerMask));
-        }
+        if (playerHat != null) SetLayerRecursive(playerHat, MaskToLayer(hideLayerMask));
 
         AssignAnimationIDs();
-
         jumpTimeoutDelta = jumpTimeout;
         fallTimeoutDelta = fallTimeout;
-
         SetCursorState(cursorLocked);
 
-        GameObject spawnObj = GameObject.Find("PlayerSpawn");
+        TeleportToSpawn();
+    }
 
+    private void TeleportToSpawn()
+    {
+        GameObject spawnObj = GameObject.Find("PlayerSpawn");
         if (spawnObj != null)
         {
             playerSpawn = spawnObj.transform;
-
             charController.enabled = false;
-            transform.position = playerSpawn.position;
-            transform.rotation = playerSpawn.rotation;
+            transform.SetPositionAndRotation(playerSpawn.position, playerSpawn.rotation);
             charController.enabled = true;
         }
     }
