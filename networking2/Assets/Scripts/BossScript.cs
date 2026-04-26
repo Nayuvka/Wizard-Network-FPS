@@ -23,6 +23,10 @@ public class NetworkBoss : NetworkBehaviour
     private int nextFirePointIndex = 0;
     private float fireTimer;
 
+    [Header("SFX")]
+    [SerializeField] private AudioClip shootSound;
+    [SerializeField] private float shootVolume = 0.7f;
+
     [Header("Movement")]
     private NavMeshAgent agent;
     private Transform target;
@@ -97,6 +101,17 @@ public class NetworkBoss : NetworkBehaviour
         if (fireball.TryGetComponent(out BossProjectile proj))
         {
             proj.Initialize(targetDir);
+        }
+
+        PlayShootSoundClientRpc(activePoint.position);
+    }
+
+    [ClientRpc]
+    private void PlayShootSoundClientRpc(Vector3 position)
+    {
+        if (shootSound != null)
+        {
+            AudioSource.PlayClipAtPoint(shootSound, position, shootVolume);
         }
     }
 

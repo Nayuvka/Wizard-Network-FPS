@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using Unity.Netcode;
+using TMPro;
 
 public class SpawnManager : NetworkBehaviour
 {
@@ -19,10 +20,12 @@ public class SpawnManager : NetworkBehaviour
 
     [Header("Boss Settings")]
     public GameObject bossPrefab;
+    public Transform bossSpawnPoint;
     public int bossRound = 6;
 
-    [Header("Round UI")]
+    [Header("UI References")]
     public NetworkVariable<int> currentRound = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public TMP_Text bossAnnouncementText;
 
     [Header("Statue Settings")]
     public GameObject statuePrefab;
@@ -49,6 +52,11 @@ public class SpawnManager : NetworkBehaviour
         if (IsServer)
         {
             PrepareNextRound();
+        }
+
+        if (bossAnnouncementText != null)
+        {
+            bossAnnouncementText.gameObject.SetActive(false);
         }
     }
 
@@ -85,14 +93,17 @@ public class SpawnManager : NetworkBehaviour
 
     IEnumerator BeginEnemySpawning()
     {
+        int spawnAmount = baseSpawnAmount + (spawnIncrease * currentRound.Value);
+
         if (currentRound.Value == bossRound)
         {
-            int randomIndex = Random.Range(0, enemySpawnPoints.Length);
-            StartCoroutine(SpawnEnemy(bossPrefab, enemySpawnPoints[randomIndex].transform.position, 0f));
-            yield break;
-        }
+            ToggleBossUIClientRpc(true);
+            
+            Vector3 bPos = bossSpawnPoint != null ? bossSpawnPoint.position : enemySpawnPoints[Random.Range(0, enemySpawnPoints.Length)].transform.position;
+            StartCoroutine(SpawnEnemy(bossPrefab, bPos, 0f));
 
-        int spawnAmount = baseSpawnAmount + (spawnIncrease * currentRound.Value);
+            spawnAmount /= 2;
+        }
 
         if (currentRound.Value % difficultyInterval == 0)
         {
@@ -110,6 +121,7 @@ public class SpawnManager : NetworkBehaviour
             float spawnTimeOffset = index * enemySpawnDelay;
             StartCoroutine(SpawnEnemy(prefabToSpawn, enemySpawnPoints[randomIndex].transform.position, spawnTimeOffset));
         }
+        yield return null;
     }
 
     IEnumerator SpawnEnemy(GameObject enemyPrefab, Vector3 spawnPosition, float spawnTimeOffset)
@@ -143,7 +155,21 @@ public class SpawnManager : NetworkBehaviour
 
         if (spawnedList.Count == 0)
         {
+            if (currentRound.Value == bossRound)
+            {
+                ToggleBossUIClientRpc(false);
+            }
             PrepareNextRound();
+        }
+    }
+
+    [ClientRpc]
+    private void ToggleBossUIClientRpc(bool show)
+    {
+        if (bossAnnouncementText != null)
+        {
+            bossAnnouncementText.text = "Defeat the Boss!";
+            bossAnnouncementText.gameObject.SetActive(show);
         }
     }
 }
