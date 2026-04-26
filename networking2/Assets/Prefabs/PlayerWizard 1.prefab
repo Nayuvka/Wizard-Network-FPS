@@ -688,7 +688,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1119263775
+  GlobalObjectIdHash: 4247564608
   InScenePlacedSourceGlobalObjectIdHash: 1119263775
   DeferredDespawnTick: 0
   Ownership: 1
@@ -883,6 +883,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkShoot
   ShowTopMostFoldoutHeaderGroup: 1
+  normalState: 0
   impulseSource: {fileID: 0}
   wandSmoke: {fileID: 5930197824818071405}
   wandAnimator: {fileID: 4205593494189509955}
@@ -927,6 +928,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RespawnScript
   ShowTopMostFoldoutHeaderGroup: 1
+  respawnTime: 5
+  playerHUD: {fileID: 3725263954644618378}
+  deathParticlePrefab: {fileID: 3645460515654626844, guid: 0fd6c9683f338dc408502501392511e5, type: 3}
   respawnTimer:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -937,9 +941,6 @@ MonoBehaviour:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
     m_InternalValue: 0
-  respawnTime: 5
-  playerHUD: {fileID: 3725263954644618378}
-  deathParticlePrefab: {fileID: 3645460515654626844, guid: 0fd6c9683f338dc408502501392511e5, type: 3}
 --- !u!114 &1900256996671510817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1009,6 +1010,9 @@ MonoBehaviour:
   healthUIParent: {fileID: 0}
   healthSlider: {fileID: 9193802605648560129}
   healthText: {fileID: 7647164372686540773}
+  globalVolume: {fileID: 0}
+  lowHealthThreshold: 60
+  vignetteIntensity: 0.45
   currentHealth:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
@@ -1342,7 +1346,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2093477004692541265}
-  - component: {fileID: 7909380308468417492}
   m_Layer: 6
   m_Name: WandGroup
   m_TagString: Untagged
@@ -1367,23 +1370,6 @@ Transform:
   - {fileID: 2872972949224364530}
   m_Father: {fileID: 5823579226646978277}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7909380308468417492
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1882973152422635142}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 79d8a3a8d0800dd438fecd0080208564, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WandFollow
-  ShowTopMostFoldoutHeaderGroup: 1
-  wand: {fileID: 2093477004692541265}
-  cameraTransform: {fileID: 5823579226646978277}
-  positionOffset: {x: 0.2, y: -0.5, z: 0}
-  rotationOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &2074542365883384754
 GameObject:
   m_ObjectHideFlags: 0

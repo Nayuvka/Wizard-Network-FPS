@@ -4,17 +4,15 @@ using System.Collections.Generic;
 
 public class EnemyHitFlash : MonoBehaviour
 {
-    [Header("Flash Settings")]
     [SerializeField] private Color flashColor = Color.white;
     [SerializeField] private float flashDuration = 0.1f;
 
-    private Renderer[] renderers;
     private readonly List<Material> materials = new List<Material>();
     private readonly List<Color> originalColors = new List<Color>();
 
     private void Awake()
     {
-        renderers = GetComponentsInChildren<Renderer>();
+        Renderer[] renderers = GetComponentsInChildren<Renderer>();
 
         foreach (Renderer renderer in renderers)
         {
