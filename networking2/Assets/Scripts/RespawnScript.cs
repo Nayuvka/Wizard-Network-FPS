@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
+using Unity.Cinemachine;
 
 public class RespawnScript : NetworkBehaviour
 {
@@ -10,6 +11,12 @@ public class RespawnScript : NetworkBehaviour
     [Header("References")]
     [SerializeField] private GameObject playerHUD;
     [SerializeField] private GameObject deathParticlePrefab;
+
+    [Header("Death Camera")]
+    [SerializeField] private CinemachineCamera normalCamera;
+    [SerializeField] private CinemachineCamera deathCamera;
+    [SerializeField] private int activeCameraPriority = 20;
+    [SerializeField] private int inactiveCameraPriority = 5;
 
     public NetworkVariable<float> respawnTimer = new NetworkVariable<float>(
         0f,
@@ -50,6 +57,7 @@ public class RespawnScript : NetworkBehaviour
         respawnTimer.Value = respawnTime;
 
         ToggleDeadStateClientRpc(false);
+        SwitchDeathCameraClientRpc(true);
 
         if (controller != null)
         {
@@ -82,6 +90,7 @@ public class RespawnScript : NetworkBehaviour
         }
 
         ToggleDeadStateClientRpc(true);
+        SwitchDeathCameraClientRpc(false);
 
         if (controller != null)
         {
@@ -121,27 +130,28 @@ public class RespawnScript : NetworkBehaviour
     private void ToggleDeadStateClientRpc(bool isAlive)
     {
         SkinnedMeshRenderer[] skinnedRenderers = GetComponentsInChildren<SkinnedMeshRenderer>(true);
-        foreach (var r in skinnedRenderers)
-        {
-            r.enabled = isAlive;
-        }
 
+        foreach (SkinnedMeshRenderer skinnedRenderer in skinnedRenderers)
+        {
+            skinnedRenderer.enabled = isAlive;
+        }
 
         MeshRenderer[] meshRenderers = GetComponentsInChildren<MeshRenderer>(true);
-        foreach (var r in meshRenderers)
+
+        foreach (MeshRenderer meshRenderer in meshRenderers)
         {
-            r.enabled = isAlive;
+            meshRenderer.enabled = isAlive;
         }
 
-
         Animator[] animators = GetComponentsInChildren<Animator>(true);
+
         foreach (Animator anim in animators)
         {
             anim.enabled = isAlive;
         }
 
-
         NetworkShoot shoot = GetComponent<NetworkShoot>();
+
         if (shoot != null)
         {
             shoot.enabled = isAlive;
@@ -151,6 +161,21 @@ public class RespawnScript : NetworkBehaviour
         {
             playerHUD.SetActive(isAlive);
         }
+    }
+
+    [ClientRpc]
+    private void SwitchDeathCameraClientRpc(bool showDeathCamera)
+    {
+        if (!IsOwner) return;
+
+        if (normalCamera == null || deathCamera == null)
+        {
+            Debug.LogWarning("RespawnScript: normalCamera or deathCamera is not assigned.");
+            return;
+        }
+
+        normalCamera.Priority = showDeathCamera ? inactiveCameraPriority : activeCameraPriority;
+        deathCamera.Priority = showDeathCamera ? activeCameraPriority : inactiveCameraPriority;
     }
 
     [ClientRpc]

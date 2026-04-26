@@ -18,6 +18,7 @@ public class NetworkShoot : NetworkBehaviour
     public bool normalState = false;
 
     [Header("References")]
+    [SerializeField] private CameraShakeManager cameraShakeManager;
     private NetworkPlayerController playerController;
     private PlayerInput playerInput;
     private InputAction switchProjectileAction;
@@ -32,6 +33,7 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private float wandRange = 100f;
     [SerializeField] private Transform wandFirePoint;
     [SerializeField] private LayerMask shootMask;
+    [SerializeField] private float shakeForce = 1.0f;
 
     [Header("Projectile Library")]
     [SerializeField] private GameObject[] projectilePrefabs;
@@ -63,6 +65,7 @@ public class NetworkShoot : NetworkBehaviour
     {
         playerController = GetComponent<NetworkPlayerController>();
         playerInput = GetComponent<PlayerInput>();
+        cameraShakeManager = FindAnyObjectByType<CameraShakeManager>();
 
         if (impulseSource == null)
             impulseSource = GetComponent<CinemachineImpulseSource>();
@@ -180,8 +183,10 @@ public class NetworkShoot : NetworkBehaviour
         if (!IsOwner) return;
         if (!canShoot) return;
 
-        if (impulseSource != null)
-            impulseSource.GenerateImpulse();
+        if(cameraShakeManager != null)
+        {
+            cameraShakeManager.CameraShake(impulseSource, shakeForce);
+        }
 
         if (wandSmoke != null)
             wandSmoke.Play();
