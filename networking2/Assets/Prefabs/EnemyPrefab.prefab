@@ -891,6 +891,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 6771187951522771303}
   - {fileID: 6046926940772499442}
   - {fileID: 6239950874571768474}
   m_Father: {fileID: 0}
@@ -1018,8 +1019,12 @@ MonoBehaviour:
   attackInterval: 3
   deathVfx: {fileID: 2360125799386554154, guid: 85ca7922df4ba3a41b57ed819e3d8c68, type: 3}
   burnVfxPrefab: {fileID: 7251879486380165639, guid: c2f6a8962aac3814aa56cb9647c93470, type: 3}
-  frostVfxPrefab: {fileID: 0}
-  statusVfxPoint: {fileID: 0}
+  frostVfxPrefab: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
+  lightningVfxPrefab: {fileID: 9027514048236820045, guid: effb650189dc5714e9e9801b1cfb3991, type: 3}
+  statusVfxPoint: {fileID: 6771187951522771303}
+  burnVfxOffset: {x: 0, y: 1, z: 0}
+  frostVfxOffset: {x: 0, y: 1, z: 0}
+  lightningVfxOffset: {x: 0, y: 1, z: 0}
   deathClip: {fileID: 8300000, guid: f51e0d5712586db44bcd880e5889b723, type: 3}
   hitClip: {fileID: 8300000, guid: a3c79fc1fd29f194d98ddab5bc4d2c74, type: 3}
   spawnClip: {fileID: 0}
@@ -1862,6 +1867,37 @@ Transform:
   m_Children:
   - {fileID: 8189550850026156088}
   m_Father: {fileID: 3037703308431512068}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &7743802129206221646
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6771187951522771303}
+  m_Layer: 0
+  m_Name: VFXPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6771187951522771303
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7743802129206221646}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3051268380747576372}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7763181816335532184
 GameObject:

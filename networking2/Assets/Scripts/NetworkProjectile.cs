@@ -151,7 +151,9 @@ public class NetworkProjectile : NetworkBehaviour
                 break;
 
             case ProjectileType.Lightning:
+                enemy.PlayLightningVfx(0.6f);
                 ChainLightning(impactPos, finalDamage);
+
                 SpawnImpactVisualsClientRpc(impactPos);
                 DespawnProjectile();
                 break;
@@ -264,6 +266,7 @@ public class NetworkProjectile : NetworkBehaviour
             if (col.TryGetComponent(out NetworkEnemy enemy))
             {
                 enemy.TakeDamage(damage, pos);
+                enemy.PlayLightningVfx(0.6f);
             }
             else if (col.TryGetComponent(out NetworkBoss boss))
             {
