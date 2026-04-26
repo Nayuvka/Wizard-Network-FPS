@@ -72,7 +72,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ea9ebed640b78b84a9f7b80b792ea62d, type: 2}
+  - {fileID: 2100000, guid: 37b4fa3a5994f14448dacd1a7c19e364, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -186,12 +186,11 @@ MonoBehaviour:
   speed: 100
   baseDamage: 10
   lifetime: 5
-  impactEffect: {fileID: 613433886817584986, guid: 6e845b0e80fad2d4c93ff505a0750129, type: 3}
+  impactEffect: {fileID: 613433886817584986, guid: 930845c07d8fc4441a35a29a87fc963a, type: 3}
   effectRadius: 7
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
-  validationRadius: 4
 --- !u!96 &2756861422879224329
 TrailRenderer:
   serializedVersion: 4
@@ -346,7 +345,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 12
   m_Type: 2
-  m_Color: {r: 1, g: 0.8866234, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.9272587, b: 0.36037737, a: 1}
   m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 30

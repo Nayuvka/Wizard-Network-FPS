@@ -186,12 +186,11 @@ MonoBehaviour:
   speed: 100
   baseDamage: 10
   lifetime: 5
-  impactEffect: {fileID: 613433886817584986, guid: 6e845b0e80fad2d4c93ff505a0750129, type: 3}
+  impactEffect: {fileID: 613433886817584986, guid: f5c52c3ffdac25745bfd683f5c662909, type: 3}
   effectRadius: 5
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
-  validationRadius: 4
 --- !u!96 &7021469668483005376
 TrailRenderer:
   serializedVersion: 4
