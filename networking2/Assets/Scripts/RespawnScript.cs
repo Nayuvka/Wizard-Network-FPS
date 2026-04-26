@@ -1,29 +1,53 @@
 using Unity.Netcode;
 using UnityEngine;
 using System.Collections;
+using Unity.Cinemachine;
 
 public class RespawnScript : NetworkBehaviour
 {
-    private NetworkVariable<Vector3> currentSpawnPosition = new NetworkVariable<Vector3>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    private NetworkVariable<Quaternion> currentSpawnRotation = new NetworkVariable<Quaternion>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    
-    public NetworkVariable<float> respawnTimer = new NetworkVariable<float>(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    public NetworkVariable<bool> isRespawning = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-
+    [Header("Respawn Settings")]
     [SerializeField] private float respawnTime = 5f;
+
+    [Header("References")]
     [SerializeField] private GameObject playerHUD;
     [SerializeField] private GameObject deathParticlePrefab;
 
-    public void SetRespawnPoint(Vector3 lastPosition, Quaternion lastRotation)
+    [Header("Death Camera")]
+    [SerializeField] private CinemachineCamera normalCamera;
+    [SerializeField] private CinemachineCamera deathCamera;
+    [SerializeField] private int activeCameraPriority = 20;
+    [SerializeField] private int inactiveCameraPriority = 5;
+
+    public NetworkVariable<float> respawnTimer = new NetworkVariable<float>(
+        0f,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
+
+    public NetworkVariable<bool> isRespawning = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
+
+    private NetworkPlayerController controller;
+    private PlayerHealth playerHealth;
+    private CharacterController charController;
+
+    private Vector3 lastDeathPosition;
+
+    private void Awake()
     {
-        if (!IsServer) return;
-        currentSpawnPosition.Value = lastPosition;
-        currentSpawnRotation.Value = lastRotation;
+        controller = GetComponent<NetworkPlayerController>();
+        playerHealth = GetComponent<PlayerHealth>();
+        charController = GetComponent<CharacterController>();
     }
 
     public void RespawnPlayer()
     {
         if (!IsServer || isRespawning.Value) return;
+
+        lastDeathPosition = transform.position;
         StartCoroutine(DelayRespawnRoutine());
     }
 
@@ -32,10 +56,15 @@ public class RespawnScript : NetworkBehaviour
         isRespawning.Value = true;
         respawnTimer.Value = respawnTime;
 
-        var controller = GetComponent<NetworkPlayerController>();
+        ToggleDeadStateClientRpc(false);
+        SwitchDeathCameraClientRpc(true);
 
-        controller.ToggleControllerClientRpc(false);
-        TogglePlayerVisibilityClientRpc(false);
+        if (controller != null)
+        {
+            controller.ToggleControllerClientRpc(false);
+        }
+
+        SpawnDeathEffectClientRpc(transform.position);
 
         while (respawnTimer.Value > 0)
         {
@@ -43,40 +72,118 @@ public class RespawnScript : NetworkBehaviour
             respawnTimer.Value -= 1f;
         }
 
-        transform.position = currentSpawnPosition.Value;
-        controller.ResetCameraRotationClientRpc(currentSpawnRotation.Value);
+        Transform chosenSpawn = GetRespawnPosition();
 
-        controller.ToggleControllerClientRpc(true);
-        TogglePlayerVisibilityClientRpc(true);
-        
+        if (chosenSpawn != null)
+        {
+            TeleportPlayer(chosenSpawn.position, chosenSpawn.rotation);
+
+            if (controller != null)
+            {
+                controller.ResetCameraRotationClientRpc(chosenSpawn.rotation);
+            }
+        }
+
+        if (playerHealth != null)
+        {
+            playerHealth.ResetHealth();
+        }
+
+        ToggleDeadStateClientRpc(true);
+        SwitchDeathCameraClientRpc(false);
+
+        if (controller != null)
+        {
+            controller.ToggleControllerClientRpc(true);
+        }
+
         isRespawning.Value = false;
     }
 
-    [ClientRpc]
-    private void TogglePlayerVisibilityClientRpc(bool isVisible)
+    private Transform GetRespawnPosition()
     {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-        foreach (Renderer ren in renderers)
+        if (PlayerSpawnManager.Instance == null)
         {
-            ren.enabled = isVisible;
+            Debug.LogWarning("No PlayerSpawnManager found in the scene.");
+            return null;
+        }
+
+        return PlayerSpawnManager.Instance.GetBestSpawnPoint(lastDeathPosition);
+    }
+
+    private void TeleportPlayer(Vector3 position, Quaternion rotation)
+    {
+        if (charController != null)
+        {
+            charController.enabled = false;
+        }
+
+        transform.SetPositionAndRotation(position, rotation);
+
+        if (charController != null)
+        {
+            charController.enabled = true;
+        }
+    }
+
+    [ClientRpc]
+    private void ToggleDeadStateClientRpc(bool isAlive)
+    {
+        SkinnedMeshRenderer[] skinnedRenderers = GetComponentsInChildren<SkinnedMeshRenderer>(true);
+
+        foreach (SkinnedMeshRenderer skinnedRenderer in skinnedRenderers)
+        {
+            skinnedRenderer.enabled = isAlive;
+        }
+
+        MeshRenderer[] meshRenderers = GetComponentsInChildren<MeshRenderer>(true);
+
+        foreach (MeshRenderer meshRenderer in meshRenderers)
+        {
+            meshRenderer.enabled = isAlive;
+        }
+
+        Animator[] animators = GetComponentsInChildren<Animator>(true);
+
+        foreach (Animator anim in animators)
+        {
+            anim.enabled = isAlive;
+        }
+
+        NetworkShoot shoot = GetComponent<NetworkShoot>();
+
+        if (shoot != null)
+        {
+            shoot.enabled = isAlive;
         }
 
         if (IsOwner && playerHUD != null)
         {
-            playerHUD.SetActive(isVisible);
-        }
-
-        if (!isVisible)
-        {
-            SpawnDeathEffect();
+            playerHUD.SetActive(isAlive);
         }
     }
 
-    private void SpawnDeathEffect()
+    [ClientRpc]
+    private void SwitchDeathCameraClientRpc(bool showDeathCamera)
+    {
+        if (!IsOwner) return;
+
+        if (normalCamera == null || deathCamera == null)
+        {
+            Debug.LogWarning("RespawnScript: normalCamera or deathCamera is not assigned.");
+            return;
+        }
+
+        normalCamera.Priority = showDeathCamera ? inactiveCameraPriority : activeCameraPriority;
+        deathCamera.Priority = showDeathCamera ? activeCameraPriority : inactiveCameraPriority;
+    }
+
+    [ClientRpc]
+    private void SpawnDeathEffectClientRpc(Vector3 deathPosition)
     {
         if (deathParticlePrefab != null)
         {
-            Instantiate(deathParticlePrefab, transform.position, Quaternion.identity);
+            Instantiate(deathParticlePrefab, deathPosition, Quaternion.identity);
         }
     }
 }

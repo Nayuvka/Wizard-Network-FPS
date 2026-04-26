@@ -14,7 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
+  - enabled: 0
     path: Assets/NGO_Minimal_Setup/NGO_Setup.unity
     guid: 2dd0a30b39c872749baff36cda2a7698
   - enabled: 1
@@ -23,6 +23,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/LevelScene.unity
     guid: c03a991f27b2a2c4697e4567c26aff71
+  - enabled: 1
+    path: Assets/Scenes/VFX_Testing.unity
+    guid: 960c634511d2c6944a4529e0cd7a959c
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 23dc29aec6cf712448709b2439b47ca6, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
