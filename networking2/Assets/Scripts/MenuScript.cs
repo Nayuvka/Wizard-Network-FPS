@@ -7,29 +7,23 @@ using UnityEngine.SceneManagement;
 public class MenuScript : MonoBehaviour
 {
     [Header("UI")]
-    [Space(5)]
     [SerializeField] private TMP_InputField iPInput;
-    [SerializeField] private TMP_InputField portInput;
     [SerializeField] private TMP_Text statusText;
 
     [Header("Defaults")]
-    [Space(5)]
     [SerializeField] private string defaultIP = "127.0.0.1";
     [SerializeField] private ushort defaultPort = 7777;
 
     [Header("Networking")]
-    [Space(5)]
     [SerializeField] private UnityTransport transport;
     [SerializeField] private NetworkManager networkManager;
 
     [Header("Scene")]
-    [Space(5)]
     [SerializeField] private string gameSceneName = "SiyaTest";
 
-    void Start()
+    private void Start()
     {
         if (iPInput) iPInput.text = defaultIP;
-        if (portInput) portInput.text = defaultPort.ToString();
 
         if (networkManager != null)
         {
@@ -51,10 +45,9 @@ public class MenuScript : MonoBehaviour
 
     public void StartHost()
     {
-        ushort port = GetPort();
-        transport.SetConnectionData("0.0.0.0", port);
+        transport.SetConnectionData("0.0.0.0", defaultPort);
 
-        SetStatus($"Starting host on port {port}...");
+        SetStatus($"Starting host on port {defaultPort}...");
 
         bool started = networkManager.StartHost();
 
@@ -71,11 +64,10 @@ public class MenuScript : MonoBehaviour
     public void JoinGame()
     {
         string ip = GetIP();
-        ushort port = GetPort();
 
-        transport.SetConnectionData(ip, port);
+        transport.SetConnectionData(ip, defaultPort);
 
-        SetStatus($"Connecting to {ip}:{port}...");
+        SetStatus($"Connecting to {ip}:{defaultPort}...");
 
         bool started = networkManager.StartClient();
 
@@ -83,24 +75,6 @@ public class MenuScript : MonoBehaviour
         {
             SetStatus("Failed to start client.");
         }
-    }
-
-    public void StartServerOnly()
-    {
-        ushort port = GetPort();
-        transport.SetConnectionData("0.0.0.0", port);
-
-        SetStatus($"Starting server on port {port}...");
-
-        bool started = networkManager.StartServer();
-
-        if (!started)
-        {
-            SetStatus("Failed to start server.");
-            return;
-        }
-
-        SetStatus("Server started. Waiting for clients...");
     }
 
     private void OnClientConnected(ulong clientId)
@@ -131,21 +105,9 @@ public class MenuScript : MonoBehaviour
     {
         if (networkManager == null) return;
 
-        ulong localClientId = networkManager.LocalClientId;
-
-        if (clientId == localClientId)
+        if (clientId == networkManager.LocalClientId)
         {
-            string reason = networkManager.DisconnectReason;
-
-            if (!string.IsNullOrWhiteSpace(reason))
-            {
-                SetStatus($"Disconnected: {reason}");
-            }
-            else
-            {
-                SetStatus("Disconnected from session.");
-            }
-
+            SetStatus("Disconnected from session.");
             return;
         }
 
@@ -163,16 +125,6 @@ public class MenuScript : MonoBehaviour
         }
 
         return iPInput.text.Trim();
-    }
-
-    private ushort GetPort()
-    {
-        if (!portInput || !ushort.TryParse(portInput.text, out ushort port))
-        {
-            return defaultPort;
-        }
-
-        return port;
     }
 
     private void SetStatus(string message)
