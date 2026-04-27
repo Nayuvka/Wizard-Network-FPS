@@ -106,6 +106,11 @@ public class RespawnScript : NetworkBehaviour
 
         while (respawnTimer.Value > 0)
         {
+            if (GameOverManager.IsGameOver)
+            {
+                yield break;
+            }
+
             yield return new WaitForSeconds(1f);
             respawnTimer.Value -= 1f;
         }

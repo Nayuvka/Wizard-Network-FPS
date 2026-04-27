@@ -56,12 +56,13 @@ public class GameOverManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (sceneEvent.SceneEventType == SceneEventType.LoadComplete ||
-            sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted)
+        if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted)
         {
             IsGameOver = false;
             gameEnded = false;
             isRestarting = false;
+
+            SpawnFreshPlayers();
 
             ResetGameStateClientRpc();
         }
@@ -79,13 +80,6 @@ public class GameOverManager : NetworkBehaviour
         {
             EventSystem.current.SetSelectedGameObject(null);
         }
-    }
-
-    [ClientRpc]
-    private void ResetGameStateClientRpc()
-    {
-        IsGameOver = false;
-        HideAllScreens();
     }
 
     public void CheckForLose()
@@ -116,6 +110,7 @@ public class GameOverManager : NetworkBehaviour
     public void WinGame()
     {
         if (!IsServer || gameEnded || isRestarting) return;
+
         EndGame(true);
     }
 
@@ -173,16 +168,69 @@ public class GameOverManager : NetworkBehaviour
         IsGameOver = false;
         gameEnded = false;
 
+        StopAllRespawnCoroutines();
+        DespawnOldNetworkObjects();
+
         HideGameOverClientRpc();
 
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
+        NetworkManager.Singleton.SceneManager.LoadScene(gameSceneName, LoadSceneMode.Single);
+    }
+
+    private void StopAllRespawnCoroutines()
+    {
+        RespawnScript[] respawns = FindObjectsByType<RespawnScript>(FindObjectsSortMode.None);
+
+        foreach (RespawnScript respawn in respawns)
         {
-            NetworkManager.Singleton.SceneManager.LoadScene(gameSceneName, LoadSceneMode.Single);
+            respawn.StopAllCoroutines();
+        }
+    }
+
+    private void DespawnOldNetworkObjects()
+    {
+        NetworkObject[] networkObjects = FindObjectsByType<NetworkObject>(FindObjectsSortMode.None);
+
+        foreach (NetworkObject netObj in networkObjects)
+        {
+            if (netObj == null) continue;
+
+            if (!netObj.IsSpawned) continue;
+
+            if (netObj.GetComponent<NetworkManager>() != null) continue;
+
+            if (netObj.GetComponent<GameOverManager>() != null) continue;
+
+            netObj.Despawn(true);
+        }
+    }
+
+    private void SpawnFreshPlayers()
+    {
+        GameObject playerPrefab = NetworkManager.Singleton.NetworkConfig.PlayerPrefab;
+
+        foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        {
+            if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null)
+            {
+                continue;
+            }
+
+            GameObject playerInstance = Instantiate(playerPrefab);
+            NetworkObject networkObject = playerInstance.GetComponent<NetworkObject>();
+
+            networkObject.SpawnAsPlayerObject(clientId, true);
         }
     }
 
     [ClientRpc]
     private void HideGameOverClientRpc()
+    {
+        IsGameOver = false;
+        HideAllScreens();
+    }
+
+    [ClientRpc]
+    private void ResetGameStateClientRpc()
     {
         IsGameOver = false;
         HideAllScreens();
