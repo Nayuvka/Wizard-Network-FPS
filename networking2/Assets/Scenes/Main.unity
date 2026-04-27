@@ -1092,6 +1092,7 @@ GameObject:
   - component: {fileID: 195640520}
   - component: {fileID: 195640522}
   - component: {fileID: 195640521}
+  - component: {fileID: 195640523}
   m_Layer: 5
   m_Name: MainPanel
   m_TagString: Untagged
@@ -1158,6 +1159,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 195640519}
   m_CullTransparentMesh: 1
+--- !u!225 &195640523
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 195640519}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1001 &281986662
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2761,7 +2774,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3137255, g: 0.023529412, b: 0.60784316, a: 1}
+  m_Color: {r: 0.3137255, g: 0.023529412, b: 0.60784316, a: 0.8627451}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -7468,6 +7481,7 @@ MonoBehaviour:
   settingsPanel: {fileID: 2005659496}
   controlsPanel: {fileID: 2063903263}
   howToPlayPanel: {fileID: 605111796}
+  menuCanvasGroup: {fileID: 195640523}
   hasMenuElements: 0
   menuUIElements: []
   mainMenuFirstSelected: {fileID: 1238820302}
@@ -9513,8 +9527,8 @@ RectTransform:
   m_Children:
   - {fileID: 1238820303}
   - {fileID: 1006127188}
-  - {fileID: 706081941}
   - {fileID: 1880998300}
+  - {fileID: 706081941}
   - {fileID: 1263011}
   m_Father: {fileID: 195640520}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -9541,7 +9555,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: -128.63
+  m_Spacing: -45
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -10106,7 +10120,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3137255, g: 0.023529412, b: 0.60784316, a: 1}
+  m_Color: {r: 0.3137255, g: 0.023529412, b: 0.60784316, a: 0.8627451}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -10298,7 +10312,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3137255, g: 0.023529412, b: 0.60784316, a: 1}
+  m_Color: {r: 0.3137255, g: 0.023529412, b: 0.60784316, a: 0.8627451}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

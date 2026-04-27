@@ -11,6 +11,8 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private GameObject controlsPanel;
     [SerializeField] private GameObject howToPlayPanel;
 
+    [SerializeField] CanvasGroup menuCanvasGroup;
+
     [Header("Optional Menu Elements")]
     [SerializeField] private bool hasMenuElements;
     [SerializeField] private GameObject[] menuUIElements;
@@ -56,6 +58,7 @@ public class MainMenuUI : MonoBehaviour
         settingsPanel.SetActive(true);
         controlsPanel.SetActive(false);
         howToPlayPanel.SetActive(false);
+        menuCanvasGroup.alpha = 0;
 
         if (mainMenuPanel.activeSelf || networkPanel.activeSelf)
         {
@@ -66,6 +69,7 @@ public class MainMenuUI : MonoBehaviour
     public void CloseSettings()
     {
         settingsPanel.SetActive(false);
+        menuCanvasGroup.alpha = 1.0f;
 
         if (networkPanel.activeSelf)
         {
@@ -90,6 +94,7 @@ public class MainMenuUI : MonoBehaviour
         controlsPanel.SetActive(true);
         settingsPanel.SetActive(false);
         howToPlayPanel.SetActive(false);
+        menuCanvasGroup.alpha = 0;
 
         if (mainMenuPanel.activeSelf || networkPanel.activeSelf)
         {
@@ -100,6 +105,7 @@ public class MainMenuUI : MonoBehaviour
     public void CloseControls()
     {
         controlsPanel.SetActive(false);
+        menuCanvasGroup.alpha = 1.0f;
 
         if (networkPanel.activeSelf)
         {
@@ -126,6 +132,7 @@ public class MainMenuUI : MonoBehaviour
         networkPanel.SetActive(false);
         settingsPanel.SetActive(false);
         controlsPanel.SetActive(false);
+        menuCanvasGroup.alpha = 0f;
 
         SetMenuElementsVisible(false);
         SetSelected(howToPlayFirstSelected);
@@ -134,6 +141,7 @@ public class MainMenuUI : MonoBehaviour
     public void CloseHowToPlay()
     {
         howToPlayPanel.SetActive(false);
+        menuCanvasGroup.alpha = 1.0f;
         ShowMainMenu();
     }
 
