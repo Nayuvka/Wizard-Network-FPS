@@ -598,19 +598,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossScript
   ShowTopMostFoldoutHeaderGroup: 1
-  maxHealth: 2000
+  maxHealth: 3000
   knockbackIntensity: 8
   currentHealth:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 1000
+    m_InternalValue: 3000
   healthBar: {fileID: 6094172186382156485}
   healthCanvas: {fileID: 6648385325658918816}
   fireballPrefab: {fileID: 940489568176787497, guid: 007091aad76cd6545b89b9738c0f6942, type: 3}
   firePoints:
   - {fileID: 5922688216834479912}
-  fireRate: 1.5
+  fireRate: 2
   attackRange: 25
   shootSound: {fileID: 8300000, guid: 5eaf9bec627c2684cb79ec3ee16e166d, type: 3}
   shootVolume: 0.7

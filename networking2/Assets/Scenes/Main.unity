@@ -1359,9 +1359,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Wizards & Zombies
-
-'
+  m_text: Grave Wave
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ff2cc552636add44f93616ad860207fb, type: 2}
   m_sharedMaterial: {fileID: -4032525328143589486, guid: ff2cc552636add44f93616ad860207fb, type: 2}
