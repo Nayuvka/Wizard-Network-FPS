@@ -11,6 +11,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private CharacterController charController;
     [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private GameObject cinemachineCameraTarget;
+    [SerializeField] private PauseScript pauseScript;
     public Camera playerCamera;
 
     [Header("Input Values")]
@@ -57,10 +58,8 @@ public class NetworkPlayerController : NetworkBehaviour
     private float jumpTimeoutDelta;
     private float fallTimeoutDelta;
 
-    [SerializeField] private CinemachineBasicMultiChannelPerlin cameraNoise;
-
-
     [Header("Camera Movement Noise")]
+    [SerializeField] private CinemachineBasicMultiChannelPerlin cameraNoise;
     [SerializeField] private float walkNoiseAmplitude = 0.15f;
     [SerializeField] private float walkNoiseFrequency = 0.25f;
     [SerializeField] private float sprintNoiseAmplitude = 0.35f;
@@ -108,6 +107,7 @@ public class NetworkPlayerController : NetworkBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (!IsOwner) return;
+
         TeleportToSpawn();
     }
 
@@ -119,36 +119,78 @@ public class NetworkPlayerController : NetworkBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         hasAnimator = TryGetComponent(out animator);
 
+        AssignAnimationIDs();
+
         if (!IsOwner)
         {
             if (playerCamera != null)
             {
                 playerCamera.enabled = false;
+
                 AudioListener listener = playerCamera.GetComponent<AudioListener>();
-                if (listener != null) listener.enabled = false;
+                if (listener != null)
+                {
+                    listener.enabled = false;
+                }
             }
 
-            if (playerInput != null) playerInput.enabled = false;
+            if (playerInput != null)
+            {
+                playerInput.enabled = false;
+            }
+
             enabled = false;
             return;
         }
 
-        if (playerHat != null) SetLayerRecursive(playerHat, MaskToLayer(hideLayerMask));
+        if (playerInput != null)
+        {
+            playerInput.enabled = true;
 
-        AssignAnimationIDs();
+            playerInput.actions["Move"].Enable();
+            playerInput.actions["Look"].Enable();
+            playerInput.actions["Jump"].Enable();
+            playerInput.actions["Sprint"].Enable();
+            playerInput.actions["Shoot"].Enable();
+            playerInput.actions["Pause"].Enable();
+        }
+
+        if (playerCamera != null)
+        {
+            playerCamera.enabled = true;
+
+            AudioListener listener = playerCamera.GetComponent<AudioListener>();
+            if (listener != null)
+            {
+                listener.enabled = true;
+            }
+        }
+
+        if (pauseScript == null)
+        {
+            pauseScript = FindFirstObjectByType<PauseScript>();
+        }
+
+        if (playerHat != null)
+        {
+            SetLayerRecursive(playerHat, MaskToLayer(hideLayerMask));
+        }
+
         jumpTimeoutDelta = jumpTimeout;
         fallTimeoutDelta = fallTimeout;
-        SetCursorState(cursorLocked);
 
+        SetCursorState(cursorLocked);
         TeleportToSpawn();
     }
 
     private void TeleportToSpawn()
     {
         GameObject spawnObj = GameObject.Find("PlayerSpawn");
-        if (spawnObj != null)
+
+        if (spawnObj != null && charController != null)
         {
             playerSpawn = spawnObj.transform;
+
             charController.enabled = false;
             transform.SetPositionAndRotation(playerSpawn.position, playerSpawn.rotation);
             charController.enabled = true;
@@ -159,6 +201,17 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (!IsOwner) return;
 
+        if (PauseScript.IsGamePaused)
+        {
+            move = Vector2.zero;
+            look = Vector2.zero;
+            jump = false;
+            sprint = false;
+
+            HandleCameraNoise();
+            return;
+        }
+
         GroundedCheck();
         JumpAndGravity();
         Move();
@@ -168,19 +221,38 @@ public class NetworkPlayerController : NetworkBehaviour
     private void LateUpdate()
     {
         if (!IsOwner) return;
+        if (PauseScript.IsGamePaused) return;
 
         CameraRotation();
     }
 
+    private string DebugName
+    {
+        get
+        {
+            if (NetworkManager.Singleton == null)
+                return $"[No NetworkManager] {gameObject.name}";
+
+            return $"Player: {gameObject.name} | Owner: {OwnerClientId} | Local: {NetworkManager.Singleton.LocalClientId} | IsOwner: {IsOwner} | IsServer: {IsServer}";
+        }
+    }
+
     public void OnMove(InputValue value)
     {
+        Vector2 inputValue = value.Get<Vector2>();
+
+        Debug.Log($"[OnMove] {DebugName} | Input: {inputValue} | ScriptEnabled: {enabled} | PlayerInputEnabled: {(playerInput != null && playerInput.enabled)}");
+
         if (!IsOwner) return;
-        MoveInput(value.Get<Vector2>());
+        if (PauseScript.IsGamePaused) return;
+
+        MoveInput(inputValue);
     }
 
     public void OnLook(InputValue value)
     {
         if (!IsOwner) return;
+        if (PauseScript.IsGamePaused) return;
 
         if (cursorInputForLook)
         {
@@ -191,24 +263,43 @@ public class NetworkPlayerController : NetworkBehaviour
     public void OnJump(InputValue value)
     {
         if (!IsOwner) return;
+        if (PauseScript.IsGamePaused) return;
 
         JumpInput(value.isPressed);
-        Debug.Log("Jump pressed: " + value.isPressed);
     }
 
     public void OnSprint(InputValue value)
     {
         if (!IsOwner) return;
+        if (PauseScript.IsGamePaused) return;
+
         SprintInput(value.isPressed);
     }
 
     public void OnShoot(InputValue value)
     {
         if (!IsOwner) return;
+        if (PauseScript.IsGamePaused) return;
 
         if (value.isPressed && networkShoot != null)
         {
             networkShoot.ProcessLocalShoot();
+        }
+    }
+
+    public void OnPause(InputValue value)
+    {
+        if (!IsOwner) return;
+        if (!value.isPressed) return;
+
+        if (pauseScript == null)
+        {
+            pauseScript = FindFirstObjectByType<PauseScript>();
+        }
+
+        if (pauseScript != null)
+        {
+            pauseScript.TogglePause();
         }
     }
 
@@ -282,6 +373,12 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void Move()
     {
+        if (charController == null || !charController.enabled)
+        {
+            Debug.LogWarning($"[Move Blocked] {DebugName} | CharacterController missing or disabled.");
+            return;
+        }
+
         float targetSpeed = sprint ? sprintSpeed : moveSpeed;
 
         if (move == Vector2.zero)
@@ -326,8 +423,6 @@ public class NetworkPlayerController : NetworkBehaviour
             animator.SetFloat(animIDSpeed, speed);
             animator.SetFloat(animIDMotionSpeed, inputMagnitude);
         }
-
-        if (!charController.enabled) return;
 
         charController.Move(
             inputDirection.normalized * (speed * Time.deltaTime) +
@@ -377,12 +472,9 @@ public class NetworkPlayerController : NetworkBehaviour
             {
                 fallTimeoutDelta -= Time.deltaTime;
             }
-            else
+            else if (hasAnimator)
             {
-                if (hasAnimator)
-                {
-                    animator.SetBool(animIDFreeFall, true);
-                }
+                animator.SetBool(animIDFreeFall, true);
             }
 
             jump = false;
@@ -433,7 +525,7 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
-            if (FootstepAudioClips.Length > 0)
+            if (FootstepAudioClips.Length > 0 && charController != null)
             {
                 int index = Random.Range(0, FootstepAudioClips.Length);
 
@@ -450,17 +542,22 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
-            AudioSource.PlayClipAtPoint(
-                LandingAudioClip,
-                transform.TransformPoint(charController.center),
-                FootstepAudioVolume
-            );
+            if (LandingAudioClip != null && charController != null)
+            {
+                AudioSource.PlayClipAtPoint(
+                    LandingAudioClip,
+                    transform.TransformPoint(charController.center),
+                    FootstepAudioVolume
+                );
+            }
         }
     }
 
     private void OnApplicationFocus(bool hasFocus)
     {
         if (!IsOwner) return;
+        if (PauseScript.IsGamePaused) return;
+
         SetCursorState(cursorLocked);
     }
 

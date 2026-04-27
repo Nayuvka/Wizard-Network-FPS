@@ -444,6 +444,28 @@ public class NetworkEnemy : NetworkBehaviour
         }
     }
 
+    private void DestroyActiveStatusVfx()
+    {
+        DestroyActiveStatusVfx();
+        if (activeBurnVfx != null)
+        {
+            Destroy(activeBurnVfx);
+            activeBurnVfx = null;
+        }
+
+        if (activeFrostVfx != null)
+        {
+            Destroy(activeFrostVfx);
+            activeFrostVfx = null;
+        }
+
+        if (activeLightningVfx != null)
+        {
+            Destroy(activeLightningVfx);
+            activeLightningVfx = null;
+        }
+    }
+
     [ClientRpc]
     private void HitFeedbackClientRpc()
     {
