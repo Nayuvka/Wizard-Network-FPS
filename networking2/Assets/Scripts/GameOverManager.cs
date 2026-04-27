@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,9 +14,9 @@ public class GameOverManager : NetworkBehaviour
     [SerializeField] private GameObject loseScreen;
     [SerializeField] private GameObject winScreen;
 
-    [Header("First Selected Buttons")]
-    [SerializeField] private Button loseFirstSelectedButton;
-    [SerializeField] private Button winFirstSelectedButton;
+    [Header("First Selected Objects")]
+    [SerializeField] private GameObject loseFirstSelected;
+    [SerializeField] private GameObject winFirstSelected;
 
     [Header("Scene Names")]
     [SerializeField] private string gameSceneName = "LevelScene";
@@ -133,13 +134,8 @@ public class GameOverManager : NetworkBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-        Button firstButton = won ? winFirstSelectedButton : loseFirstSelectedButton;
-
-        if (EventSystem.current != null && firstButton != null)
-        {
-            EventSystem.current.SetSelectedGameObject(null);
-            EventSystem.current.SetSelectedGameObject(firstButton.gameObject);
-        }
+        GameObject firstSelected = won ? winFirstSelected : loseFirstSelected;
+        SetSelected(firstSelected);
     }
 
     public void RestartButton()
@@ -193,11 +189,9 @@ public class GameOverManager : NetworkBehaviour
         foreach (NetworkObject netObj in networkObjects)
         {
             if (netObj == null) continue;
-
             if (!netObj.IsSpawned) continue;
 
             if (netObj.GetComponent<NetworkManager>() != null) continue;
-
             if (netObj.GetComponent<GameOverManager>() != null) continue;
 
             netObj.Despawn(true);
@@ -206,7 +200,15 @@ public class GameOverManager : NetworkBehaviour
 
     private void SpawnFreshPlayers()
     {
+        if (NetworkManager.Singleton == null) return;
+
         GameObject playerPrefab = NetworkManager.Singleton.NetworkConfig.PlayerPrefab;
+
+        if (playerPrefab == null)
+        {
+            Debug.LogError("GameOverManager: NetworkConfig PlayerPrefab is missing.");
+            return;
+        }
 
         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
         {
@@ -217,6 +219,13 @@ public class GameOverManager : NetworkBehaviour
 
             GameObject playerInstance = Instantiate(playerPrefab);
             NetworkObject networkObject = playerInstance.GetComponent<NetworkObject>();
+
+            if (networkObject == null)
+            {
+                Debug.LogError("GameOverManager: Player prefab has no NetworkObject.");
+                Destroy(playerInstance);
+                continue;
+            }
 
             networkObject.SpawnAsPlayerObject(clientId, true);
         }
@@ -234,6 +243,22 @@ public class GameOverManager : NetworkBehaviour
     {
         IsGameOver = false;
         HideAllScreens();
+    }
+
+    private void SetSelected(GameObject obj)
+    {
+        if (obj == null || EventSystem.current == null) return;
+        StartCoroutine(SetSelectedNextFrame(obj));
+    }
+
+    private IEnumerator SetSelectedNextFrame(GameObject obj)
+    {
+        yield return null;
+
+        if (EventSystem.current == null) yield break;
+
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(obj);
     }
 
     public void MainMenuButton()
