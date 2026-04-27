@@ -174,7 +174,7 @@ public class NetworkBoss : NetworkBehaviour
     private IEnumerator HandleDeath()
     {
         isDead = true;
-        
+
         if (agent != null && agent.isOnNavMesh)
         {
             agent.isStopped = true;
@@ -185,8 +185,10 @@ public class NetworkBoss : NetworkBehaviour
 
         yield return new WaitForSeconds(deathDelay);
 
-        if (SpawnManager.Instance != null)
-            SpawnManager.Instance.EnemyDeath(NetworkObject);
+        if (GameOverManager.Instance != null)
+        {
+            GameOverManager.Instance.WinGame();
+        }
 
         NetworkObject.Despawn();
     }

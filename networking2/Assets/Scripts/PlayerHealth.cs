@@ -151,6 +151,11 @@ public class PlayerHealth : NetworkBehaviour
         {
             GetComponent<NetworkObject>().Despawn();
         }
+
+        if (GameOverManager.Instance != null)
+        {
+            GameOverManager.Instance.CheckForLose();
+        }
     }
 
     public void ResetHealth()

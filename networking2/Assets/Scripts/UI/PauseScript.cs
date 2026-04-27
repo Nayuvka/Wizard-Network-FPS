@@ -45,6 +45,7 @@ public class PauseScript : MonoBehaviour
 
     public void TogglePause()
     {
+        if (GameOverManager.IsGameOver) return;
         if (IsGamePaused)
         {
             ResumeGame();
@@ -74,6 +75,7 @@ public class PauseScript : MonoBehaviour
 
     public void ResumeGame()
     {
+        if (GameOverManager.IsGameOver) return;
         ForceResume();
     }
 

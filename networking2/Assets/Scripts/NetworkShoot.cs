@@ -100,6 +100,7 @@ public class NetworkShoot : NetworkBehaviour
     void Update()
     {
         if (!IsOwner) return;
+        if (GameOverManager.IsGameOver) return;
 
         HandleDebugProjectileCycling();
 
@@ -185,9 +186,10 @@ public class NetworkShoot : NetworkBehaviour
     public void ProcessLocalShoot()
     {
         if (!IsOwner) return;
+        if (GameOverManager.IsGameOver) return;
         if (!canShoot) return;
 
-        if(cameraShakeManager != null)
+        if (cameraShakeManager != null)
         {
             cameraShakeManager.CameraShake(impulseSource, shakeForce);
         }

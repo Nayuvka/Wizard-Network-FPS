@@ -190,6 +190,16 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (!IsOwner) return;
 
+        if (GameOverManager.IsGameOver)
+        {
+            move = Vector2.zero;
+            look = Vector2.zero;
+            jump = false;
+            sprint = false;
+            HandleCameraNoise();
+            return;
+        }
+
         if (PauseScript.IsGamePaused)
         {
             move = Vector2.zero;
@@ -209,6 +219,7 @@ public class NetworkPlayerController : NetworkBehaviour
     private void LateUpdate()
     {
         if (!IsOwner) return;
+        if (GameOverManager.IsGameOver) return;
         if (PauseScript.IsGamePaused) return;
         CameraRotation();
     }

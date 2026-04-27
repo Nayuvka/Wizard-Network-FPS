@@ -55,6 +55,30 @@ public class RespawnScript : NetworkBehaviour
             isRespawning.Value = false;
             respawnTimer.Value = 0f;
         }
+
+        ToggleDeadStateClientRpc(true);
+        SwitchDeathCameraClientRpc(false);
+
+        if (controller != null)
+        {
+            controller.ToggleControllerClientRpc(true);
+        }
+
+        if (playerHealth != null && IsServer)
+        {
+            playerHealth.ResetHealth();
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        StopAllCoroutines();
+
+        if (IsServer)
+        {
+            isRespawning.Value = false;
+            respawnTimer.Value = 0f;
+        }
     }
 
     public void RespawnPlayer()
