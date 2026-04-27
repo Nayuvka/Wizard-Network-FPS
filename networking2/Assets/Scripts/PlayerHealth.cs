@@ -44,7 +44,10 @@ public class PlayerHealth : NetworkBehaviour
             healthUIParent.SetActive(IsOwner);
         }
 
-        SetupVignette();
+        if (IsOwner)
+        {
+            SetupVignette();
+        }
 
         UpdateHealthUI(0, currentHealth.Value);
         currentHealth.OnValueChanged += UpdateHealthUI;
@@ -55,36 +58,38 @@ public class PlayerHealth : NetworkBehaviour
         currentHealth.OnValueChanged -= UpdateHealthUI;
     }
 
+    private void Update()
+    {
+        // Re-attempt setup if it failed initially (common in solo/start-up)
+        if (IsOwner && vignette == null)
+        {
+            SetupVignette();
+        }
+
+        // Apply visual updates every frame for the local player
+        if (IsOwner && vignette != null)
+        {
+            UpdateLowHealthVignette(currentHealth.Value);
+        }
+    }
+
     private void SetupVignette()
     {
-        if (!IsOwner) return;
-
         if (globalVolume == null)
         {
             globalVolume = FindFirstObjectByType<Volume>();
         }
 
-        if (globalVolume == null)
+        if (globalVolume != null)
         {
-            Debug.LogWarning("PlayerHealth: No Global Volume found in the scene.");
-            return;
+            // We use the sharedProfile to ensure we are editing what the camera sees
+            if (globalVolume.profile.TryGet(out vignette))
+            {
+                vignette.intensity.overrideState = true;
+                vignette.color.overrideState = true;
+                vignette.color.value = Color.red;
+            }
         }
-
-        globalVolume.profile = Instantiate(globalVolume.profile);
-
-        if (!globalVolume.profile.TryGet(out vignette))
-        {
-            Debug.LogWarning("PlayerHealth: No Vignette override found on the Global Volume profile.");
-            return;
-        }
-
-        vignette.active = true;
-
-        vignette.color.overrideState = true;
-        vignette.intensity.overrideState = true;
-
-        vignette.color.value = Color.red;
-        vignette.intensity.value = 0f;
     }
 
     private void UpdateHealthUI(float previousValue, float newValue)
@@ -101,17 +106,22 @@ public class PlayerHealth : NetworkBehaviour
         {
             healthText.text = $"HP: {Mathf.CeilToInt(newValue)} / {Mathf.CeilToInt(maxHealth)}";
         }
-
-        UpdateLowHealthVignette(newValue);
     }
 
     private void UpdateLowHealthVignette(float health)
     {
-        if (!IsOwner || vignette == null) return;
+        // If respawn script says we are dead/respawning, force vignette off
+        if (respawnScript != null && respawnScript.isRespawning.Value)
+        {
+            vignette.intensity.value = 0f;
+            return;
+        }
 
         bool isLowHealth = health <= lowHealthThreshold && health > 0;
+        float target = isLowHealth ? vignetteIntensity : 0f;
 
-        vignette.intensity.value = isLowHealth ? vignetteIntensity : 0f;
+        // Smoothly transition the effect
+        vignette.intensity.value = Mathf.MoveTowards(vignette.intensity.value, target, Time.deltaTime * 2f);
     }
 
     public void TakeDamage(float damage)
@@ -146,7 +156,6 @@ public class PlayerHealth : NetworkBehaviour
     public void ResetHealth()
     {
         if (!IsServer) return;
-
         currentHealth.Value = maxHealth;
     }
 }

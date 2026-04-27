@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 4808760816027622418}
   - component: {fileID: 8167693345053254621}
   - component: {fileID: 959992214014337902}
-  - component: {fileID: 3304058534912276374}
   m_Layer: 0
   m_Name: SpawnIndicator
   m_TagString: Untagged
@@ -154,15 +153,3 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!114 &3304058534912276374
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7280822074318583490}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7923e11c3a7354b40a04b9e916994114, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpawnIndicatorPulse

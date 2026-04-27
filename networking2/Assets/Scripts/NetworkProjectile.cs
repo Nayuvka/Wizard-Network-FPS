@@ -110,6 +110,12 @@ public class NetworkProjectile : NetworkBehaviour
 
     private void StopProjectileVisuals()
     {
+        StopProjectileVisualsClientRpc();
+    }
+
+    [ClientRpc]
+    private void StopProjectileVisualsClientRpc()
+    {
         if (TryGetComponent(out Collider col))
         {
             col.enabled = false;

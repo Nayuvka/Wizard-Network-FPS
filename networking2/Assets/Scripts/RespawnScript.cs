@@ -43,6 +43,20 @@ public class RespawnScript : NetworkBehaviour
         charController = GetComponent<CharacterController>();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if (playerHUD != null)
+        {
+            playerHUD.SetActive(IsOwner);
+        }
+
+        if (IsServer)
+        {
+            isRespawning.Value = false;
+            respawnTimer.Value = 0f;
+        }
+    }
+
     public void RespawnPlayer()
     {
         if (!IsServer || isRespawning.Value) return;

@@ -13,6 +13,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private GameObject cinemachineCameraTarget;
     [SerializeField] private PauseScript pauseScript;
     public Camera playerCamera;
+    [SerializeField] private CinemachineCamera virtualCamera;
 
     [Header("Input Values")]
     private Vector2 move;
@@ -107,7 +108,6 @@ public class NetworkPlayerController : NetworkBehaviour
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (!IsOwner) return;
-
         TeleportToSpawn();
     }
 
@@ -119,34 +119,31 @@ public class NetworkPlayerController : NetworkBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         hasAnimator = TryGetComponent(out animator);
 
+        if (virtualCamera == null)
+            virtualCamera = GetComponentInChildren<CinemachineCamera>();
+
         AssignAnimationIDs();
 
         if (!IsOwner)
         {
+            if (playerCamera != null) playerCamera.enabled = false;
+            if (virtualCamera != null) virtualCamera.enabled = false;
+
             if (playerCamera != null)
             {
-                playerCamera.enabled = false;
-
                 AudioListener listener = playerCamera.GetComponent<AudioListener>();
-                if (listener != null)
-                {
-                    listener.enabled = false;
-                }
+                if (listener != null) listener.enabled = false;
             }
 
-            if (playerInput != null)
-            {
-                playerInput.enabled = false;
-            }
+            if (playerInput != null) playerInput.enabled = false;
 
-            enabled = false;
+            this.enabled = false;
             return;
         }
 
         if (playerInput != null)
         {
             playerInput.enabled = true;
-
             playerInput.actions["Move"].Enable();
             playerInput.actions["Look"].Enable();
             playerInput.actions["Jump"].Enable();
@@ -158,23 +155,15 @@ public class NetworkPlayerController : NetworkBehaviour
         if (playerCamera != null)
         {
             playerCamera.enabled = true;
-
             AudioListener listener = playerCamera.GetComponent<AudioListener>();
-            if (listener != null)
-            {
-                listener.enabled = true;
-            }
+            if (listener != null) listener.enabled = true;
         }
+        
+        if (virtualCamera != null) virtualCamera.enabled = true;
 
-        if (pauseScript == null)
-        {
-            pauseScript = FindFirstObjectByType<PauseScript>();
-        }
+        if (pauseScript == null) pauseScript = FindFirstObjectByType<PauseScript>();
 
-        if (playerHat != null)
-        {
-            SetLayerRecursive(playerHat, MaskToLayer(hideLayerMask));
-        }
+        if (playerHat != null) SetLayerRecursive(playerHat, MaskToLayer(hideLayerMask));
 
         jumpTimeoutDelta = jumpTimeout;
         fallTimeoutDelta = fallTimeout;
@@ -207,7 +196,6 @@ public class NetworkPlayerController : NetworkBehaviour
             look = Vector2.zero;
             jump = false;
             sprint = false;
-
             HandleCameraNoise();
             return;
         }
@@ -222,126 +210,51 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (!IsOwner) return;
         if (PauseScript.IsGamePaused) return;
-
         CameraRotation();
-    }
-
-    private string DebugName
-    {
-        get
-        {
-            if (NetworkManager.Singleton == null)
-                return $"[No NetworkManager] {gameObject.name}";
-
-            return $"Player: {gameObject.name} | Owner: {OwnerClientId} | Local: {NetworkManager.Singleton.LocalClientId} | IsOwner: {IsOwner} | IsServer: {IsServer}";
-        }
     }
 
     public void OnMove(InputValue value)
     {
-        Vector2 inputValue = value.Get<Vector2>();
-
-        Debug.Log($"[OnMove] {DebugName} | Input: {inputValue} | ScriptEnabled: {enabled} | PlayerInputEnabled: {(playerInput != null && playerInput.enabled)}");
-
-        if (!IsOwner) return;
-        if (PauseScript.IsGamePaused) return;
-
-        MoveInput(inputValue);
+        if (!IsOwner || PauseScript.IsGamePaused) return;
+        move = value.Get<Vector2>();
     }
 
     public void OnLook(InputValue value)
     {
-        if (!IsOwner) return;
-        if (PauseScript.IsGamePaused) return;
-
-        if (cursorInputForLook)
-        {
-            LookInput(value.Get<Vector2>());
-        }
+        if (!IsOwner || PauseScript.IsGamePaused) return;
+        if (cursorInputForLook) look = value.Get<Vector2>();
     }
 
     public void OnJump(InputValue value)
     {
-        if (!IsOwner) return;
-        if (PauseScript.IsGamePaused) return;
-
-        JumpInput(value.isPressed);
+        if (!IsOwner || PauseScript.IsGamePaused) return;
+        jump = value.isPressed;
     }
 
     public void OnSprint(InputValue value)
     {
-        if (!IsOwner) return;
-        if (PauseScript.IsGamePaused) return;
-
-        SprintInput(value.isPressed);
+        if (!IsOwner || PauseScript.IsGamePaused) return;
+        sprint = value.isPressed;
     }
 
     public void OnShoot(InputValue value)
     {
-        if (!IsOwner) return;
-        if (PauseScript.IsGamePaused) return;
-
-        if (value.isPressed && networkShoot != null)
-        {
-            networkShoot.ProcessLocalShoot();
-        }
+        if (!IsOwner || PauseScript.IsGamePaused) return;
+        if (value.isPressed && networkShoot != null) networkShoot.ProcessLocalShoot();
     }
 
     public void OnPause(InputValue value)
     {
-        if (!IsOwner) return;
-        if (!value.isPressed) return;
-
-        if (pauseScript == null)
-        {
-            pauseScript = FindFirstObjectByType<PauseScript>();
-        }
-
-        if (pauseScript != null)
-        {
-            pauseScript.TogglePause();
-        }
-    }
-
-    public void MoveInput(Vector2 newMoveDirection)
-    {
-        move = newMoveDirection;
-    }
-
-    public void LookInput(Vector2 newLookDirection)
-    {
-        look = newLookDirection;
-    }
-
-    public void JumpInput(bool newJumpState)
-    {
-        jump = newJumpState;
-    }
-
-    public void SprintInput(bool newSprintState)
-    {
-        sprint = newSprintState;
+        if (!IsOwner || !value.isPressed) return;
+        if (pauseScript == null) pauseScript = FindFirstObjectByType<PauseScript>();
+        if (pauseScript != null) pauseScript.TogglePause();
     }
 
     private void GroundedCheck()
     {
-        Vector3 spherePosition = new Vector3(
-            transform.position.x,
-            transform.position.y - groundedOffset,
-            transform.position.z
-        );
-
-        grounded = Physics.CheckSphere(
-            spherePosition,
-            groundedRadius,
-            groundLayers,
-            QueryTriggerInteraction.Ignore
-        );
-
-        if (hasAnimator)
-        {
-            animator.SetBool(animIDGrounded, grounded);
-        }
+        Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - groundedOffset, transform.position.z);
+        grounded = Physics.CheckSphere(spherePosition, groundedRadius, groundLayers, QueryTriggerInteraction.Ignore);
+        if (hasAnimator) animator.SetBool(animIDGrounded, grounded);
     }
 
     private void CameraRotation()
@@ -349,23 +262,15 @@ public class NetworkPlayerController : NetworkBehaviour
         if (look.sqrMagnitude >= threshold)
         {
             bool isMouse = IsMouseInput();
-
             float sensitivity = isMouse ? mouseSensitivity : gamepadSensitivity;
             float deltaTimeMultiplier = isMouse ? 1.0f : Time.deltaTime;
 
-            float lookX = look.x * sensitivity * deltaTimeMultiplier;
-            float lookY = look.y * sensitivity * deltaTimeMultiplier;
-
-            cinemachineTargetPitch -= lookY;
-            rotationVelocity = lookX;
-
+            cinemachineTargetPitch -= look.y * sensitivity * deltaTimeMultiplier;
+            rotationVelocity = look.x * sensitivity * deltaTimeMultiplier;
             cinemachineTargetPitch = ClampAngle(cinemachineTargetPitch, bottomClamp, topClamp);
 
             if (cinemachineCameraTarget != null)
-            {
-                cinemachineCameraTarget.transform.localRotation =
-                    Quaternion.Euler(cinemachineTargetPitch, 0f, 0f);
-            }
+                cinemachineCameraTarget.transform.localRotation = Quaternion.Euler(cinemachineTargetPitch, 0f, 0f);
 
             transform.Rotate(Vector3.up * rotationVelocity);
         }
@@ -373,50 +278,23 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void Move()
     {
-        if (charController == null || !charController.enabled)
-        {
-            Debug.LogWarning($"[Move Blocked] {DebugName} | CharacterController missing or disabled.");
-            return;
-        }
+        if (charController == null || !charController.enabled) return;
 
         float targetSpeed = sprint ? sprintSpeed : moveSpeed;
+        if (move == Vector2.zero) targetSpeed = 0f;
 
-        if (move == Vector2.zero)
-        {
-            targetSpeed = 0f;
-        }
-
-        float currentHorizontalSpeed = new Vector3(
-            charController.velocity.x,
-            0f,
-            charController.velocity.z
-        ).magnitude;
-
+        float currentHorizontalSpeed = new Vector3(charController.velocity.x, 0f, charController.velocity.z).magnitude;
         float speedOffset = 0.1f;
         float inputMagnitude = analogMovement ? move.magnitude : 1f;
 
-        if (currentHorizontalSpeed < targetSpeed - speedOffset ||
-            currentHorizontalSpeed > targetSpeed + speedOffset)
+        if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
         {
-            speed = Mathf.Lerp(
-                currentHorizontalSpeed,
-                targetSpeed * inputMagnitude,
-                Time.deltaTime * speedChangeRate
-            );
-
+            speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * speedChangeRate);
             speed = Mathf.Round(speed * 1000f) / 1000f;
         }
-        else
-        {
-            speed = targetSpeed;
-        }
+        else speed = targetSpeed;
 
-        Vector3 inputDirection = Vector3.zero;
-
-        if (move != Vector2.zero)
-        {
-            inputDirection = transform.right * move.x + transform.forward * move.y;
-        }
+        Vector3 inputDirection = transform.right * move.x + transform.forward * move.y;
 
         if (hasAnimator)
         {
@@ -424,10 +302,7 @@ public class NetworkPlayerController : NetworkBehaviour
             animator.SetFloat(animIDMotionSpeed, inputMagnitude);
         }
 
-        charController.Move(
-            inputDirection.normalized * (speed * Time.deltaTime) +
-            new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime
-        );
+        charController.Move(inputDirection.normalized * (speed * Time.deltaTime) + new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
     }
 
     private void JumpAndGravity()
@@ -435,55 +310,28 @@ public class NetworkPlayerController : NetworkBehaviour
         if (grounded)
         {
             fallTimeoutDelta = fallTimeout;
-
             if (hasAnimator)
             {
                 animator.SetBool(animIDJump, false);
                 animator.SetBool(animIDFreeFall, false);
             }
-
-            if (verticalVelocity < 0f)
-            {
-                verticalVelocity = -2f;
-            }
-
+            if (verticalVelocity < 0f) verticalVelocity = -2f;
             if (jump && jumpTimeoutDelta <= 0f)
             {
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-
-                if (hasAnimator)
-                {
-                    animator.SetBool(animIDJump, true);
-                }
-
+                if (hasAnimator) animator.SetBool(animIDJump, true);
                 jump = false;
             }
-
-            if (jumpTimeoutDelta >= 0f)
-            {
-                jumpTimeoutDelta -= Time.deltaTime;
-            }
+            if (jumpTimeoutDelta >= 0f) jumpTimeoutDelta -= Time.deltaTime;
         }
         else
         {
             jumpTimeoutDelta = jumpTimeout;
-
-            if (fallTimeoutDelta >= 0f)
-            {
-                fallTimeoutDelta -= Time.deltaTime;
-            }
-            else if (hasAnimator)
-            {
-                animator.SetBool(animIDFreeFall, true);
-            }
-
+            if (fallTimeoutDelta >= 0f) fallTimeoutDelta -= Time.deltaTime;
+            else if (hasAnimator) animator.SetBool(animIDFreeFall, true);
             jump = false;
         }
-
-        if (verticalVelocity < terminalVelocity)
-        {
-            verticalVelocity += gravity * Time.deltaTime;
-        }
+        if (verticalVelocity < terminalVelocity) verticalVelocity += gravity * Time.deltaTime;
     }
 
     private void AssignAnimationIDs()
@@ -499,25 +347,15 @@ public class NetworkPlayerController : NetworkBehaviour
     public void ToggleControllerClientRpc(bool enabled)
     {
         this.enabled = enabled;
-
-        if (charController != null)
-        {
-            charController.enabled = enabled;
-        }
+        if (charController != null) charController.enabled = enabled;
     }
 
     [ClientRpc]
     public void ResetCameraRotationClientRpc(Quaternion targetRotation)
     {
         if (!IsOwner) return;
-
         cinemachineTargetPitch = 0f;
-
-        if (cinemachineCameraTarget != null)
-        {
-            cinemachineCameraTarget.transform.localRotation = Quaternion.identity;
-        }
-
+        if (cinemachineCameraTarget != null) cinemachineCameraTarget.transform.localRotation = Quaternion.identity;
         transform.rotation = targetRotation;
     }
 
@@ -528,12 +366,7 @@ public class NetworkPlayerController : NetworkBehaviour
             if (FootstepAudioClips.Length > 0 && charController != null)
             {
                 int index = Random.Range(0, FootstepAudioClips.Length);
-
-                AudioSource.PlayClipAtPoint(
-                    FootstepAudioClips[index],
-                    transform.TransformPoint(charController.center),
-                    FootstepAudioVolume
-                );
+                AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(charController.center), FootstepAudioVolume);
             }
         }
     }
@@ -543,21 +376,13 @@ public class NetworkPlayerController : NetworkBehaviour
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
             if (LandingAudioClip != null && charController != null)
-            {
-                AudioSource.PlayClipAtPoint(
-                    LandingAudioClip,
-                    transform.TransformPoint(charController.center),
-                    FootstepAudioVolume
-                );
-            }
+                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(charController.center), FootstepAudioVolume);
         }
     }
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        if (!IsOwner) return;
-        if (PauseScript.IsGamePaused) return;
-
+        if (!IsOwner || PauseScript.IsGamePaused) return;
         SetCursorState(cursorLocked);
     }
 
@@ -571,7 +396,6 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (angle < -360f) angle += 360f;
         if (angle > 360f) angle -= 360f;
-
         return Mathf.Clamp(angle, min, max);
     }
 
@@ -579,67 +403,33 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         int bitmask = mask.value;
         int layer = 0;
-
-        while (bitmask > 1)
-        {
-            bitmask >>= 1;
-            layer++;
-        }
-
+        while (bitmask > 1) { bitmask >>= 1; layer++; }
         return layer;
     }
 
     private void SetLayerRecursive(GameObject obj, int newLayer)
     {
         if (obj == null) return;
-
         obj.layer = newLayer;
-
-        foreach (Transform child in obj.transform)
-        {
-            SetLayerRecursive(child.gameObject, newLayer);
-        }
+        foreach (Transform child in obj.transform) SetLayerRecursive(child.gameObject, newLayer);
     }
 
     private void HandleCameraNoise()
     {
         if (cameraNoise == null) return;
-
         bool isMoving = move.sqrMagnitude > 0.01f && grounded;
         bool isSprinting = sprint && isMoving;
+        float targetAmplitude = isMoving ? (isSprinting ? sprintNoiseAmplitude : walkNoiseAmplitude) : 0f;
+        float targetFrequency = isMoving ? (isSprinting ? sprintNoiseFrequency : walkNoiseFrequency) : 0f;
 
-        float targetAmplitude = 0f;
-        float targetFrequency = 0f;
-
-        if (isMoving)
-        {
-            targetAmplitude = isSprinting ? sprintNoiseAmplitude : walkNoiseAmplitude;
-            targetFrequency = isSprinting ? sprintNoiseFrequency : walkNoiseFrequency;
-        }
-
-        cameraNoise.AmplitudeGain = Mathf.Lerp(
-            cameraNoise.AmplitudeGain,
-            targetAmplitude,
-            Time.deltaTime * noiseBlendSpeed
-        );
-
-        cameraNoise.FrequencyGain = Mathf.Lerp(
-            cameraNoise.FrequencyGain,
-            targetFrequency,
-            Time.deltaTime * noiseBlendSpeed
-        );
+        cameraNoise.AmplitudeGain = Mathf.Lerp(cameraNoise.AmplitudeGain, targetAmplitude, Time.deltaTime * noiseBlendSpeed);
+        cameraNoise.FrequencyGain = Mathf.Lerp(cameraNoise.FrequencyGain, targetFrequency, Time.deltaTime * noiseBlendSpeed);
     }
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
-
-        Vector3 spherePosition = new Vector3(
-            transform.position.x,
-            transform.position.y - groundedOffset,
-            transform.position.z
-        );
-
+        Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - groundedOffset, transform.position.z);
         Gizmos.DrawWireSphere(spherePosition, groundedRadius);
     }
 }

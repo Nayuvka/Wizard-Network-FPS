@@ -843,6 +843,7 @@ MonoBehaviour:
   cinemachineCameraTarget: {fileID: 1243842138587494804}
   pauseScript: {fileID: 0}
   playerCamera: {fileID: 3146477800755033854}
+  virtualCamera: {fileID: 2558970370307796477}
   analogMovement: 0
   cursorLocked: 1
   cursorInputForLook: 1
