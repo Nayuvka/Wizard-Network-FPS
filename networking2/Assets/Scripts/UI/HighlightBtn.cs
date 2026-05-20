@@ -5,7 +5,6 @@ using TMPro;
 
 public class HighlightBtn : MonoBehaviour,
     IPointerEnterHandler,
-    IPointerExitHandler,
     IPointerClickHandler,
     ISelectHandler,
     IDeselectHandler,
@@ -14,6 +13,7 @@ public class HighlightBtn : MonoBehaviour,
     [Header("References")]
     [SerializeField] private Image buttonImage;
     [SerializeField] private TextMeshProUGUI buttonText;
+    [SerializeField] private Selectable selectable;
 
     [Header("Normal Colours")]
     [SerializeField] private Color normalBackgroundColour = Color.white;
@@ -28,17 +28,17 @@ public class HighlightBtn : MonoBehaviour,
     [SerializeField] private AudioClip hoverSFX;
     [SerializeField] private AudioClip clickSFX;
 
-    private bool isHovered;
     private bool isSelected;
 
     private void Reset()
     {
         buttonImage = GetComponent<Image>();
         buttonText = GetComponentInChildren<TextMeshProUGUI>();
+        selectable = GetComponent<Selectable>();
         audioSource = GetComponent<AudioSource>();
     }
 
-    private void Start()
+    private void Awake()
     {
         if (buttonImage == null)
             buttonImage = GetComponent<Image>();
@@ -46,26 +46,30 @@ public class HighlightBtn : MonoBehaviour,
         if (buttonText == null)
             buttonText = GetComponentInChildren<TextMeshProUGUI>();
 
+        if (selectable == null)
+            selectable = GetComponent<Selectable>();
+
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
+    }
 
+    private void Start()
+    {
         ApplyNormalColours();
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        isHovered = true;
-        ApplyHighlightColours();
-        PlaySFX(hoverSFX);
-    }
+        if (selectable != null && !selectable.interactable)
+            return;
 
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        isHovered = false;
+        if (EventSystem.current == null)
+            return;
 
-        if (!isSelected)
+        // Mouse hover now becomes Unity's selected object.
+        if (EventSystem.current.currentSelectedGameObject != gameObject)
         {
-            ApplyNormalColours();
+            EventSystem.current.SetSelectedGameObject(gameObject);
         }
     }
 
@@ -84,11 +88,7 @@ public class HighlightBtn : MonoBehaviour,
     public void OnDeselect(BaseEventData eventData)
     {
         isSelected = false;
-
-        if (!isHovered)
-        {
-            ApplyNormalColours();
-        }
+        ApplyNormalColours();
     }
 
     public void OnSubmit(BaseEventData eventData)
