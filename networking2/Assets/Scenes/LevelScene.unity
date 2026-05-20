@@ -6075,6 +6075,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighlightBtn
   buttonImage: {fileID: 1032065631463602752}
   buttonText: {fileID: 8185219831002352906}
+  selectable: {fileID: 0}
   normalBackgroundColour: {r: 1, g: 1, b: 1, a: 1}
   normalTextColour: {r: 0, g: 0, b: 0, a: 1}
   highlightBackgroundColour: {r: 0, g: 0, b: 0, a: 1}
@@ -6096,6 +6097,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighlightBtn
   buttonImage: {fileID: 1758251184218831265}
   buttonText: {fileID: 721955605583055348}
+  selectable: {fileID: 0}
   normalBackgroundColour: {r: 1, g: 1, b: 1, a: 1}
   normalTextColour: {r: 0, g: 0, b: 0, a: 1}
   highlightBackgroundColour: {r: 0, g: 0, b: 0, a: 1}
@@ -24784,6 +24786,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighlightBtn
   buttonImage: {fileID: 1976528350}
   buttonText: {fileID: 1976528352}
+  selectable: {fileID: 0}
   normalBackgroundColour: {r: 1, g: 1, b: 1, a: 1}
   normalTextColour: {r: 0, g: 0, b: 0, a: 1}
   highlightBackgroundColour: {r: 0, g: 0, b: 0, a: 1}
@@ -44184,6 +44187,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighlightBtn
   buttonImage: {fileID: 1820049896}
   buttonText: {fileID: 424395320}
+  selectable: {fileID: 0}
   normalBackgroundColour: {r: 1, g: 1, b: 1, a: 1}
   normalTextColour: {r: 0, g: 0, b: 0, a: 1}
   highlightBackgroundColour: {r: 0, g: 0, b: 0, a: 1}
@@ -48409,6 +48413,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighlightBtn
   buttonImage: {fileID: 1976528353}
   buttonText: {fileID: 1976528348}
+  selectable: {fileID: 0}
   normalBackgroundColour: {r: 1, g: 1, b: 1, a: 1}
   normalTextColour: {r: 0, g: 0, b: 0, a: 1}
   highlightBackgroundColour: {r: 0, g: 0, b: 0, a: 1}
@@ -50246,6 +50251,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighlightBtn
   buttonImage: {fileID: 1976528356}
   buttonText: {fileID: 1976528354}
+  selectable: {fileID: 0}
   normalBackgroundColour: {r: 1, g: 1, b: 1, a: 1}
   normalTextColour: {r: 0, g: 0, b: 0, a: 1}
   highlightBackgroundColour: {r: 0, g: 0, b: 0, a: 1}
@@ -50267,6 +50273,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighlightBtn
   buttonImage: {fileID: 1976528359}
   buttonText: {fileID: 1976528357}
+  selectable: {fileID: 0}
   normalBackgroundColour: {r: 1, g: 1, b: 1, a: 1}
   normalTextColour: {r: 0, g: 0, b: 0, a: 1}
   highlightBackgroundColour: {r: 0, g: 0, b: 0, a: 1}
@@ -51044,6 +51051,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighlightBtn
   buttonImage: {fileID: 2012694311}
   buttonText: {fileID: 797459911}
+  selectable: {fileID: 0}
   normalBackgroundColour: {r: 1, g: 1, b: 1, a: 1}
   normalTextColour: {r: 0, g: 0, b: 0, a: 1}
   highlightBackgroundColour: {r: 0, g: 0, b: 0, a: 1}
