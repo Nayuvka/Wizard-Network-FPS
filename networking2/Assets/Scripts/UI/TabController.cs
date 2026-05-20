@@ -2,103 +2,120 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace View
+public class TabController : MonoBehaviour
 {
-    public class TabController : MonoBehaviour
+    [Header("Tabs & Pages")]
+    [SerializeField] private Image[] tabButtons;
+    [SerializeField] private GameObject[] pages;
+
+    [Header("Tab Button Colours")]
+    [SerializeField] private Color selectedTabColour;
+    [SerializeField] private Color deselectedTabColour;
+    [SerializeField] private Color hoverTabColour;
+
+    [Header("Tab Text Colours")]
+    [SerializeField] private Color selectedTextColour;
+    [SerializeField] private Color deselectedTextColour;
+    [SerializeField] private Color hoverTextColour;
+
+    [Header("Settings")]
+    [SerializeField] private bool buttonFill;
+    [SerializeField] private bool startWithActiveTab = true;
+
+    private TextMeshProUGUI[] tabTexts;
+    private int currentTab = -1;
+
+    private void Awake()
     {
-        [Header("Tabs & Pages")]
-        [SerializeField] private Image[] tabButtons;
-        [SerializeField] private GameObject[] pages;
+        tabTexts = new TextMeshProUGUI[tabButtons.Length];
 
-        [Header("Optional Tab Text")]
-        [SerializeField] private TextMeshProUGUI[] tabTexts;
-
-        [Header("Optional Tab Icons")]
-        [SerializeField] private Image[] tabIcons;
-
-        [Header("Colours")]
-        [SerializeField] private Color selectedTabColour;
-        [SerializeField] private Color deselectedTabColour;
-        [SerializeField] private Color hoverTabColour;
-
-        [SerializeField] private Color selectedTextIcon;
-        [SerializeField] private Color deselectedTextIcon;
-        [SerializeField] private Color hoverTextIcon;
-
-        [Header("Settings")]
-        [SerializeField] private bool buttonFill;
-        [SerializeField] private bool startWithActiveTab = true;
-
-        private int currentTab = -1;
-
-        private void Start()
+        for (int i = 0; i < tabButtons.Length; i++)
         {
-            if (startWithActiveTab)
+            if (tabButtons[i] != null)
             {
-                ActivateTab(0);
+                tabTexts[i] = tabButtons[i].GetComponentInChildren<TextMeshProUGUI>();
             }
         }
+    }
 
-        public void ActivateTab(int tabNo)
+    private void Start()
+    {
+        if (startWithActiveTab)
         {
-            if (!IsValidTab(tabNo)) return;
+            ActivateTab(0);
+        }
+    }
 
-            currentTab = tabNo;
+    public void ActivateTab(int tabNo)
+    {
+        if (!IsValidTab(tabNo)) return;
 
-            for (int i = 0; i < tabButtons.Length; i++)
+        currentTab = tabNo;
+
+        for (int i = 0; i < tabButtons.Length; i++)
+        {
+            bool isSelected = i == tabNo;
+
+            if (i < pages.Length && pages[i] != null)
             {
-                bool isSelected = i == tabNo;
+                pages[i].SetActive(isSelected);
+            }
 
-                if (i < pages.Length && pages[i] != null)
-                    pages[i].SetActive(isSelected);
+            if (tabButtons[i] != null)
+            {
+                tabButtons[i].color = isSelected
+                    ? selectedTabColour
+                    : deselectedTabColour;
 
-                if (tabButtons[i] != null)
+                if (buttonFill)
                 {
-                    tabButtons[i].color = isSelected ? selectedTabColour : deselectedTabColour;
-
-                    if (buttonFill)
-                        tabButtons[i].fillCenter = isSelected;
+                    tabButtons[i].fillCenter = isSelected;
                 }
+            }
 
-                if (tabTexts != null && i < tabTexts.Length && tabTexts[i] != null)
-                    tabTexts[i].color = isSelected ? selectedTextIcon : deselectedTextIcon;
-
-                if (tabIcons != null && i < tabIcons.Length && tabIcons[i] != null)
-                    tabIcons[i].color = isSelected ? selectedTextIcon : deselectedTextIcon;
+            if (tabTexts[i] != null)
+            {
+                tabTexts[i].color = isSelected
+                    ? selectedTextColour
+                    : deselectedTextColour;
             }
         }
+    }
 
-        public void OnTabHover(int tabNo)
+    public void OnTabHover(int tabNo)
+    {
+        if (!IsValidTab(tabNo) || tabNo == currentTab) return;
+
+        if (tabButtons[tabNo] != null)
         {
-            if (!IsValidTab(tabNo) || tabNo == currentTab) return;
-
-            if (tabButtons[tabNo] != null)
-                tabButtons[tabNo].color = hoverTabColour;
-
-            if (tabTexts != null && tabNo < tabTexts.Length && tabTexts[tabNo] != null)
-                tabTexts[tabNo].color = hoverTextIcon;
-
-            if (tabIcons != null && tabNo < tabIcons.Length && tabIcons[tabNo] != null)
-                tabIcons[tabNo].color = hoverTextIcon;
+            tabButtons[tabNo].color = hoverTabColour;
         }
 
-        public void OnTabExit(int tabNo)
+        if (tabTexts[tabNo] != null)
         {
-            if (!IsValidTab(tabNo) || tabNo == currentTab) return;
+            tabTexts[tabNo].color = hoverTextColour;
+        }
+    }
 
-            if (tabButtons[tabNo] != null)
-                tabButtons[tabNo].color = deselectedTabColour;
+    public void OnTabExit(int tabNo)
+    {
+        if (!IsValidTab(tabNo) || tabNo == currentTab) return;
 
-            if (tabTexts != null && tabNo < tabTexts.Length && tabTexts[tabNo] != null)
-                tabTexts[tabNo].color = deselectedTextIcon;
-
-            if (tabIcons != null && tabNo < tabIcons.Length && tabIcons[tabNo] != null)
-                tabIcons[tabNo].color = deselectedTextIcon;
+        if (tabButtons[tabNo] != null)
+        {
+            tabButtons[tabNo].color = deselectedTabColour;
         }
 
-        private bool IsValidTab(int tabNo)
+        if (tabTexts[tabNo] != null)
         {
-            return tabNo >= 0 && tabNo < tabButtons.Length;
+            tabTexts[tabNo].color = deselectedTextColour;
         }
+    }
+
+    private bool IsValidTab(int tabNo)
+    {
+        return tabButtons != null &&
+               tabNo >= 0 &&
+               tabNo < tabButtons.Length;
     }
 }

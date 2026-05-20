@@ -7,14 +7,37 @@ public class MinimapScript : NetworkBehaviour
     public Camera miniMapCamera;
     public float height = 20f;
 
+    [Header("Player Icon UI")]
+    public RectTransform playerIcon;   
+    public RectTransform arrowPivot;   
+
     public override void OnNetworkSpawn()
     {
         if (!IsOwner)
         {
-            if(miniMapCamera != null)
+            if (miniMapCamera != null)
             {
                 miniMapCamera.enabled = false;
             }
+
+            if (playerIcon != null)
+            {
+                playerIcon.gameObject.SetActive(false);
+            }
+
+            enabled = false;
+            return;
+        }
+
+        if (miniMapCamera != null)
+        {
+            miniMapCamera.enabled = true;
+        }
+
+        if (playerIcon != null)
+        {
+            playerIcon.gameObject.SetActive(true);
+            playerIcon.anchoredPosition = Vector2.zero;
         }
     }
 
@@ -28,12 +51,23 @@ public class MinimapScript : NetworkBehaviour
             playerTransform.position.z
         );
 
-        /*transform.rotation = Quaternion.Euler(
-            90f,
-            playerTransform.eulerAngles.y,
-            0f
-        );*/
 
         transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+
+
+        if (playerIcon != null)
+        {
+            playerIcon.anchoredPosition = Vector2.zero;
+            playerIcon.localRotation = Quaternion.identity;
+        }
+
+        if (arrowPivot != null)
+        {
+            arrowPivot.localRotation = Quaternion.Euler(
+                0f,
+                0f,
+                -playerTransform.eulerAngles.y
+            );
+        }
     }
 }
