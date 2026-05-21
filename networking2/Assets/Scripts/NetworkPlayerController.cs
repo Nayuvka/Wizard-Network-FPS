@@ -261,6 +261,8 @@ public class NetworkPlayerController : NetworkBehaviour
         if (pauseScript != null) pauseScript.TogglePause();
     }
 
+
+
     private void GroundedCheck()
     {
         Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - groundedOffset, transform.position.z);
