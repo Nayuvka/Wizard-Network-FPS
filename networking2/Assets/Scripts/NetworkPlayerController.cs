@@ -13,6 +13,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private GameObject cinemachineCameraTarget;
     [SerializeField] private PauseScript pauseScript;
     public Camera playerCamera;
+    //public Camera weaponRenderingCamera;
     [SerializeField] private CinemachineCamera virtualCamera;
 
     [Header("Input Values")]
@@ -128,6 +129,7 @@ public class NetworkPlayerController : NetworkBehaviour
         {
             if (playerCamera != null) playerCamera.enabled = false;
             if (virtualCamera != null) virtualCamera.enabled = false;
+            //if( weaponRenderingCamera != null) weaponRenderingCamera.enabled = false;
 
             if (playerCamera != null)
             {

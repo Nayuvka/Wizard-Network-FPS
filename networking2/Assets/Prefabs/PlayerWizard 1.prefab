@@ -695,7 +695,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4247564608
+  GlobalObjectIdHash: 1119263775
   InScenePlacedSourceGlobalObjectIdHash: 1119263775
   DeferredDespawnTick: 0
   Ownership: 1
@@ -867,7 +867,7 @@ MonoBehaviour:
     m_Bits: 1
   topClamp: 90
   bottomClamp: -90
-  cameraNoise: {fileID: 0}
+  cameraNoise: {fileID: 1390683450568665451}
   walkNoiseAmplitude: 0.15
   walkNoiseFrequency: 0.25
   sprintNoiseAmplitude: 0.35
@@ -1971,7 +1971,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!114 &4593551394747408727
 MonoBehaviour:
@@ -3104,7 +3104,7 @@ Transform:
   m_GameObject: {fileID: 4679641582910972018}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.0300002, z: -2.4980001}
+  m_LocalPosition: {x: 0, y: 0.9716898, z: 0.50871134}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4981,8 +4981,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7777363773129542194}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.19, z: 0.152}
+  m_LocalRotation: {x: 0.013907792, y: -0.0068520065, z: 0.00009530774, w: 0.99987984}
+  m_LocalPosition: {x: 0.013699713, y: 1.2178136, z: 0.15248077}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10238,6 +10238,7 @@ GameObject:
   - component: {fileID: 3923576373740927385}
   - component: {fileID: 4514452586692414176}
   - component: {fileID: 3262261028954990751}
+  - component: {fileID: 7418350181413334331}
   m_Layer: 0
   m_Name: MinimapCamera
   m_TagString: Untagged
@@ -10371,8 +10372,24 @@ MonoBehaviour:
   playerTransform: {fileID: 8998809921488914027}
   miniMapCamera: {fileID: 3923576373740927385}
   height: 20
+  miniMapCanvas: {fileID: 3003788124820399293}
   playerIcon: {fileID: 4461226469942132226}
   arrowPivot: {fileID: 329038729624332681}
+--- !u!114 &7418350181413334331
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8514820241073375650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d496c5866b9fbe4095a38a9f03e5796, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMinimapMarker
+  ShowTopMostFoldoutHeaderGroup: 1
+  worldMinimapMarker: {fileID: 7562001221845039514}
+  miniMapCamera: {fileID: 3923576373740927385}
 --- !u!1 &8525176440175442943
 GameObject:
   m_ObjectHideFlags: 0

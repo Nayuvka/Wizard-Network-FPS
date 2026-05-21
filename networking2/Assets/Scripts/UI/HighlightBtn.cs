@@ -66,7 +66,7 @@ public class HighlightBtn : MonoBehaviour,
         if (EventSystem.current == null)
             return;
 
-        // Mouse hover now becomes Unity's selected object.
+        // Mouse becomes new selected object.
         if (EventSystem.current.currentSelectedGameObject != gameObject)
         {
             EventSystem.current.SetSelectedGameObject(gameObject);

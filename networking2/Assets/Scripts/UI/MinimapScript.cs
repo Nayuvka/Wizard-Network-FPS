@@ -8,6 +8,7 @@ public class MinimapScript : NetworkBehaviour
     public float height = 20f;
 
     [Header("Player Icon UI")]
+    public GameObject miniMapCanvas;
     public RectTransform playerIcon;   
     public RectTransform arrowPivot;   
 
@@ -20,6 +21,11 @@ public class MinimapScript : NetworkBehaviour
                 miniMapCamera.enabled = false;
             }
 
+            if(miniMapCanvas != null)
+            {
+                miniMapCanvas.SetActive(false);
+            }
+
             if (playerIcon != null)
             {
                 playerIcon.gameObject.SetActive(false);
@@ -27,6 +33,11 @@ public class MinimapScript : NetworkBehaviour
 
             enabled = false;
             return;
+        }
+
+        if (miniMapCanvas != null)
+        {
+            miniMapCanvas.SetActive(true);
         }
 
         if (miniMapCamera != null)
