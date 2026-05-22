@@ -287,7 +287,7 @@ GameObject:
   - component: {fileID: 1949562}
   - component: {fileID: 1949561}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: StartTxt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -334,8 +334,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Press start or enter to begin the game
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ff2cc552636add44f93616ad860207fb, type: 2}
-  m_sharedMaterial: {fileID: -4032525328143589486, guid: ff2cc552636add44f93616ad860207fb, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8d47aca8a847d1e4780562a176947702, type: 2}
+  m_sharedMaterial: {fileID: -6174975844352966699, guid: 8d47aca8a847d1e4780562a176947702, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1328,7 +1328,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 195640519}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -2995,94 +2995,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 788926437}
   m_CullTransparentMesh: 1
---- !u!1 &796474205
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 796474206}
-  - component: {fileID: 796474209}
-  - component: {fileID: 796474208}
-  - component: {fileID: 796474207}
-  m_Layer: 5
-  m_Name: StartFadeCanvas
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &796474206
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 796474205}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1141192191}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 2, y: 2}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!225 &796474207
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 796474205}
-  m_Enabled: 1
-  m_Alpha: 0
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!114 &796474208
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 796474205}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &796474209
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 796474205}
-  m_CullTransparentMesh: 1
 --- !u!1 &811706316
 GameObject:
   m_ObjectHideFlags: 0
@@ -4130,7 +4042,6 @@ RectTransform:
   - {fileID: 2775260320206751752}
   - {fileID: 605111797}
   - {fileID: 1555538931}
-  - {fileID: 796474206}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -5502,16 +5413,19 @@ MonoBehaviour:
   networkPanel: {fileID: 1287573849}
   settingsPanel: {fileID: 6336987628037805580}
   howToPlayPanel: {fileID: 605111796}
-  fadeCanvasGroup: {fileID: 796474207}
+  startCanvasGroup: {fileID: 1555538934}
   menuCanvasGroup: {fileID: 195640523}
-  fadeDuration: 1
-  hasMenuElements: 0
-  menuUIElements: []
+  transitionDuration: 2
   mainMenuFirstSelected: {fileID: 1238820302}
   networkFirstSelected: {fileID: 1136787341}
   settingsFirstSelected: {fileID: 111551309}
   startInput: {fileID: -5168443270594251528, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   backInput: {fileID: -181401704396769909, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  startText: {fileID: 1949561}
+  startFlashSpeed: 1
+  menuCamera: {fileID: 2096155157}
+  startRotation: {x: -41.6, y: -161.677, z: 0}
+  gameRotation: {x: 15.196, y: -161.677, z: 0}
   startGameSource: {fileID: 0}
 --- !u!114 &1477071883
 MonoBehaviour:
@@ -5903,13 +5817,14 @@ GameObject:
   - component: {fileID: 1555538931}
   - component: {fileID: 1555538933}
   - component: {fileID: 1555538932}
+  - component: {fileID: 1555538934}
   m_Layer: 5
   m_Name: StartGamePanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1555538931
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5944,7 +5859,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5969,6 +5884,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1555538930}
   m_CullTransparentMesh: 1
+--- !u!225 &1555538934
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1555538930}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1586689351
 GameObject:
   m_ObjectHideFlags: 0
@@ -8037,13 +7964,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2096155154}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.02105226, y: 0.97857565, z: -0.1305343, w: -0.15782055}
+  m_LocalRotation: {x: -0.056539368, y: -0.9229006, z: -0.35057694, w: 0.14884098}
   m_LocalPosition: {x: 16.45523, y: -27.69721, z: 3.854643}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -41.6, y: -161.677, z: 0}
 --- !u!114 &2096155158
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -7,9 +8,10 @@ public class MainMenuUI : MonoBehaviour
 {
     [Header("References")]
     [Space(5)]
-    private PlayerControls playerControls;
+    [SerializeField] private PlayerControls playerControls;
 
     [Header("Menu Panels")]
+    [Space(5)]
     [SerializeField] private GameObject startGamePanel;
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject networkPanel;
@@ -17,19 +19,14 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private GameObject howToPlayPanel;
 
     [Header("Canvas Groups")]
-    [Space(10)]
-    [SerializeField] CanvasGroup fadeCanvasGroup;
-    [SerializeField] CanvasGroup menuCanvasGroup;
+    [Space(5)]
+    [SerializeField] private CanvasGroup startCanvasGroup;
 
+    [SerializeField] private CanvasGroup menuCanvasGroup;
 
     [Header("Menu Settings")]
     [Space(5)]
-    [SerializeField] private float fadeDuration;
-
-    [Header("Optional Menu Elements")]
-    [Space(5)]
-    [SerializeField] private bool hasMenuElements;
-    [SerializeField] private GameObject[] menuUIElements;
+    [SerializeField] private float transitionDuration = 1f;
 
     [Header("First Selected Objects")]
     [Space(5)]
@@ -40,11 +37,20 @@ public class MainMenuUI : MonoBehaviour
     private GameObject lastSelectedBeforeSubMenu;
     private Coroutine selectCoroutine;
 
-
     [Header("Input")]
     [Space(5)]
     [SerializeField] private InputActionReference startInput;
     [SerializeField] private InputActionReference backInput;
+
+    public TextMeshProUGUI startText;
+    public float startFlashSpeed = 0.5f;
+    private Coroutine flashCoroutine;
+
+    [Header("Camera Transition")]
+    [Space(5)]
+    [SerializeField] private Transform menuCamera;
+    [SerializeField] private Vector3 startRotation;
+    [SerializeField] private Vector3 gameRotation;
 
     [Header("SFX")]
     [Space(5)]
@@ -52,10 +58,47 @@ public class MainMenuUI : MonoBehaviour
 
     private bool hasStartedGame = false;
 
+    private void Awake()
+    {
+        if (menuCamera != null)
+            startRotation = menuCamera.rotation.eulerAngles;
+    }
 
     private void Start()
     {
         ShowStartGamePanel();
+        if (InputDeviceDetector.Instance != null)
+            UpdateStartText(InputDeviceDetector.Instance.CurrentDevice);
+    }
+
+    private IEnumerator FlashStart()
+    {
+        Color baseColor = startText.color;
+
+        while (!hasStartedGame)
+        {
+            float t = 0f;
+
+            while (t < startFlashSpeed)
+            {
+                t += Time.unscaledDeltaTime;
+                float alpha = Mathf.Lerp(1f, 0f, t / startFlashSpeed);
+                startText.color = new Color(baseColor.r, baseColor.g, baseColor.b, alpha);
+                yield return null;
+            }
+
+            t = 0f;
+
+            while (t < startFlashSpeed)
+            {
+                t += Time.unscaledDeltaTime;
+                float alpha = Mathf.Lerp(0f, 1f, t / startFlashSpeed);
+                startText.color = new Color(baseColor.r, baseColor.g, baseColor.b, alpha);
+                yield return null;
+            }
+        }
+
+        startText.color = new Color(baseColor.r, baseColor.g, baseColor.b, 1f);
     }
 
     private void OnEnable()
@@ -64,7 +107,10 @@ public class MainMenuUI : MonoBehaviour
         startInput.action.performed += OnStartPressed;
 
         backInput.action.Enable();
-        startInput.action.performed += OnBackPressed;
+        backInput.action.performed += OnBackPressed;
+
+        if (InputDeviceDetector.Instance != null)
+            InputDeviceDetector.Instance.OnDeviceChanged += OnDeviceChanged;
     }
 
     private void OnDisable()
@@ -73,38 +119,146 @@ public class MainMenuUI : MonoBehaviour
         startInput.action.Disable();
 
         backInput.action.performed -= OnBackPressed;
-        startInput.action.Disable();
+        backInput.action.Disable();
+
+        if (InputDeviceDetector.Instance != null)
+            InputDeviceDetector.Instance.OnDeviceChanged -= OnDeviceChanged;
+    }
+
+    private void OnDeviceChanged(InputDeviceType type)
+    {
+        UpdateStartText(type);
+    }
+
+    private void UpdateStartText(InputDeviceType type)
+    {
+        switch (type)
+        {
+            case InputDeviceType.KeyboardMouse:
+                startText.text = "Press SPACE / Click to Start";
+                break;
+
+            case InputDeviceType.Xbox:
+                startText.text = "Press A to Start";
+                break;
+
+            case InputDeviceType.PlayStation:
+                startText.text = "Press X to Start";
+                break;
+        }
     }
 
     public void ShowStartGamePanel()
     {
+        hasStartedGame = false;
+
+        if (flashCoroutine != null)
+            StopCoroutine(flashCoroutine);
+
+        flashCoroutine = StartCoroutine(FlashStart());
+
         startGamePanel.SetActive(true);
         mainMenuPanel.SetActive(false);
         networkPanel.SetActive(false);
         settingsPanel.SetActive(false);
         howToPlayPanel.SetActive(false);
 
+        SetStartCanvasVisible(true);
         SetMenuCanvasVisible(false);
 
-        if (fadeCanvasGroup != null)
-            fadeCanvasGroup.alpha = 0;
-
-        
+        ResetCamera();
     }
 
     public void StartGame()
     {
+        if (flashCoroutine != null)
+            StopCoroutine(flashCoroutine);
+
+        startText.color = new Color(startText.color.r, startText.color.g, startText.color.b, 1f);
         StartCoroutine(StartGameTransition());
     }
 
     private void OnStartPressed(InputAction.CallbackContext context)
     {
         if (!startGamePanel.activeSelf) return;
-
         if (hasStartedGame) return;
 
         hasStartedGame = true;
         StartGame();
+    }
+
+    private IEnumerator StartGameTransition()
+    {
+        if (startGameSource != null)
+            startGameSource.Play();
+
+        yield return StartCoroutine(FadeStartCanvas(0f));
+        yield return StartCoroutine(RotateCamera(gameRotation));
+
+        startGamePanel.SetActive(false);
+
+        SetMenuCanvasVisible(true);
+
+        mainMenuPanel.SetActive(true);
+        networkPanel.SetActive(false);
+        settingsPanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
+
+        SetSelected(mainMenuFirstSelected);
+    }
+
+    private IEnumerator FadeStartCanvas(float targetAlpha)
+    {
+        if (startCanvasGroup == null) yield break;
+
+        float startAlpha = startCanvasGroup.alpha;
+        float t = 0f;
+
+        startCanvasGroup.blocksRaycasts = true;
+
+        while (t < transitionDuration)
+        {
+            t += Time.unscaledDeltaTime;
+
+            float normalized = t / transitionDuration;
+
+            startCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, normalized);
+
+            yield return null;
+        }
+
+        startCanvasGroup.alpha = targetAlpha;
+        startCanvasGroup.blocksRaycasts = targetAlpha > 0f;
+    }
+
+    private IEnumerator RotateCamera(Vector3 targetEuler)
+    {
+        if (menuCamera == null)
+            yield break;
+
+        Quaternion startRot = menuCamera.rotation;
+        Quaternion targetRot = Quaternion.Euler(targetEuler);
+
+        float t = 0f;
+
+        while (t < transitionDuration)
+        {
+            t += Time.unscaledDeltaTime;
+
+            float normalized = t / transitionDuration;
+
+            menuCamera.rotation = Quaternion.Lerp(startRot, targetRot, normalized);
+
+            yield return null;
+        }
+
+        menuCamera.rotation = targetRot;
+    }
+
+    private void ResetCamera()
+    {
+        if (menuCamera != null)
+            menuCamera.rotation = Quaternion.Euler(startRotation);
     }
 
     private void OnBackPressed(InputAction.CallbackContext context)
@@ -112,44 +266,25 @@ public class MainMenuUI : MonoBehaviour
         Back();
     }
 
-    private IEnumerator StartGameTransition()
+    public void Back()
     {
-        if (startGameSource != null)
+        if (settingsPanel.activeSelf)
         {
-            startGameSource.Play();
+            CloseSettings();
+            return;
         }
 
-        yield return Fade(1);
-
-        startGamePanel.SetActive(false);
-
-        mainMenuPanel.SetActive(true);
-        SetMenuCanvasVisible(true);
-
-        settingsPanel.SetActive(false);
-        SetSelected(mainMenuFirstSelected);
-
-        yield return Fade(0);
-    }
-
-    private IEnumerator Fade(float targetAlpha)
-    {
-        if (fadeCanvasGroup == null) yield break;
-
-        float startAlpha = fadeCanvasGroup.alpha;
-        float timer = 0f;
-
-        fadeCanvasGroup.blocksRaycasts = true;
-
-        while (timer < fadeDuration)
+        if (networkPanel.activeSelf)
         {
-            timer += Time.unscaledDeltaTime;
-            fadeCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, timer / fadeDuration);
-            yield return null;
+            BackFromNetworkMenu();
+            return;
         }
 
-        fadeCanvasGroup.alpha = targetAlpha;
-        fadeCanvasGroup.blocksRaycasts = targetAlpha > 0;
+        if (howToPlayPanel.activeSelf)
+        {
+            CloseHowToPlay();
+            return;
+        }
     }
 
     public void OpenNetworkMenu()
@@ -160,8 +295,18 @@ public class MainMenuUI : MonoBehaviour
         howToPlayPanel.SetActive(false);
 
         SetMenuCanvasVisible(true);
-
         SetSelected(networkFirstSelected);
+    }
+
+    public void BackFromNetworkMenu()
+    {
+        mainMenuPanel.SetActive(true);
+        networkPanel.SetActive(false);
+        settingsPanel.SetActive(false);
+        howToPlayPanel.SetActive(false);
+
+        SetMenuCanvasVisible(true);
+        SetSelected(mainMenuFirstSelected);
     }
 
     public void OpenSettings()
@@ -172,7 +317,6 @@ public class MainMenuUI : MonoBehaviour
         howToPlayPanel.SetActive(false);
 
         SetMenuCanvasVisible(false);
-
         SetSelected(settingsFirstSelected);
     }
 
@@ -185,20 +329,15 @@ public class MainMenuUI : MonoBehaviour
         howToPlayPanel.SetActive(false);
 
         SetMenuCanvasVisible(true);
-
         RestorePreviousSelection();
     }
 
     public void ToggleSettings()
     {
         if (settingsPanel.activeSelf)
-        {
             CloseSettings();
-        }
         else
-        {
             OpenSettings();
-        }
     }
 
     public void OpenHowToPlay()
@@ -229,87 +368,49 @@ public class MainMenuUI : MonoBehaviour
     public void ToggleHowToPlay()
     {
         if (howToPlayPanel.activeSelf)
-        {
             CloseHowToPlay();
-        }
         else
-        {
             OpenHowToPlay();
-        }
-    }
-
-    public void BackFromNetworkMenu()
-    {
-        mainMenuPanel.SetActive(true);
-        networkPanel.SetActive(false);
-        settingsPanel.SetActive(false);
-        howToPlayPanel.SetActive(false);
-
-        SetMenuCanvasVisible(true);
-
-        SetSelected(mainMenuFirstSelected);
-    }
-
-    public void Back()
-    {
-        if (settingsPanel.activeSelf)
-        {
-            CloseSettings();
-            return;
-        }
-
-        if (networkPanel.activeSelf)
-        {
-            BackFromNetworkMenu();
-            return;
-        }
-
-        if (howToPlayPanel.activeSelf)
-        {
-            CloseHowToPlay();
-            return;
-        }
     }
 
     private void RememberCurrentSelection()
     {
         if (EventSystem.current == null) return;
 
-        GameObject currentSelected = EventSystem.current.currentSelectedGameObject;
+        GameObject current = EventSystem.current.currentSelectedGameObject;
 
-        if (currentSelected != null)
-        {
-            lastSelectedBeforeSubMenu = currentSelected;
-        }
+        if (current != null)
+            lastSelectedBeforeSubMenu = current;
         else
-        {
-            if (networkPanel.activeSelf)
-            {
-                lastSelectedBeforeSubMenu = networkFirstSelected;
-            }
-            else
-            {
-                lastSelectedBeforeSubMenu = mainMenuFirstSelected;
-            }
-        }
+            lastSelectedBeforeSubMenu = mainMenuFirstSelected;
     }
 
     private void RestorePreviousSelection()
     {
         if (lastSelectedBeforeSubMenu != null)
-        {
             SetSelected(lastSelectedBeforeSubMenu);
-            return;
-        }
-
-        if (networkPanel.activeSelf)
-        {
-            SetSelected(networkFirstSelected);
-        }
         else
-        {
             SetSelected(mainMenuFirstSelected);
-        }
+    }
+
+    private void SetSelected(GameObject obj)
+    {
+        if (obj == null || EventSystem.current == null) return;
+
+        if (selectCoroutine != null)
+            StopCoroutine(selectCoroutine);
+
+        selectCoroutine = StartCoroutine(SetSelectedNextFrame(obj));
+    }
+
+    private IEnumerator SetSelectedNextFrame(GameObject obj)
+    {
+        yield return null;
+
+        EventSystem.current.SetSelectedGameObject(null);
+        yield return null;
+
+        EventSystem.current.SetSelectedGameObject(obj);
     }
 
     private void SetMenuCanvasVisible(bool visible)
@@ -321,29 +422,13 @@ public class MainMenuUI : MonoBehaviour
         menuCanvasGroup.blocksRaycasts = visible;
     }
 
-
-
-    private void SetSelected(GameObject obj)
+    private void SetStartCanvasVisible(bool visible)
     {
-        if (obj == null || EventSystem.current == null) return;
+        if (startCanvasGroup == null) return;
 
-        if (selectCoroutine != null)
-        {
-            StopCoroutine(selectCoroutine);
-        }
-
-        selectCoroutine = StartCoroutine(SetSelectedNextFrame(obj));
-    }
-
-    private IEnumerator SetSelectedNextFrame(GameObject obj)
-    {
-        yield return null;
-
-        EventSystem.current.SetSelectedGameObject(null);
-
-        yield return null;
-
-        EventSystem.current.SetSelectedGameObject(obj);
+        startCanvasGroup.alpha = visible ? 1f : 0f;
+        startCanvasGroup.interactable = visible;
+        startCanvasGroup.blocksRaycasts = visible;
     }
 
     public void QuitGame()
