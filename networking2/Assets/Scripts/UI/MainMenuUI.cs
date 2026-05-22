@@ -57,16 +57,45 @@ public class MainMenuUI : MonoBehaviour
     public AudioSource startGameSource;
 
     private bool hasStartedGame = false;
+    private static bool hasSeenIntro = false;
 
     private void Awake()
     {
-        if (menuCamera != null)
-            startRotation = menuCamera.rotation.eulerAngles;
+        if (!hasSeenIntro)
+        {
+            if (menuCamera != null)
+                startRotation = menuCamera.rotation.eulerAngles;
+        }
+        else
+        {
+            if (menuCamera != null)
+            {
+                menuCamera.rotation = Quaternion.Euler(gameRotation);
+            }
+        } 
     }
 
     private void Start()
     {
-        ShowStartGamePanel();
+        if (hasSeenIntro)
+        {
+            startGamePanel.SetActive(false);
+
+            mainMenuPanel.SetActive(true);
+
+            networkPanel.SetActive(false);
+            settingsPanel.SetActive(false);
+            howToPlayPanel.SetActive(false);
+
+            SetMenuCanvasVisible(true);
+
+            SetSelected(mainMenuFirstSelected);
+        }
+        else
+        {
+            ShowStartGamePanel();
+        }
+
         if (InputDeviceDetector.Instance != null)
             UpdateStartText(InputDeviceDetector.Instance.CurrentDevice);
     }
@@ -135,7 +164,7 @@ public class MainMenuUI : MonoBehaviour
         switch (type)
         {
             case InputDeviceType.KeyboardMouse:
-                startText.text = "Press SPACE / Click to Start";
+                startText.text = "Press SPACE to Start";
                 break;
 
             case InputDeviceType.Xbox:
@@ -171,10 +200,13 @@ public class MainMenuUI : MonoBehaviour
 
     public void StartGame()
     {
+        hasSeenIntro = true;
+
         if (flashCoroutine != null)
             StopCoroutine(flashCoroutine);
 
         startText.color = new Color(startText.color.r, startText.color.g, startText.color.b, 1f);
+
         StartCoroutine(StartGameTransition());
     }
 

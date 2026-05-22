@@ -152,6 +152,7 @@ public class NetworkPlayerController : NetworkBehaviour
             playerInput.actions["Sprint"].Enable();
             playerInput.actions["Shoot"].Enable();
             playerInput.actions["Pause"].Enable();
+            playerInput.actions["Back"].Enable();
         }
 
         if (playerCamera != null)
@@ -202,7 +203,7 @@ public class NetworkPlayerController : NetworkBehaviour
             return;
         }
 
-        if (PauseScript.IsGamePaused)
+        if (IsLocallyPaused())
         {
             move = Vector2.zero;
             look = Vector2.zero;
@@ -222,45 +223,76 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (!IsOwner) return;
         if (GameOverManager.IsGameOver) return;
-        if (PauseScript.IsGamePaused) return;
+        if (IsLocallyPaused()) return;
         CameraRotation();
     }
 
     public void OnMove(InputValue value)
     {
-        if (!IsOwner || PauseScript.IsGamePaused) return;
+        if (!IsOwner || IsLocallyPaused()) return;
         move = value.Get<Vector2>();
     }
 
     public void OnLook(InputValue value)
     {
-        if (!IsOwner || PauseScript.IsGamePaused) return;
+        if (!IsOwner || IsLocallyPaused()) return;
         if (cursorInputForLook) look = value.Get<Vector2>();
     }
 
     public void OnJump(InputValue value)
     {
-        if (!IsOwner || PauseScript.IsGamePaused) return;
+        if (!IsOwner || IsLocallyPaused()) return;
         jump = value.isPressed;
     }
 
     public void OnSprint(InputValue value)
     {
-        if (!IsOwner || PauseScript.IsGamePaused) return;
+        if (!IsOwner || IsLocallyPaused()) return;
         sprint = value.isPressed;
     }
 
     public void OnShoot(InputValue value)
     {
-        if (!IsOwner || PauseScript.IsGamePaused) return;
+        if (!IsOwner || IsLocallyPaused()) return;
         if (value.isPressed && networkShoot != null) networkShoot.ProcessLocalShoot();
     }
 
     public void OnPause(InputValue value)
     {
-        if (!IsOwner || !value.isPressed) return;
-        if (pauseScript == null) pauseScript = FindFirstObjectByType<PauseScript>();
-        if (pauseScript != null) pauseScript.TogglePause();
+        if (!IsOwner)
+            return;
+
+        if (!value.isPressed)
+            return;
+
+        if (pauseScript == null)
+        {
+            pauseScript = FindFirstObjectByType<PauseScript>();
+        }
+
+        if (pauseScript != null)
+        {
+            pauseScript.TogglePause();
+        }
+    }
+
+    public void OnBack(InputValue value)
+    {
+        if (!IsOwner)
+            return;
+
+        if (!value.isPressed)
+            return;
+
+        if (pauseScript == null)
+        {
+            pauseScript = FindFirstObjectByType<PauseScript>();
+        }
+
+        if (pauseScript != null)
+        {
+            pauseScript.Back();
+        }
     }
 
 
@@ -397,7 +429,7 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        if (!IsOwner || PauseScript.IsGamePaused) return;
+        if (!IsOwner || IsLocallyPaused()) return;
         SetCursorState(cursorLocked);
     }
 
@@ -439,6 +471,19 @@ public class NetworkPlayerController : NetworkBehaviour
 
         cameraNoise.AmplitudeGain = Mathf.Lerp(cameraNoise.AmplitudeGain, targetAmplitude, Time.deltaTime * noiseBlendSpeed);
         cameraNoise.FrequencyGain = Mathf.Lerp(cameraNoise.FrequencyGain, targetFrequency, Time.deltaTime * noiseBlendSpeed);
+    }
+
+    private bool IsLocallyPaused()
+    {
+        if (pauseScript == null)
+        {
+            pauseScript = FindFirstObjectByType<PauseScript>();
+        }
+
+        if (pauseScript == null)
+            return false;
+
+        return pauseScript.IsPaused();
     }
 
     private void OnDrawGizmosSelected()

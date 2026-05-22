@@ -16,6 +16,8 @@ public class MenuScript : MonoBehaviour
     [SerializeField] private GameObject roomEntryPrefab;
     [SerializeField] private TMP_InputField roomNameInput;
 
+    [SerializeField] private TMP_InputField joinRoomCodeInput;
+
     [Header("Networking")]
     [SerializeField] private UnityTransport transport;
     [SerializeField] private NetworkManager networkManager;
@@ -60,7 +62,6 @@ public class MenuScript : MonoBehaviour
         transport.SetConnectionData("0.0.0.0", defaultPort);
         networkManager.StartHost();
 
-        // Save and sync the room code across the network via LobbyManager
         if (LobbyManager.Instance != null)
         {
             LobbyManager.Instance.currentRoomCode.Value = rCode;
@@ -81,7 +82,20 @@ public class MenuScript : MonoBehaviour
 
         entry.GetComponentInChildren<TMP_Text>().text = $"{room.roomName} [Code: {room.roomCode}] ({room.currentPlayers}/{room.maxPlayers})";
 
-        entry.GetComponentInChildren<UnityEngine.UI.Button>().onClick.AddListener(() => JoinRoom(room.hostIP));
+        entry.GetComponentInChildren<UnityEngine.UI.Button>().onClick.AddListener(() =>
+        {
+            string enteredCode = joinRoomCodeInput.text.Trim();
+
+            if (enteredCode == room.roomCode)
+            {
+                JoinRoom(room.hostIP);
+            }
+            else
+            {
+                Debug.Log("Incorrect room code!");
+            }
+        });
+
     }
 
     private void JoinRoom(string ip)

@@ -12,20 +12,24 @@ public class LobbyPlayer : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        // 1. Register state change callbacks so UI updates dynamically
         playerName.OnValueChanged += OnProfileChanged;
         isReady.OnValueChanged += OnReadyStateChanged;
 
-        // 2. Register this newly spawned player into the Lobby Manager list
         if (LobbyManager.Instance != null)
         {
             LobbyManager.Instance.RefreshPlayerList();
         }
 
-        // 3. Only the local owner requests their initial setup
-        if (IsOwner)
+        if (IsOwner && string.IsNullOrWhiteSpace(playerName.Value.ToString()))
         {
-            SubmitPlayerNameRpc($"Player {OwnerClientId}");
+            string localName = "UnknownPlayer";
+
+            if (PlayerProfileManager.Instance != null)
+            {
+                localName = PlayerProfileManager.Instance.PlayerName;
+            }
+
+            SubmitPlayerNameRpc(localName);
         }
     }
 

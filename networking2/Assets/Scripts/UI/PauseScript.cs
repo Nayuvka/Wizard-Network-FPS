@@ -5,68 +5,68 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
-public class PauseScript : MonoBehaviour
+public class PauseScript : NetworkBehaviour
 {
     [Header("Pause Panels")]
     [SerializeField] private GameObject pausePanel;
+
     [SerializeField] private GameObject settingsPanel;
 
     [Header("Pause Canvas")]
     [SerializeField] private GameObject pauseCanvas;
 
-    [Header("Network Info UI")]
-    [SerializeField] private TMP_Text networkInfoText;
-
     [Header("First Selected Objects")]
     [SerializeField] private GameObject pauseFirstSelected;
+
     [SerializeField] private GameObject settingsFirstSelected;
 
     [Header("Scene Names")]
-    [SerializeField] private string mainMenuSceneName = "MainMenu";
+    [SerializeField] private string mainMenuSceneName = "Main";
 
-    public static bool IsGamePaused { get; private set; }
 
-    private static string clientConnectedHostIP = "";
+    private bool isPaused;
 
     private GameObject lastSelectedBeforeSubMenu;
+    public bool isLobby = false;
+    public GameObject lobbyFirstSelected;
+
     private Coroutine selectCoroutine;
 
-    public void Back()
+    public bool IsPaused()
     {
-        if (settingsPanel.activeSelf)
+        return isPaused;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        ForceResume();
+        if (!isLobby)
         {
-            CloseSettings();
-            return;
+            SetSelected(null);
         }
     }
 
-    public static void SetClientConnectedHostIP(string ip)
-    {
-        clientConnectedHostIP = ip;
-    }
-
-    private void Start()
-    {
-        ForceResume();
-        UpdateNetworkInfoText();
-    }
+    #region Pause Logic
 
     public void TogglePause()
     {
+        if (!IsSpawned) return;
+
         if (GameOverManager.IsGameOver) return;
 
-        if (settingsPanel.activeSelf)
+        if (settingsPanel != null &&
+            settingsPanel.activeSelf)
         {
             Back();
             return;
         }
 
-        if (IsGamePaused)
+        if (isPaused)
         {
             ResumeGame();
+            SetSelected(lobbyFirstSelected);
         }
         else
         {
@@ -76,7 +76,7 @@ public class PauseScript : MonoBehaviour
 
     public void PauseGame()
     {
-        IsGamePaused = true;
+        isPaused = true;
 
         if (pauseCanvas != null)
             pauseCanvas.SetActive(true);
@@ -88,23 +88,25 @@ public class PauseScript : MonoBehaviour
             settingsPanel.SetActive(false);
 
         Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
 
-        UpdateNetworkInfoText();
+        Cursor.lockState =
+            CursorLockMode.None;
+
 
         SetSelected(pauseFirstSelected);
     }
 
     public void ResumeGame()
     {
-        if (GameOverManager.IsGameOver) return;
+        if (GameOverManager.IsGameOver)
+            return;
 
         ForceResume();
     }
 
     private void ForceResume()
     {
-        IsGamePaused = false;
+        isPaused = false;
 
         if (pauseCanvas != null)
             pauseCanvas.SetActive(false);
@@ -116,9 +118,24 @@ public class PauseScript : MonoBehaviour
             settingsPanel.SetActive(false);
 
         Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
 
-        SetSelected(null);
+        Cursor.lockState =
+            CursorLockMode.Locked;
+
+        
+    }
+
+    #endregion
+
+    #region Settings
+
+    public void Back()
+    {
+        if (settingsPanel != null &&
+            settingsPanel.activeSelf)
+        {
+            CloseSettings();
+        }
     }
 
     public void OpenSettings()
@@ -131,8 +148,6 @@ public class PauseScript : MonoBehaviour
         if (settingsPanel != null)
             settingsPanel.SetActive(true);
 
-        UpdateNetworkInfoText();
-
         SetSelected(settingsFirstSelected);
     }
 
@@ -144,11 +159,12 @@ public class PauseScript : MonoBehaviour
         if (pausePanel != null)
             pausePanel.SetActive(true);
 
-        UpdateNetworkInfoText();
-
         RestorePreviousSelection();
     }
 
+    #endregion
+
+    #region Scene Loading
 
     public void LoadMainMenu()
     {
@@ -173,7 +189,8 @@ public class PauseScript : MonoBehaviour
             NetworkManager.Singleton.Shutdown();
         }
 
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneManager.LoadScene(
+            SceneManager.GetActiveScene().buildIndex);
     }
 
     public void LoadSceneByIndex(int index)
@@ -194,20 +211,33 @@ public class PauseScript : MonoBehaviour
         Application.Quit();
     }
 
+    #endregion
+
+    #region Network Info
+
+
+    #endregion
+
+    #region UI Selection
+
     private void RememberCurrentSelection()
     {
-        if (EventSystem.current == null) return;
+        if (EventSystem.current == null)
+            return;
 
         GameObject currentSelected =
-            EventSystem.current.currentSelectedGameObject;
+            EventSystem.current
+            .currentSelectedGameObject;
 
         if (currentSelected != null)
         {
-            lastSelectedBeforeSubMenu = currentSelected;
+            lastSelectedBeforeSubMenu =
+                currentSelected;
         }
         else
         {
-            lastSelectedBeforeSubMenu = pauseFirstSelected;
+            lastSelectedBeforeSubMenu =
+                pauseFirstSelected;
         }
     }
 
@@ -215,7 +245,8 @@ public class PauseScript : MonoBehaviour
     {
         if (lastSelectedBeforeSubMenu != null)
         {
-            SetSelected(lastSelectedBeforeSubMenu);
+            SetSelected(
+                lastSelectedBeforeSubMenu);
         }
         else
         {
@@ -223,72 +254,10 @@ public class PauseScript : MonoBehaviour
         }
     }
 
-    private void UpdateNetworkInfoText()
-    {
-        if (networkInfoText == null) return;
-
-        if (NetworkManager.Singleton == null ||
-            !NetworkManager.Singleton.IsListening)
-        {
-            networkInfoText.text = "Network: Offline";
-            return;
-        }
-
-        if (NetworkManager.Singleton.IsHost ||
-            NetworkManager.Singleton.IsServer)
-        {
-            networkInfoText.text =
-                $"Host IP: {GetLocalIPAddress()}";
-
-            return;
-        }
-
-        if (NetworkManager.Singleton.IsClient)
-        {
-            if (!string.IsNullOrWhiteSpace(clientConnectedHostIP))
-            {
-                networkInfoText.text =
-                    $"Connected to Host: {clientConnectedHostIP}";
-            }
-            else
-            {
-                networkInfoText.text = "Connected to Host";
-            }
-        }
-    }
-
-    private string GetLocalIPAddress()
-    {
-        try
-        {
-            IPHostEntry host =
-                Dns.GetHostEntry(Dns.GetHostName());
-
-            foreach (IPAddress ip in host.AddressList)
-            {
-                if (ip.AddressFamily ==
-                    AddressFamily.InterNetwork)
-                {
-                    string ipString = ip.ToString();
-
-                    if (!ipString.StartsWith("127."))
-                    {
-                        return ipString;
-                    }
-                }
-            }
-        }
-        catch
-        {
-            return "IP Not Found";
-        }
-
-        return "IP Not Found";
-    }
-
     private void SetSelected(GameObject obj)
     {
-        if (EventSystem.current == null) return;
+        if (EventSystem.current == null)
+            return;
 
         if (selectCoroutine != null)
         {
@@ -296,20 +265,26 @@ public class PauseScript : MonoBehaviour
         }
 
         selectCoroutine =
-            StartCoroutine(SetSelectedNextFrame(obj));
+            StartCoroutine(
+                SetSelectedNextFrame(obj));
     }
 
-    private IEnumerator SetSelectedNextFrame(GameObject obj)
+    private IEnumerator SetSelectedNextFrame(
+        GameObject obj)
     {
         yield return null;
 
-        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current
+            .SetSelectedGameObject(null);
 
         yield return null;
 
         if (obj != null)
         {
-            EventSystem.current.SetSelectedGameObject(obj);
+            EventSystem.current
+                .SetSelectedGameObject(obj);
         }
     }
+
+    #endregion
 }

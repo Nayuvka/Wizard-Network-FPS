@@ -723,7 +723,7 @@ GameObject:
   - component: {fileID: 97714585}
   - component: {fileID: 97714584}
   m_Layer: 5
-  m_Name: IP_Input
+  m_Name: RoomCode Input
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1253,6 +1253,7 @@ MonoBehaviour:
   roomListContainer: {fileID: 467302871}
   roomEntryPrefab: {fileID: 8388297693365606981, guid: bac9cab6054b0ee4d947fd8803fc3f41, type: 3}
   roomNameInput: {fileID: 97714584}
+  joinRoomCodeInput: {fileID: 97714584}
   transport: {fileID: 105246150}
   networkManager: {fileID: 105246151}
   defaultPort: 7777
@@ -8393,7 +8394,7 @@ GameObject:
   - component: {fileID: 1885624619}
   - component: {fileID: 1885624618}
   m_Layer: 5
-  m_Name: Panel
+  m_Name: InputContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8759,7 +8760,7 @@ GameObject:
   - component: {fileID: 1998387935}
   - component: {fileID: 1998387934}
   m_Layer: 5
-  m_Name: InputContainer
+  m_Name: RoomCodeInputContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
