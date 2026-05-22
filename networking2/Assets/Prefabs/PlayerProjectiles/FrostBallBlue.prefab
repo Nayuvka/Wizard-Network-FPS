@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 6714680512739574179}
   - component: {fileID: 7021469668483005376}
   - component: {fileID: 1285985722578580042}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: FrostBallBlue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -361,6 +361,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WandFlash
       objectReference: {fileID: 0}
+    - target: {fileID: 1299682805160589433, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Color.b
       value: 1
@@ -487,13 +491,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 770812695423732073, guid: ee71d8dfb36a7b048aef24b0bc8f9764, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 5749441552287667129, guid: ee71d8dfb36a7b048aef24b0bc8f9764, type: 3}
       propertyPath: m_Name
       value: vfx_Hyperdrive_01
       objectReference: {fileID: 0}
+    - target: {fileID: 5749441552287667129, guid: ee71d8dfb36a7b048aef24b0bc8f9764, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 7123853702983496459, guid: ee71d8dfb36a7b048aef24b0bc8f9764, type: 3}
       propertyPath: simulationSpeed
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 9086813635383106296, guid: ee71d8dfb36a7b048aef24b0bc8f9764, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 1129676588659236728}
   - component: {fileID: 2756861422879224329}
   - component: {fileID: 1500187100396327608}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: LightningPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -361,7 +361,7 @@ GameObject:
   - component: {fileID: 6833407663874117714}
   - component: {fileID: 7567687217000705724}
   - component: {fileID: 4833815517690828074}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: WandFlash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -553,6 +553,10 @@ PrefabInstance:
     - target: {fileID: 7834434380170384362, guid: 68101499d07aced4aa0ded4acb624942, type: 3}
       propertyPath: m_Name
       value: vfx_Electricity_01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7834434380170384362, guid: 68101499d07aced4aa0ded4acb624942, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

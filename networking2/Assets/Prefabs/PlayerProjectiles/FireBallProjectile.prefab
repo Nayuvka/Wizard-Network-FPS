@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 6714680512739574179}
   - component: {fileID: 7021469668483005376}
   - component: {fileID: -4207449681030379322}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: FireBallProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -413,6 +413,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: vfx_Flames_01
       objectReference: {fileID: 0}
+    - target: {fileID: 8793510976239746625, guid: 8fa5143051527e949b0ae174c8430414, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 9064956068904258685, guid: 8fa5143051527e949b0ae174c8430414, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -434,6 +442,10 @@ PrefabInstance:
     - target: {fileID: 1299682805160589433, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Name
       value: WandFlash
+      objectReference: {fileID: 0}
+    - target: {fileID: 1299682805160589433, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Color.g

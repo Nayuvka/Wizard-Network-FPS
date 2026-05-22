@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 7021469668483005376}
   - component: {fileID: -3291747975394372557}
   - component: {fileID: -133739199720974225}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: BossProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -356,6 +356,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WandFlash
       objectReference: {fileID: 0}
+    - target: {fileID: 1299682805160589433, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 1966458179736937515, guid: 311535a33100d3741bd2b659e13ceb12, type: 3}
       propertyPath: m_Color.g
       value: 0.19275677
@@ -422,9 +426,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4073549374660299738}
     m_Modifications:
+    - target: {fileID: 1700001683036918955, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 5712219488875869251, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
       propertyPath: m_Name
       value: VFX_Fire 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5712219488875869251, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 7800046302039599656, guid: 29f4c72f9a1d9d446945740c2819895b, type: 3}
       propertyPath: m_LocalScale.x
