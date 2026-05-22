@@ -9,66 +9,147 @@ public class MainMenuUI : MonoBehaviour
     [Space(5)]
     private PlayerControls playerControls;
 
-    [Header("Panels")]
+    [Header("Menu Panels")]
+    [SerializeField] private GameObject startGamePanel;
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject networkPanel;
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject howToPlayPanel;
 
-    [SerializeField] private CanvasGroup menuCanvasGroup;
+    [Header("Canvas Groups")]
+    [Space(10)]
+    [SerializeField] CanvasGroup fadeCanvasGroup;
+    [SerializeField] CanvasGroup menuCanvasGroup;
+
+
+    [Header("Menu Settings")]
+    [Space(5)]
+    [SerializeField] private float fadeDuration;
 
     [Header("Optional Menu Elements")]
+    [Space(5)]
     [SerializeField] private bool hasMenuElements;
     [SerializeField] private GameObject[] menuUIElements;
 
     [Header("First Selected Objects")]
+    [Space(5)]
     [SerializeField] private GameObject mainMenuFirstSelected;
     [SerializeField] private GameObject networkFirstSelected;
     [SerializeField] private GameObject settingsFirstSelected;
-    [SerializeField] private GameObject howToPlayFirstSelected;
 
     private GameObject lastSelectedBeforeSubMenu;
     private Coroutine selectCoroutine;
-    private System.Action<InputAction.CallbackContext> backAction;
 
-    private void Awake()
+
+    [Header("Input")]
+    [Space(5)]
+    [SerializeField] private InputActionReference startInput;
+    [SerializeField] private InputActionReference backInput;
+
+    [Header("SFX")]
+    [Space(5)]
+    public AudioSource startGameSource;
+
+    private bool hasStartedGame = false;
+
+
+    private void Start()
     {
-        playerControls = new PlayerControls();
+        ShowStartGamePanel();
     }
 
     private void OnEnable()
     {
-        playerControls.UI.Enable();
+        startInput.action.Enable();
+        startInput.action.performed += OnStartPressed;
 
-        backAction = ctx => Back();
-        playerControls.UI.Back.performed += backAction;
+        backInput.action.Enable();
+        startInput.action.performed += OnBackPressed;
     }
 
     private void OnDisable()
     {
-        if (playerControls != null)
-        {
-            playerControls.UI.Back.performed -= backAction;
-            playerControls.UI.Disable();
-        }
+        startInput.action.performed -= OnStartPressed;
+        startInput.action.Disable();
+
+        backInput.action.performed -= OnBackPressed;
+        startInput.action.Disable();
     }
 
-    private void Start()
+    public void ShowStartGamePanel()
     {
-        ShowMainMenu();
-    }
-
-    public void ShowMainMenu()
-    {
-        mainMenuPanel.SetActive(true);
+        startGamePanel.SetActive(true);
+        mainMenuPanel.SetActive(false);
         networkPanel.SetActive(false);
         settingsPanel.SetActive(false);
         howToPlayPanel.SetActive(false);
 
-        SetMenuCanvasVisible(true);
-        SetMenuElementsVisible(true);
+        SetMenuCanvasVisible(false);
 
+        if (fadeCanvasGroup != null)
+            fadeCanvasGroup.alpha = 0;
+
+        
+    }
+
+    public void StartGame()
+    {
+        StartCoroutine(StartGameTransition());
+    }
+
+    private void OnStartPressed(InputAction.CallbackContext context)
+    {
+        if (!startGamePanel.activeSelf) return;
+
+        if (hasStartedGame) return;
+
+        hasStartedGame = true;
+        StartGame();
+    }
+
+    private void OnBackPressed(InputAction.CallbackContext context)
+    {
+        Back();
+    }
+
+    private IEnumerator StartGameTransition()
+    {
+        if (startGameSource != null)
+        {
+            startGameSource.Play();
+        }
+
+        yield return Fade(1);
+
+        startGamePanel.SetActive(false);
+
+        mainMenuPanel.SetActive(true);
+        SetMenuCanvasVisible(true);
+
+        settingsPanel.SetActive(false);
         SetSelected(mainMenuFirstSelected);
+
+        yield return Fade(0);
+    }
+
+    private IEnumerator Fade(float targetAlpha)
+    {
+        if (fadeCanvasGroup == null) yield break;
+
+        float startAlpha = fadeCanvasGroup.alpha;
+        float timer = 0f;
+
+        fadeCanvasGroup.blocksRaycasts = true;
+
+        while (timer < fadeDuration)
+        {
+            timer += Time.unscaledDeltaTime;
+            fadeCanvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, timer / fadeDuration);
+            yield return null;
+        }
+
+        fadeCanvasGroup.alpha = targetAlpha;
+        fadeCanvasGroup.blocksRaycasts = targetAlpha > 0;
     }
 
     public void OpenNetworkMenu()
@@ -79,7 +160,6 @@ public class MainMenuUI : MonoBehaviour
         howToPlayPanel.SetActive(false);
 
         SetMenuCanvasVisible(true);
-        SetMenuElementsVisible(false);
 
         SetSelected(networkFirstSelected);
     }
@@ -105,7 +185,6 @@ public class MainMenuUI : MonoBehaviour
         howToPlayPanel.SetActive(false);
 
         SetMenuCanvasVisible(true);
-        SetMenuElementsVisible(true);
 
         RestorePreviousSelection();
     }
@@ -132,9 +211,6 @@ public class MainMenuUI : MonoBehaviour
         settingsPanel.SetActive(false);
 
         SetMenuCanvasVisible(false);
-        SetMenuElementsVisible(false);
-
-        SetSelected(howToPlayFirstSelected);
     }
 
     public void CloseHowToPlay()
@@ -146,7 +222,6 @@ public class MainMenuUI : MonoBehaviour
         settingsPanel.SetActive(false);
 
         SetMenuCanvasVisible(true);
-        SetMenuElementsVisible(true);
 
         RestorePreviousSelection();
     }
@@ -171,7 +246,6 @@ public class MainMenuUI : MonoBehaviour
         howToPlayPanel.SetActive(false);
 
         SetMenuCanvasVisible(true);
-        SetMenuElementsVisible(true);
 
         SetSelected(mainMenuFirstSelected);
     }
@@ -247,18 +321,7 @@ public class MainMenuUI : MonoBehaviour
         menuCanvasGroup.blocksRaycasts = visible;
     }
 
-    private void SetMenuElementsVisible(bool visible)
-    {
-        if (!hasMenuElements || menuUIElements == null) return;
 
-        foreach (GameObject elem in menuUIElements)
-        {
-            if (elem != null)
-            {
-                elem.SetActive(visible);
-            }
-        }
-    }
 
     private void SetSelected(GameObject obj)
     {
