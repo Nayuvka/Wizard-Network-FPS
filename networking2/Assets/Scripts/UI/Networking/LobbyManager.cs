@@ -125,6 +125,16 @@ public class LobbyManager : NetworkBehaviour
         return path.Substring(slash + 1, dot - slash - 1);
     }
 
+    public void ResetLobby()
+    {
+        connectedPlayers.Clear();
+
+        if (IsServer)
+        {
+            currentRoomCode.Value = "";
+        }
+    }
+
     public List<LobbyPlayer> GetPlayers()
     {
         return connectedPlayers;

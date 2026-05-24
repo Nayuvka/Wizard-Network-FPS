@@ -35,10 +35,17 @@ public class LobbyPlayer : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        // Clean up events to prevent memory leaks
         playerName.OnValueChanged -= OnProfileChanged;
         isReady.OnValueChanged -= OnReadyStateChanged;
 
+        if (LobbyManager.Instance != null)
+        {
+            LobbyManager.Instance.RefreshPlayerList();
+        }
+    }
+
+    public override void OnDestroy()
+    {
         if (LobbyManager.Instance != null)
         {
             LobbyManager.Instance.RefreshPlayerList();

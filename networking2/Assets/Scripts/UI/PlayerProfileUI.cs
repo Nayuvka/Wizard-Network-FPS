@@ -54,6 +54,7 @@ public class PlayerProfileUI : MonoBehaviour
 
         playerNameInputField.gameObject.SetActive(true);
 
+        editButton.gameObject.SetActive(false);
         saveButton.gameObject.SetActive(true);
 
         playerNameInputField.text =
@@ -86,5 +87,6 @@ public class PlayerProfileUI : MonoBehaviour
         playerNameInputField.gameObject.SetActive(false);
 
         saveButton.gameObject.SetActive(false);
+        editButton.gameObject.SetActive(true);
     }
 }

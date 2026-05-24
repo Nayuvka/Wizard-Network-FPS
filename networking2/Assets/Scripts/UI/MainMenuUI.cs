@@ -14,9 +14,10 @@ public class MainMenuUI : MonoBehaviour
     [Space(5)]
     [SerializeField] private GameObject startGamePanel;
     [SerializeField] private GameObject mainMenuPanel;
-    [SerializeField] private GameObject networkPanel;
+    [SerializeField] private GameObject createGamePanel;
+    [SerializeField] private GameObject findGamePanel;
+    [SerializeField] private GameObject roomCodePanel;
     [SerializeField] private GameObject settingsPanel;
-    [SerializeField] private GameObject howToPlayPanel;
 
     [Header("Canvas Groups")]
     [Space(5)]
@@ -83,9 +84,9 @@ public class MainMenuUI : MonoBehaviour
 
             mainMenuPanel.SetActive(true);
 
-            networkPanel.SetActive(false);
+            createGamePanel.SetActive(false );
+            findGamePanel.SetActive(false );
             settingsPanel.SetActive(false);
-            howToPlayPanel.SetActive(false);
 
             SetMenuCanvasVisible(true);
 
@@ -177,6 +178,19 @@ public class MainMenuUI : MonoBehaviour
         }
     }
 
+    public void ResetMenuState()
+    {
+        mainMenuPanel.SetActive(true);
+
+        createGamePanel.SetActive(false);
+        findGamePanel.SetActive(false);
+        settingsPanel.SetActive(false);
+
+        SetMenuCanvasVisible(true);
+
+        SetSelected(mainMenuFirstSelected);
+    }
+
     public void ShowStartGamePanel()
     {
         hasStartedGame = false;
@@ -188,9 +202,9 @@ public class MainMenuUI : MonoBehaviour
 
         startGamePanel.SetActive(true);
         mainMenuPanel.SetActive(false);
-        networkPanel.SetActive(false);
+        createGamePanel.SetActive(false );
+        findGamePanel.SetActive(false);
         settingsPanel.SetActive(false);
-        howToPlayPanel.SetActive(false);
 
         SetStartCanvasVisible(true);
         SetMenuCanvasVisible(false);
@@ -232,9 +246,9 @@ public class MainMenuUI : MonoBehaviour
         SetMenuCanvasVisible(true);
 
         mainMenuPanel.SetActive(true);
-        networkPanel.SetActive(false);
+        createGamePanel.SetActive(false);
+        findGamePanel.SetActive(false);
         settingsPanel.SetActive(false);
-        howToPlayPanel.SetActive(false);
 
         SetSelected(mainMenuFirstSelected);
     }
@@ -306,39 +320,49 @@ public class MainMenuUI : MonoBehaviour
             return;
         }
 
-        if (networkPanel.activeSelf)
+        if (createGamePanel.activeSelf)
         {
-            BackFromNetworkMenu();
+            CloseCreateGamePanel();
             return;
         }
 
-        if (howToPlayPanel.activeSelf)
+        if (roomCodePanel.activeSelf)
         {
-            CloseHowToPlay();
+            CloseRoomCodePanel();
+            return;
+        }
+
+        if (findGamePanel.activeSelf)
+        {
+            CloseFindGamePanel();
             return;
         }
     }
 
-    public void OpenNetworkMenu()
+    public void OpenCreateGame()
     {
         mainMenuPanel.SetActive(false);
-        networkPanel.SetActive(true);
-        settingsPanel.SetActive(false);
-        howToPlayPanel.SetActive(false);
+        createGamePanel.SetActive(true);
+
+        SetMenuCanvasVisible(true);
+        SetSelected(networkFirstSelected);
+    }
+    public void OpenFindGame()
+    {
+        mainMenuPanel.SetActive(false);
+        findGamePanel.SetActive(true);
 
         SetMenuCanvasVisible(true);
         SetSelected(networkFirstSelected);
     }
 
-    public void BackFromNetworkMenu()
+    public void CloseRoomCodePanel()
     {
-        mainMenuPanel.SetActive(true);
-        networkPanel.SetActive(false);
-        settingsPanel.SetActive(false);
-        howToPlayPanel.SetActive(false);
-
-        SetMenuCanvasVisible(true);
-        SetSelected(mainMenuFirstSelected);
+        roomCodePanel.SetActive(false);
+    }
+    public void OpenRoomCodePanel()
+    {
+        roomCodePanel.SetActive(true);
     }
 
     public void OpenSettings()
@@ -346,7 +370,6 @@ public class MainMenuUI : MonoBehaviour
         RememberCurrentSelection();
 
         settingsPanel.SetActive(true);
-        howToPlayPanel.SetActive(false);
 
         SetMenuCanvasVisible(false);
         SetSelected(settingsFirstSelected);
@@ -357,8 +380,25 @@ public class MainMenuUI : MonoBehaviour
         settingsPanel.SetActive(false);
 
         mainMenuPanel.SetActive(true);
-        networkPanel.SetActive(false);
-        howToPlayPanel.SetActive(false);
+
+        SetMenuCanvasVisible(true);
+        RestorePreviousSelection();
+    }
+
+    public void CloseFindGamePanel()
+    {
+        findGamePanel.SetActive(false);
+
+        mainMenuPanel.SetActive(true);
+
+        SetMenuCanvasVisible(true);
+        RestorePreviousSelection();
+    }
+    public void CloseCreateGamePanel()
+    {
+        createGamePanel.SetActive(false);
+
+        mainMenuPanel.SetActive(true);
 
         SetMenuCanvasVisible(true);
         RestorePreviousSelection();
@@ -370,39 +410,6 @@ public class MainMenuUI : MonoBehaviour
             CloseSettings();
         else
             OpenSettings();
-    }
-
-    public void OpenHowToPlay()
-    {
-        RememberCurrentSelection();
-
-        howToPlayPanel.SetActive(true);
-        mainMenuPanel.SetActive(false);
-        networkPanel.SetActive(false);
-        settingsPanel.SetActive(false);
-
-        SetMenuCanvasVisible(false);
-    }
-
-    public void CloseHowToPlay()
-    {
-        howToPlayPanel.SetActive(false);
-
-        mainMenuPanel.SetActive(true);
-        networkPanel.SetActive(false);
-        settingsPanel.SetActive(false);
-
-        SetMenuCanvasVisible(true);
-
-        RestorePreviousSelection();
-    }
-
-    public void ToggleHowToPlay()
-    {
-        if (howToPlayPanel.activeSelf)
-            CloseHowToPlay();
-        else
-            OpenHowToPlay();
     }
 
     private void RememberCurrentSelection()

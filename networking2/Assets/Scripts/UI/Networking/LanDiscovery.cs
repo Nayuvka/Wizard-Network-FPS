@@ -9,62 +9,135 @@ public class LanDiscovery : MonoBehaviour
 {
     public static LanDiscovery Instance;
 
+    [Header("Discovery")]
     [SerializeField] private int discoveryPort = 47777;
 
+    [SerializeField] private float broadcastInterval = 1.5f;
+
     private UdpClient udpBroadcaster;
+
     private UdpClient udpListener;
+
     private bool isHosting;
+
     private bool isSearching;
 
     public event Action<RoomData> OnRoomFound;
 
+    private RoomData currentRoomData;
+
     private void Awake()
     {
-        if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
-        else { Destroy(gameObject); }
+        if (Instance == null)
+        {
+            Instance = this;
+
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    public void StartBroadcasting(string roomName, string roomCode, ushort gamePort)
+    #region HOSTING
+
+    public void StartBroadcasting(
+        RoomData roomData)
     {
         StopBroadcasting();
+
         isHosting = true;
 
-        RoomData data = new RoomData
-        {
-            roomName = roomName,
-            roomCode = roomCode,
-            hostIP = GetLocalIPAddress(),
-            currentPlayers = 1,
-            maxPlayers = 4
-        };
+        currentRoomData = roomData;
 
-        string json = JsonUtility.ToJson(data);
-        udpBroadcaster = new UdpClient { EnableBroadcast = true };
+        udpBroadcaster = new UdpClient();
 
-        Task.Run(() => BroadcastLoop(json, gamePort));
+        udpBroadcaster.EnableBroadcast = true;
+
+        Task.Run(BroadcastLoop);
     }
 
-    private async Task BroadcastLoop(string jsonPayload, ushort port)
+    private async Task BroadcastLoop()
     {
-        byte[] bytes = Encoding.UTF8.GetBytes(jsonPayload);
-        IPEndPoint endPoint = new IPEndPoint(IPAddress.Broadcast, discoveryPort);
+        IPEndPoint endPoint =
+            new IPEndPoint(
+                IPAddress.Broadcast,
+                discoveryPort);
 
         while (isHosting)
         {
             try
             {
-                await udpBroadcaster.SendAsync(bytes, bytes.Length, endPoint);
-                await Task.Delay(1500); // Broadcast every 1.5 seconds
+                string json =
+                    JsonUtility.ToJson(
+                        currentRoomData);
+
+                byte[] bytes =
+                    Encoding.UTF8.GetBytes(json);
+
+                await udpBroadcaster.SendAsync(
+                    bytes,
+                    bytes.Length,
+                    endPoint);
+
+                await Task.Delay(
+                    Mathf.RoundToInt(
+                        broadcastInterval * 1000));
             }
-            catch { break; }
+            catch
+            {
+                break;
+            }
         }
     }
 
+    public void UpdatePlayerCount(
+        int currentPlayers)
+    {
+        if (currentRoomData == null)
+            return;
+
+        currentRoomData.currentPlayers =
+            currentPlayers;
+    }
+
+    public void StopBroadcasting()
+    {
+        isHosting = false;
+
+        udpBroadcaster?.Close();
+
+        udpBroadcaster = null;
+    }
+
+    #endregion
+
+    #region SEARCHING
+
     public void StartSearching()
     {
+        if (isSearching)
+            return;
+
         StopSearching();
+
         isSearching = true;
-        udpListener = new UdpClient(discoveryPort);
+
+        udpListener = new UdpClient();
+
+        udpListener.EnableBroadcast = true;
+
+        udpListener.Client.SetSocketOption(
+            SocketOptionLevel.Socket,
+            SocketOptionName.ReuseAddress,
+            true);
+
+        udpListener.Client.Bind(
+            new IPEndPoint(
+                IPAddress.Any,
+                discoveryPort));
+
         Task.Run(ListenLoop);
     }
 
@@ -74,34 +147,66 @@ public class LanDiscovery : MonoBehaviour
         {
             try
             {
-                UdpReceiveResult result = await udpListener.ReceiveAsync();
-                string json = Encoding.UTF8.GetString(result.Buffer);
-                RoomData room = JsonUtility.FromJson<RoomData>(json);
+                UdpReceiveResult result =
+                    await udpListener.ReceiveAsync();
+
+                string json =
+                    Encoding.UTF8.GetString(
+                        result.Buffer);
+
+                RoomData room =
+                    JsonUtility.FromJson<RoomData>(
+                        json);
 
                 if (room != null)
                 {
-                    // Ensure local UI code runs on the Unity main thread
-                    UnityMainThreadDispatcher.ExecuteOnMainThread(() => {
-                        OnRoomFound?.Invoke(room);
-                    });
+                    UnityMainThreadDispatcher
+                        .ExecuteOnMainThread(() =>
+                        {
+                            OnRoomFound?.Invoke(room);
+                        });
                 }
             }
-            catch { break; }
+            catch
+            {
+                break;
+            }
         }
     }
 
-    public void StopBroadcasting() { isHosting = false; udpBroadcaster?.Close(); }
-    public void StopSearching() { isSearching = false; udpListener?.Close(); }
-
-    private string GetLocalIPAddress()
+    public void StopSearching()
     {
-        var host = Dns.GetHostEntry(Dns.GetHostName());
+        isSearching = false;
+
+        udpListener?.Close();
+
+        udpListener = null;
+    }
+
+    #endregion
+
+    public string GetLocalIPAddress()
+    {
+        var host =
+            Dns.GetHostEntry(
+                Dns.GetHostName());
+
         foreach (var ip in host.AddressList)
         {
-            if (ip.AddressFamily == AddressFamily.InterNetwork) return ip.ToString();
+            if (ip.AddressFamily ==
+                AddressFamily.InterNetwork)
+            {
+                return ip.ToString();
+            }
         }
+
         return "127.0.0.1";
     }
 
-    private void OnDestroy() { StopBroadcasting(); StopSearching(); }
+    private void OnDestroy()
+    {
+        StopBroadcasting();
+
+        StopSearching();
+    }
 }

@@ -11,7 +11,6 @@ public class PauseScript : NetworkBehaviour
 {
     [Header("Pause Panels")]
     [SerializeField] private GameObject pausePanel;
-
     [SerializeField] private GameObject settingsPanel;
 
     [Header("Pause Canvas")]
@@ -19,12 +18,10 @@ public class PauseScript : NetworkBehaviour
 
     [Header("First Selected Objects")]
     [SerializeField] private GameObject pauseFirstSelected;
-
     [SerializeField] private GameObject settingsFirstSelected;
 
     [Header("Scene Names")]
     [SerializeField] private string mainMenuSceneName = "Main";
-
 
     private bool isPaused;
 
@@ -136,6 +133,12 @@ public class PauseScript : NetworkBehaviour
         {
             CloseSettings();
         }
+
+        if (pausePanel != null && pausePanel.activeSelf && !settingsPanel.activeSelf)
+        {
+            ResumeGame();
+            return;
+        }
     }
 
     public void OpenSettings()
@@ -170,11 +173,7 @@ public class PauseScript : NetworkBehaviour
     {
         ForceResume();
 
-        if (NetworkManager.Singleton != null &&
-            NetworkManager.Singleton.IsListening)
-        {
-            NetworkManager.Singleton.Shutdown();
-        }
+        NetworkSessionManager.Instance.ShutdownSession();
 
         SceneManager.LoadScene(mainMenuSceneName);
     }
