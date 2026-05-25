@@ -66,7 +66,6 @@ public class HighlightBtn : MonoBehaviour,
         if (EventSystem.current == null)
             return;
 
-        // Mouse becomes new selected object.
         if (EventSystem.current.currentSelectedGameObject != gameObject)
         {
             EventSystem.current.SetSelectedGameObject(gameObject);

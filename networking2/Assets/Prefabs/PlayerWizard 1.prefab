@@ -850,7 +850,7 @@ MonoBehaviour:
   playerCamera: {fileID: 3146477800755033854}
   virtualCamera: {fileID: 2558970370307796477}
   analogMovement: 0
-  cursorLocked: 1
+  cursorLocked: 0
   cursorInputForLook: 1
   moveSpeed: 4
   sprintSpeed: 6

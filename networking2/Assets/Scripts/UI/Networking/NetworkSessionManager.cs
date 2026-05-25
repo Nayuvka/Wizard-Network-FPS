@@ -37,4 +37,12 @@ public class NetworkSessionManager : MonoBehaviour
             LobbyManager.Instance.ResetLobby();
         }
     }
+
+    public void Cleanup()
+    {
+        if(NetworkManager.Singleton != null)
+        {
+            Destroy(NetworkManager.Singleton.gameObject);
+        }
+    }
 }

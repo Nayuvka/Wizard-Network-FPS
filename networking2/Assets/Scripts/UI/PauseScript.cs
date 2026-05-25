@@ -174,6 +174,7 @@ public class PauseScript : NetworkBehaviour
         ForceResume();
 
         NetworkSessionManager.Instance.ShutdownSession();
+        NetworkSessionManager.Instance.Cleanup();
 
         SceneManager.LoadScene(mainMenuSceneName);
     }

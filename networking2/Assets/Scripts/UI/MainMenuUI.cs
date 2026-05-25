@@ -32,7 +32,8 @@ public class MainMenuUI : MonoBehaviour
     [Header("First Selected Objects")]
     [Space(5)]
     [SerializeField] private GameObject mainMenuFirstSelected;
-    [SerializeField] private GameObject networkFirstSelected;
+    [SerializeField] private GameObject createGameFirstSelected;
+    [SerializeField] private GameObject findGameFirstSelected;
     [SerializeField] private GameObject settingsFirstSelected;
 
     private GameObject lastSelectedBeforeSubMenu;
@@ -345,7 +346,7 @@ public class MainMenuUI : MonoBehaviour
         createGamePanel.SetActive(true);
 
         SetMenuCanvasVisible(true);
-        SetSelected(networkFirstSelected);
+        SetSelected(createGameFirstSelected);
     }
     public void OpenFindGame()
     {
@@ -353,7 +354,7 @@ public class MainMenuUI : MonoBehaviour
         findGamePanel.SetActive(true);
 
         SetMenuCanvasVisible(true);
-        SetSelected(networkFirstSelected);
+        SetSelected(findGameFirstSelected);
     }
 
     public void CloseRoomCodePanel()

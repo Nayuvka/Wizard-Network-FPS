@@ -685,7 +685,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""65a6ccde-872b-48d1-ae3e-a63655d66d4c"",
-                    ""path"": ""<Keyboard>/escape"",
+                    ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
