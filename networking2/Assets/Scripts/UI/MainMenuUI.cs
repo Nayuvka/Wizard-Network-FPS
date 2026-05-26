@@ -342,6 +342,7 @@ public class MainMenuUI : MonoBehaviour
 
     public void OpenCreateGame()
     {
+        RememberCurrentSelection();
         mainMenuPanel.SetActive(false);
         createGamePanel.SetActive(true);
 
@@ -350,6 +351,7 @@ public class MainMenuUI : MonoBehaviour
     }
     public void OpenFindGame()
     {
+        RememberCurrentSelection();
         mainMenuPanel.SetActive(false);
         findGamePanel.SetActive(true);
 
