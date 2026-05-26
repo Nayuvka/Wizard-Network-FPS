@@ -13,6 +13,8 @@ public class PlayerProfileUI : MonoBehaviour
     [SerializeField] private Button editButton;
 
     [SerializeField] private Button saveButton;
+    [SerializeField] private GameObject usernameInputContainer;
+    [SerializeField] private GameObject profileInfoContainer;
 
     private void Start()
     {
@@ -38,11 +40,8 @@ public class PlayerProfileUI : MonoBehaviour
 
         playerNameInputField.text = currentName;
 
-        playerNameText.gameObject.SetActive(true);
-
-        playerNameInputField.gameObject.SetActive(false);
-
-        saveButton.gameObject.SetActive(false);
+        profileInfoContainer.SetActive(true);
+        usernameInputContainer.SetActive(false);
     }
 
     public void BeginEditingName()
@@ -50,12 +49,8 @@ public class PlayerProfileUI : MonoBehaviour
         if (PlayerProfileManager.Instance == null)
             return;
 
-        playerNameText.gameObject.SetActive(false);
-
-        playerNameInputField.gameObject.SetActive(true);
-
-        editButton.gameObject.SetActive(false);
-        saveButton.gameObject.SetActive(true);
+        profileInfoContainer.SetActive(false);
+        usernameInputContainer.SetActive(true);
 
         playerNameInputField.text =
             PlayerProfileManager.Instance.PlayerName;
@@ -63,6 +58,15 @@ public class PlayerProfileUI : MonoBehaviour
         playerNameInputField.ActivateInputField();
 
         playerNameInputField.Select();
+    }
+
+    public void CancelEditingName()
+    {
+        if (PlayerProfileManager.Instance == null)
+            return;
+
+        profileInfoContainer.SetActive(true);
+        usernameInputContainer.SetActive(false);
     }
 
     public void SavePlayerName()
@@ -82,11 +86,7 @@ public class PlayerProfileUI : MonoBehaviour
         playerNameText.text =
             PlayerProfileManager.Instance.PlayerName;
 
-        playerNameText.gameObject.SetActive(true);
-
-        playerNameInputField.gameObject.SetActive(false);
-
-        saveButton.gameObject.SetActive(false);
-        editButton.gameObject.SetActive(true);
+        profileInfoContainer.SetActive(true);
+        usernameInputContainer.SetActive(false);
     }
 }
