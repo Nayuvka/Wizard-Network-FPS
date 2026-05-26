@@ -1,10 +1,14 @@
-using UnityEngine;
+using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class LobbyDisplayUI : MonoBehaviour
 {
+    [Header("Top Info")]
+    [SerializeField] private TextMeshProUGUI playerListText;
+
     [Header("UI Layout Container")]
     [SerializeField] private Transform container;
     [SerializeField] private GameObject playerRowPrefab;
@@ -136,12 +140,16 @@ public class LobbyDisplayUI : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        if (LobbyManager.Instance == null)
-            return;
-
         LobbyManager.Instance.RefreshPlayerList();
 
-        foreach (LobbyPlayer player in LobbyManager.Instance.GetPlayers())
+        List<LobbyPlayer> players = LobbyManager.Instance.GetPlayers();
+
+        if (playerListText != null)
+        {
+            playerListText.text = $"Player List ({players.Count})";
+        }
+
+        foreach (LobbyPlayer player in players)
         {
             GameObject row = Instantiate(playerRowPrefab, container);
 
@@ -153,8 +161,8 @@ public class LobbyDisplayUI : MonoBehaviour
 
                 texts[1].text =
                     player.isReady.Value
-                    ? "<color=green>READY</color>"
-                    : "<color=red>NOT READY</color>";
+                    ? "<color=#9AFF68>READY</color>"
+                    : "<color=#FF685A>NOT READY</color>";
             }
         }
 
