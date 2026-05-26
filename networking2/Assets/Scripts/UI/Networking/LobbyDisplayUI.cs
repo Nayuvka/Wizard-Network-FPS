@@ -168,8 +168,16 @@ public class LobbyDisplayUI : MonoBehaviour
 
         if (roomCodeText != null)
         {
-            roomCodeText.text =
-                $"Room Code: {LobbyManager.Instance.currentRoomCode.Value}";
+            string roomCode =
+             LobbyManager.Instance.currentRoomCode.Value.ToString();
+
+            roomCodeText.gameObject.SetActive(
+                !string.IsNullOrWhiteSpace(roomCode));
+
+            if (!string.IsNullOrWhiteSpace(roomCode))
+            {
+                roomCodeText.text = $"Room Code: {roomCode}";
+            }
         }
 
         if (startMatchButton != null)

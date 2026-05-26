@@ -426,9 +426,9 @@ public class MenuScript : MonoBehaviour
             Mathf.RoundToInt(
                 maxPlayersSlider.value);
 
-        string roomCode =
-            Random.Range(1000, 9999)
-            .ToString();
+        string roomCode = isPrivate
+         ? Random.Range(1000, 9999).ToString()
+    :    "";
 
         transport.SetConnectionData(
             "0.0.0.0",
