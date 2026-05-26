@@ -70,6 +70,10 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private PlayerInput playerInput;
 
+    [Header("UI Mode")]
+    [SerializeField] private bool isInUIMode;
+
+
     [SerializeField] private Animator animator;
     private bool hasAnimator;
 
@@ -108,7 +112,11 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (!IsOwner) return;
+        if (!IsOwner)
+            return;
+
+        ExitUIMode();
+
         TeleportToSpawn();
     }
 
@@ -151,6 +159,8 @@ public class NetworkPlayerController : NetworkBehaviour
             playerInput.actions["Jump"].Enable();
             playerInput.actions["Sprint"].Enable();
             playerInput.actions["Shoot"].Enable();
+            playerInput.actions["Interact"].Enable();
+            playerInput.actions["ToggleLobby"].Enable();
             playerInput.actions["Pause"].Enable();
             playerInput.actions["Back"].Enable();
         }
@@ -191,7 +201,8 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsOwner) return;
+        if (!IsOwner)
+            return;
 
         if (GameOverManager.IsGameOver)
         {
@@ -199,16 +210,18 @@ public class NetworkPlayerController : NetworkBehaviour
             look = Vector2.zero;
             jump = false;
             sprint = false;
+
             HandleCameraNoise();
             return;
         }
 
-        if (IsLocallyPaused())
+        if (IsLocallyPaused() || isInUIMode)
         {
             move = Vector2.zero;
             look = Vector2.zero;
             jump = false;
             sprint = false;
+
             HandleCameraNoise();
             return;
         }
@@ -221,40 +234,65 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void LateUpdate()
     {
-        if (!IsOwner) return;
-        if (GameOverManager.IsGameOver) return;
-        if (IsLocallyPaused()) return;
+        if (!IsOwner)
+            return;
+
+        if (GameOverManager.IsGameOver)
+            return;
+
+        if (IsLocallyPaused() || isInUIMode)
+            return;
+
         CameraRotation();
     }
 
     public void OnMove(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused()) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
         move = value.Get<Vector2>();
     }
 
     public void OnLook(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused()) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
         if (cursorInputForLook) look = value.Get<Vector2>();
     }
 
     public void OnJump(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused()) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
         jump = value.isPressed;
     }
 
     public void OnSprint(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused()) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
         sprint = value.isPressed;
     }
 
     public void OnShoot(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused()) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
         if (value.isPressed && networkShoot != null) networkShoot.ProcessLocalShoot();
+    }
+
+    public void OnToggleLobby(InputValue value)
+    {
+        if (!IsOwner)
+            return;
+
+        print("Interact Pressed");
+
+        if (!value.isPressed)
+            return;
+
+        LobbyDisplayUI lobbyUI = FindFirstObjectByType<LobbyDisplayUI>();
+
+
+        if (lobbyUI != null)
+        {
+            lobbyUI.ToggleLobbyUI();
+        }
     }
 
     public void OnPause(InputValue value)
@@ -283,6 +321,15 @@ public class NetworkPlayerController : NetworkBehaviour
 
         if (!value.isPressed)
             return;
+
+        LobbyDisplayUI lobbyUI =
+            FindFirstObjectByType<LobbyDisplayUI>();
+
+        if (lobbyUI != null && lobbyUI.gameObject.activeInHierarchy)
+        {
+            lobbyUI.CloseLobbyUI();
+            return;
+        }
 
         if (pauseScript == null)
         {
@@ -429,7 +476,15 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void OnApplicationFocus(bool hasFocus)
     {
-        if (!IsOwner || IsLocallyPaused()) return;
+        if (!IsOwner)
+            return;
+
+        if (IsLocallyPaused())
+            return;
+
+        if (isInUIMode)
+            return;
+
         SetCursorState(cursorLocked);
     }
 
@@ -437,6 +492,53 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         Cursor.visible = !newState;
         Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
+    }
+
+    public void EnterUIMode()
+    {
+        if (!IsOwner)
+            return;
+
+        isInUIMode = true;
+
+        move = Vector2.zero;
+        look = Vector2.zero;
+        jump = false;
+        sprint = false;
+
+        if (playerInput != null)
+        {
+            playerInput.SwitchCurrentActionMap("UI");
+        }
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+    }
+
+    public void ExitUIMode()
+    {
+        if (!IsOwner)
+            return;
+
+        isInUIMode = false;
+
+        move = Vector2.zero;
+        look = Vector2.zero;
+        jump = false;
+        sprint = false;
+
+        if (playerInput != null)
+        {
+            playerInput.SwitchCurrentActionMap("Player");
+        }
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    public bool IsInUIMode()
+    {
+        return isInUIMode;
     }
 
     private static float ClampAngle(float angle, float min, float max)

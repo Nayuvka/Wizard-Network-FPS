@@ -28,6 +28,10 @@ public class HighlightBtn : MonoBehaviour,
     [SerializeField] private AudioClip hoverSFX;
     [SerializeField] private AudioClip clickSFX;
 
+    [Header("Input Icon")]
+    public bool hasInputIcon;
+    public Image inputIcon;
+
     private bool isSelected;
 
     private void Reset()
@@ -53,9 +57,30 @@ public class HighlightBtn : MonoBehaviour,
             audioSource = GetComponent<AudioSource>();
     }
 
+    private void OnEnable()
+    {
+        if (InputDeviceDetector.Instance != null)
+        {
+            InputDeviceDetector.Instance.OnDeviceChanged += HandleDeviceChanged;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (InputDeviceDetector.Instance != null)
+        {
+            InputDeviceDetector.Instance.OnDeviceChanged -= HandleDeviceChanged;
+        }
+    }
+
     private void Start()
     {
         ApplyNormalColours();
+
+        if (hasInputIcon && inputIcon != null)
+        {
+            inputIcon.gameObject.SetActive(false);
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -80,19 +105,57 @@ public class HighlightBtn : MonoBehaviour,
     public void OnSelect(BaseEventData eventData)
     {
         isSelected = true;
+
         ApplyHighlightColours();
         PlaySFX(hoverSFX);
+
+        if (hasInputIcon && inputIcon != null)
+        {
+            if (
+                InputDeviceDetector.Instance != null
+                && InputDeviceDetector.Instance.CurrentDevice
+                    != InputDeviceType.KeyboardMouse
+            )
+            {
+                inputIcon.gameObject.SetActive(true);
+            }
+            else
+            {
+                inputIcon.gameObject.SetActive(false);
+            }
+        }
     }
 
     public void OnDeselect(BaseEventData eventData)
     {
         isSelected = false;
+
         ApplyNormalColours();
+
+        if (hasInputIcon && inputIcon != null)
+        {
+            inputIcon.gameObject.SetActive(false);
+        }
     }
 
     public void OnSubmit(BaseEventData eventData)
     {
         PlaySFX(clickSFX);
+    }
+
+    private void HandleDeviceChanged(InputDeviceType deviceType)
+    {
+        if (!hasInputIcon || inputIcon == null)
+            return;
+
+        if (deviceType == InputDeviceType.KeyboardMouse)
+        {
+            inputIcon.gameObject.SetActive(false);
+        }
+        else
+        {
+            inputIcon.gameObject.SetActive(isSelected);
+        }
     }
 
     private void ApplyNormalColours()
