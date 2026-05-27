@@ -645,7 +645,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 409753dc5c29a5d47962ffaaacb9c558, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bb5a2c78c906f714ca0c19a94beca40e, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -733,6 +733,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 8300000, guid: aa8b9a1bb011d154dbd76a551e0a1d50, type: 3}
   clickSFX: {fileID: 8300000, guid: 043b7f97de2637b4ebb0fdbc01318f78, type: 3}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &6551150527578582005
 GameObject:
   m_ObjectHideFlags: 0
@@ -801,7 +803,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 409753dc5c29a5d47962ffaaacb9c558, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bb5a2c78c906f714ca0c19a94beca40e, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -889,6 +891,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 8300000, guid: aa8b9a1bb011d154dbd76a551e0a1d50, type: 3}
   clickSFX: {fileID: 8300000, guid: 043b7f97de2637b4ebb0fdbc01318f78, type: 3}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &8838556660701011486
 GameObject:
   m_ObjectHideFlags: 0
@@ -957,7 +961,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 409753dc5c29a5d47962ffaaacb9c558, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bb5a2c78c906f714ca0c19a94beca40e, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1045,6 +1049,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 8300000, guid: aa8b9a1bb011d154dbd76a551e0a1d50, type: 3}
   clickSFX: {fileID: 8300000, guid: 043b7f97de2637b4ebb0fdbc01318f78, type: 3}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &8879349382791130345
 GameObject:
   m_ObjectHideFlags: 0
