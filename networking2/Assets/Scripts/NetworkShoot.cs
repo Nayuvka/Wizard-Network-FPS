@@ -16,9 +16,11 @@ public class NetworkShoot : NetworkBehaviour
     }
 
     [Header("Debug / Testing")]
+    [Space(5)]
     public bool normalState = false;
 
     [Header("References")]
+    [Space(5)]
     [SerializeField] private CameraShakeManager cameraShakeManager;
     private NetworkPlayerController playerController;
     private PlayerInput playerInput;
@@ -29,6 +31,7 @@ public class NetworkShoot : NetworkBehaviour
 
 
     [Header("Shoot Settings")]
+    [Space(5)]
     [SerializeField] private ParticleSystem wandSmoke;
     [SerializeField] private Animator wandAnimator;
     [SerializeField] private float shootCooldown = 0.5f;
@@ -38,19 +41,27 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private float shakeForce = 1.0f;
 
     [Header("Crosshair UI")]
+    [Space(5)]
     [SerializeField] private Image crosshair;
+    [SerializeField] private Image killCrosshair;
+
+    [SerializeField] private float killCrosshairDuration = 0.25f;
+
     public Color normalColour = Color.white;
     public Color enemyTargetColour = Color.red;
 
     [Header("SFX")]
+    [Space(5)]
     //[SerializeField] private AudioClip shootSound;
     [SerializeField] private float shootVolume = 0.5f;
 
     [Header("Projectile Library")]
+    [Space(5)]
     [SerializeField] private GameObject[] projectilePrefabs;
     [SerializeField] private StaffData[] staffDefinitions;
 
     [Header("Current Stats")]
+    [Space(5)]
     public int currentStaffTypeIndex = 0;
     public int baseStaffDamage = 0;
 
@@ -328,4 +339,20 @@ public class NetworkShoot : NetworkBehaviour
         yield return new WaitForSeconds(shootCooldown);
         canShoot = true;
     }
+
+    [ClientRpc]
+    public void TriggerKillMarkerClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        if (!IsOwner) return;
+        StopAllCoroutines();
+        StartCoroutine(FlashKillMarkerRoutine());
+    }
+
+    private IEnumerator FlashKillMarkerRoutine()
+    {
+        killCrosshair.gameObject.SetActive(true);
+        yield return new WaitForSeconds(killCrosshairDuration);
+        killCrosshair.gameObject.SetActive(false);
+    }
+
 }

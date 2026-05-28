@@ -698,7 +698,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1119263775
+  GlobalObjectIdHash: 4247564608
   InScenePlacedSourceGlobalObjectIdHash: 1119263775
   DeferredDespawnTick: 0
   Ownership: 1
@@ -922,6 +922,8 @@ MonoBehaviour:
     m_Bits: 129
   shakeForce: 2
   crosshair: {fileID: 5743252006145951310}
+  killCrosshair: {fileID: 0}
+  killCrosshairDuration: 0.25
   normalColour: {r: 1, g: 1, b: 1, a: 1}
   enemyTargetColour: {r: 1, g: 0, b: 0, a: 1}
   shootVolume: 0.15
