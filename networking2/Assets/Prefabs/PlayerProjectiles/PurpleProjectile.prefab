@@ -357,6 +357,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4073549374660299738}
     m_Modifications:
+    - target: {fileID: 4220149125779454825, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 4936983900422567026, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
       propertyPath: MaxDistance
       value: 20
@@ -364,6 +368,14 @@ PrefabInstance:
     - target: {fileID: 4936983900422567026, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
       propertyPath: MinDistance
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5130238316652839138, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 5935994036608315268, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 7403834500226571452, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
       propertyPath: m_LocalPosition.x
@@ -408,6 +420,10 @@ PrefabInstance:
     - target: {fileID: 8597731318025692521, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
       propertyPath: m_Name
       value: VFX_Trail_Dark
+      objectReference: {fileID: 0}
+    - target: {fileID: 8597731318025692521, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

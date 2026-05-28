@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using Unity.Cinemachine;
 using UnityEngine.InputSystem;
@@ -26,6 +27,7 @@ public class NetworkShoot : NetworkBehaviour
 
     [SerializeField] private CinemachineImpulseSource impulseSource;
 
+
     [Header("Shoot Settings")]
     [SerializeField] private ParticleSystem wandSmoke;
     [SerializeField] private Animator wandAnimator;
@@ -34,6 +36,11 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private Transform wandFirePoint;
     [SerializeField] private LayerMask shootMask;
     [SerializeField] private float shakeForce = 1.0f;
+
+    [Header("Crosshair UI")]
+    [SerializeField] private Image crosshair;
+    public Color normalColour = Color.white;
+    public Color enemyTargetColour = Color.red;
 
     [Header("SFX")]
     //[SerializeField] private AudioClip shootSound;
@@ -110,6 +117,27 @@ public class NetworkShoot : NetworkBehaviour
         if (currentStaffTypeIndex != netStaffTypeIndex.Value || baseStaffDamage != netStaffDamage.Value)
         {
             SyncStaffSettingsServerRpc(currentStaffTypeIndex, baseStaffDamage);
+        }
+
+        DetectTarget();
+    }
+
+    public void DetectTarget()
+    {
+        
+        Ray ray = new Ray(playerController.playerCamera.transform.position, playerController.playerCamera.transform.forward);
+        Debug.DrawRay(ray.origin, ray.direction * wandRange, Color.red);
+
+        if(Physics.Raycast(ray, out RaycastHit hit, wandRange, shootMask))
+        {
+            if(hit.collider.TryGetComponent<NetworkEnemy>(out NetworkEnemy networkEnemy) || hit.collider.CompareTag("TestEnemy"))
+            {
+                crosshair.color = enemyTargetColour;
+            }
+            else
+            {
+                crosshair.color = normalColour;
+            }
         }
     }
 

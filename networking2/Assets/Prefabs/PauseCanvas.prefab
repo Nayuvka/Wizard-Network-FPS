@@ -486,6 +486,7 @@ GameObject:
   - component: {fileID: 4972641334791392703}
   - component: {fileID: 7343860388118734109}
   - component: {fileID: 5062921320052123359}
+  - component: {fileID: 8356289280254456706}
   m_Layer: 5
   m_Name: PauseCanvas
   m_TagString: Untagged
@@ -577,6 +578,23 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &8356289280254456706
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5715738882543424952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ac784839a1494f4887ab046d27891f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  masterMixer: {fileID: 24100000, guid: 69e8a1679047e074dab00d95cfd6345f, type: 2}
+  masterVolumeSlider: {fileID: 5365704252110474481}
+  musicVolumeSlider: {fileID: 5793666754320674823}
+  sfxVolumeSlider: {fileID: 3288651703739263082}
+  uiVolumeSlider: {fileID: 1129047604846497071}
 --- !u!1 &6415186774132532063
 GameObject:
   m_ObjectHideFlags: 0
@@ -1580,8 +1598,52 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
+--- !u!114 &1129047604846497071 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8726458864598176380, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
+  m_PrefabInstance: {fileID: 8552813751463534419}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
 --- !u!224 &2297051031096206720 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7588971593840229075, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
   m_PrefabInstance: {fileID: 8552813751463534419}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3288651703739263082 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6562326874814674745, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
+  m_PrefabInstance: {fileID: 8552813751463534419}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
+--- !u!114 &5365704252110474481 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4379606998389773218, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
+  m_PrefabInstance: {fileID: 8552813751463534419}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
+--- !u!114 &5793666754320674823 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2798582536459611988, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
+  m_PrefabInstance: {fileID: 8552813751463534419}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
