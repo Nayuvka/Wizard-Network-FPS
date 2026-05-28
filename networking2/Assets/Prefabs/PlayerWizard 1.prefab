@@ -697,7 +697,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1119263775
+  GlobalObjectIdHash: 4247564608
   InScenePlacedSourceGlobalObjectIdHash: 1119263775
   DeferredDespawnTick: 0
   Ownership: 1
@@ -908,7 +908,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkShoot
   ShowTopMostFoldoutHeaderGroup: 1
-  normalState: 0
+  normalState: 1
   cameraShakeManager: {fileID: 0}
   impulseSource: {fileID: 0}
   wandSmoke: {fileID: 5930197824818071405}
@@ -920,7 +920,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 129
   shakeForce: 2
-  shootSound: {fileID: 8300000, guid: 8a50a051388141f4fbb4ae6f7751b144, type: 3}
   shootVolume: 0.15
   projectilePrefabs:
   - {fileID: 940489568176787497, guid: 93a66fa2969781644a73ba92bcacbc37, type: 3}
@@ -964,7 +963,7 @@ MonoBehaviour:
   healthText: {fileID: 7647164372686540773}
   damageBufferColor: {r: 1, g: 0.2352941, b: 0.24564077, a: 1}
   healBufferColor: {r: 0.8352941, g: 1, b: 0.40784314, a: 1}
-  damageBufferSpeed: 2
+  damageBufferSpeed: 8
   healBufferSpeed: 6
   damageDelay: 0.35
   healthBarContainer: {fileID: 4219182665262243212}

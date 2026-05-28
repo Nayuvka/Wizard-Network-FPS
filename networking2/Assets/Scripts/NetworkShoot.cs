@@ -36,7 +36,7 @@ public class NetworkShoot : NetworkBehaviour
     [SerializeField] private float shakeForce = 1.0f;
 
     [Header("SFX")]
-    [SerializeField] private AudioClip shootSound;
+    //[SerializeField] private AudioClip shootSound;
     [SerializeField] private float shootVolume = 0.5f;
 
     [Header("Projectile Library")]
@@ -200,7 +200,7 @@ public class NetworkShoot : NetworkBehaviour
         if (wandAnimator != null)
             wandAnimator.SetTrigger("Shoot");
 
-        PlayShootSound(wandFirePoint.position);
+        //PlayShootSound(wandFirePoint.position);
 
         StartCoroutine(ShootTimer());
 
@@ -283,16 +283,16 @@ public class NetworkShoot : NetworkBehaviour
         if (wandAnimator != null)
             wandAnimator.SetTrigger("Shoot");
 
-        PlayShootSound(spawnPos);
+        //PlayShootSound(spawnPos);
     }
 
-    private void PlayShootSound(Vector3 position)
+    /*private void PlayShootSound(Vector3 position)
     {
         if (shootSound != null)
         {
             AudioSource.PlayClipAtPoint(shootSound, position, shootVolume);
         }
-    }
+    }*/
 
     IEnumerator ShootTimer()
     {
