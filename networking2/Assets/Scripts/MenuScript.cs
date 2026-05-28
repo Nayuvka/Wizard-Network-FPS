@@ -4,7 +4,6 @@ using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
-using Unity.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -27,6 +26,7 @@ public class MenuScript : MonoBehaviour
     [SerializeField] private Transform roomListContainer;
 
     [SerializeField] private GameObject roomEntryPrefab;
+
 
     [Header("Create Room")]
     [SerializeField] private TMP_InputField roomNameInput;

@@ -158,7 +158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2184940228
+  GlobalObjectIdHash: 470513683
   InScenePlacedSourceGlobalObjectIdHash: 2184940228
   DeferredDespawnTick: 0
   Ownership: 1
@@ -185,7 +185,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkProjectile
   ShowTopMostFoldoutHeaderGroup: 1
   type: 1
-  speed: 100
+  speed: 50
   baseDamage: 10
   lifetime: 5
   impactEffect: {fileID: 613433886817584986, guid: f5c52c3ffdac25745bfd683f5c662909, type: 3}

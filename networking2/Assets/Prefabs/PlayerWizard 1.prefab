@@ -698,7 +698,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4247564608
+  GlobalObjectIdHash: 1119263775
   InScenePlacedSourceGlobalObjectIdHash: 1119263775
   DeferredDespawnTick: 0
   Ownership: 1
@@ -851,7 +851,7 @@ MonoBehaviour:
   playerCamera: {fileID: 3146477800755033854}
   virtualCamera: {fileID: 2558970370307796477}
   analogMovement: 0
-  cursorLocked: 0
+  cursorLocked: 1
   cursorInputForLook: 1
   moveSpeed: 4
   sprintSpeed: 6
@@ -926,7 +926,6 @@ MonoBehaviour:
   killCrosshairDuration: 0.25
   normalColour: {r: 1, g: 1, b: 1, a: 1}
   enemyTargetColour: {r: 1, g: 0, b: 0, a: 1}
-  shootVolume: 0.15
   projectilePrefabs:
   - {fileID: 940489568176787497, guid: 93a66fa2969781644a73ba92bcacbc37, type: 3}
   - {fileID: 940489568176787497, guid: 6470ceb4f5a2f4c46b7218f83b678c06, type: 3}

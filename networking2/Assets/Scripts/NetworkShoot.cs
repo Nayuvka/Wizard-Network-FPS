@@ -53,7 +53,7 @@ public class NetworkShoot : NetworkBehaviour
     [Header("SFX")]
     [Space(5)]
     //[SerializeField] private AudioClip shootSound;
-    [SerializeField] private float shootVolume = 0.5f;
+    //[SerializeField] private float shootVolume = 0.5f;
 
     [Header("Projectile Library")]
     [Space(5)]

@@ -185,7 +185,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkProjectile
   ShowTopMostFoldoutHeaderGroup: 1
   type: 0
-  speed: 100
+  speed: 55
   baseDamage: 10
   lifetime: 5
   impactEffect: {fileID: 613433886817584986, guid: 9f5fbcfb6299c2b4c912f3ff44f14463, type: 3}

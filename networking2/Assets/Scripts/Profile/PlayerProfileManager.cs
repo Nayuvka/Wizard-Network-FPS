@@ -10,16 +10,16 @@ public sealed class PlayerProfileManager : MonoBehaviour
     [SerializeField]
     private string[] defaultNames =
     {
-        "SilentEcho27",
-        "NovaGhost12",
-        "CrimsonWolf84",
-        "ShadowByte31",
-        "PhantomPulse77",
-        "ZeroHunter19",
-        "IronViper62",
-        "NightSignal44",
-        "StaticRogue28",
-        "FrostCipher93"
+        "ArcaneFlare",
+        "MysticWarden",
+        "RuneCaster",
+        "EmberSage",
+        "VoidInvoker",
+        "StormEnchanter",
+        "FrostWeaver",
+        "EclipseMage",
+        "AstralWizard",
+        "BlazeSorcerer"
     };
 
     public string PlayerName { get; private set; }
