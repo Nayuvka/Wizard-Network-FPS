@@ -42,7 +42,6 @@ public class PlayerHealth : NetworkBehaviour
     private float targetFillAmount;
     private float damageTimer;
 
-    // Shake
     private Vector2 originalAnchoredPos;
     private float currentShakeTimer;
 
@@ -90,7 +89,6 @@ public class PlayerHealth : NetworkBehaviour
     {
         if (!IsOwner) return;
 
-        // Retry setup if vignette wasn't found yet
         if (vignette == null)
         {
             SetupVignette();
@@ -129,18 +127,15 @@ public class PlayerHealth : NetworkBehaviour
 
         targetFillAmount = newValue / maxHealth;
 
-        // DAMAGE
         if (newValue < previousValue)
         {
             damageTimer = 0f;
 
-            // Main bar instantly updates
             if (healthBarFill != null)
             {
                 healthBarFill.fillAmount = targetFillAmount;
             }
 
-            // Damage buffer colour
             if (healthBufferFill != null)
             {
                 healthBufferFill.color = damageBufferColor;
@@ -148,21 +143,16 @@ public class PlayerHealth : NetworkBehaviour
 
             float damageTaken = previousValue - newValue;
 
-            // Big damage shake
             if (damageTaken >= bigDamageThreshold)
             {
                 TriggerShake();
             }
         }
-        // HEALING
         else if (newValue > previousValue)
         {
-            // Heal buffer colour
             if (healthBufferFill != null)
             {
                 healthBufferFill.color = healBufferColor;
-
-                // Buffer instantly expands upward
                 healthBufferFill.fillAmount = targetFillAmount;
             }
         }
@@ -177,7 +167,6 @@ public class PlayerHealth : NetworkBehaviour
     {
         if (healthBarFill == null || healthBufferFill == null) return;
 
-        // DAMAGE BUFFER
         if (healthBufferFill.fillAmount > targetFillAmount)
         {
             damageTimer += Time.deltaTime;
@@ -191,8 +180,6 @@ public class PlayerHealth : NetworkBehaviour
                 );
             }
         }
-
-        // HEAL BUFFER
         else if (healthBufferFill.fillAmount < targetFillAmount)
         {
             healthBufferFill.fillAmount = Mathf.Lerp(
@@ -201,16 +188,6 @@ public class PlayerHealth : NetworkBehaviour
                 healBufferSpeed * Time.deltaTime
             );
         }
-
-        /*
-        // OPTIONAL HEALTH COLOUR LERP
-
-        healthBarFill.color = Color.Lerp(
-            lowHealthColor,
-            fullHealthColor,
-            targetFillAmount
-        );
-        */
     }
 
     private void TriggerShake()
@@ -227,7 +204,6 @@ public class PlayerHealth : NetworkBehaviour
             currentShakeTimer -= Time.deltaTime;
 
             Vector2 randomOffset = Random.insideUnitCircle * shakeStrength;
-
             healthBarContainer.anchoredPosition = originalAnchoredPos + randomOffset;
         }
         else
@@ -242,7 +218,6 @@ public class PlayerHealth : NetworkBehaviour
 
     private void UpdateLowHealthVignette(float health)
     {
-        // Disable vignette while respawning
         if (respawnScript != null && respawnScript.isRespawning.Value)
         {
             vignette.intensity.value = 0f;
@@ -310,6 +285,20 @@ public class PlayerHealth : NetworkBehaviour
         currentHealth.Value = maxHealth;
         float targetFill = currentHealth.Value / maxHealth;
         healthBarFill.fillAmount = targetFill;
+    }
 
+    public void ApplyHealthUpgrade(float newMaxHealth)
+    {
+        if (!IsServer) return;
+
+        UpdateMaxHealthClientRpc(newMaxHealth);
+        currentHealth.Value = newMaxHealth;
+    }
+
+    [ClientRpc]
+    private void UpdateMaxHealthClientRpc(float newMaxHealth)
+    {
+        maxHealth = newMaxHealth;
+        UpdateHealthUI(currentHealth.Value, currentHealth.Value);
     }
 }

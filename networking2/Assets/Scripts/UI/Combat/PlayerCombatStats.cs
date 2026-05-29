@@ -19,6 +19,12 @@ public class PlayerCombatStats : NetworkBehaviour
         NetworkVariableWritePermission.Server
     );
 
+    public NetworkVariable<bool> hasHealthPerk = new NetworkVariable<bool>(
+        false,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
+
     public override void OnNetworkSpawn()
     {
         kills.OnValueChanged += UpdateKillUI;
@@ -64,5 +70,22 @@ public class PlayerCombatStats : NetworkBehaviour
     {
         if (!IsServer) return;
         score.Value += points;
+    }
+
+    public bool TryBuyHealthPerk(int cost, float targetHealthLevel)
+    {
+        if (!IsServer) return false;
+        if (hasHealthPerk.Value) return false;
+        if (score.Value < cost) return false;
+
+        score.Value -= cost;
+        hasHealthPerk.Value = true;
+
+        if (TryGetComponent(out PlayerHealth health))
+        {
+            health.ApplyHealthUpgrade(targetHealthLevel);
+        }
+
+        return true;
     }
 }
