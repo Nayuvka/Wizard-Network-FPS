@@ -698,7 +698,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4247564608
+  GlobalObjectIdHash: 1119263775
   InScenePlacedSourceGlobalObjectIdHash: 1119263775
   DeferredDespawnTick: 0
   Ownership: 1
@@ -909,7 +909,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkShoot
   ShowTopMostFoldoutHeaderGroup: 1
-  normalState: 1
+  normalState: 0
   cameraShakeManager: {fileID: 0}
   impulseSource: {fileID: 0}
   wandAnimator: {fileID: 4205593494189509955}
