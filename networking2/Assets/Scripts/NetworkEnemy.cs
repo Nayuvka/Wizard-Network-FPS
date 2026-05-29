@@ -67,8 +67,6 @@ public class NetworkEnemy : NetworkBehaviour
         agent = GetComponent<NavMeshAgent>();
         originalScale = transform.localScale;
 
-        // Ensure we are on the NavMesh before enabling the agent
-        // This fixes the Player 2 spawn error
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 2.0f, NavMesh.AllAreas))
         {
             transform.position = hit.position;
@@ -141,7 +139,7 @@ public class NetworkEnemy : NetworkBehaviour
         }
     }
 
-    public void TakeDamage(float damage, Vector3 sourcePosition = default)
+    public void TakeDamage(float damage, Vector3 sourcePosition = default, ulong attackerId = ulong.MaxValue)
     {
         if (!IsServer || isDead) return;
 
@@ -157,6 +155,16 @@ public class NetworkEnemy : NetworkBehaviour
         if (currentHealth.Value <= 0)
         {
             isDead = true;
+
+            if (attackerId != ulong.MaxValue && NetworkManager.Singleton.ConnectedClients.TryGetValue(attackerId, out NetworkClient client))
+            {
+                if (client.PlayerObject != null && client.PlayerObject.TryGetComponent(out PlayerCombatStats stats))
+                {
+                    stats.AddKill();
+                    stats.AddScore(100);
+                }
+            }
+
             Die();
         }
     }

@@ -35,7 +35,6 @@ public class NetworkShoot : NetworkBehaviour
 
     [Header("Shoot Settings")]
     [Space(5)]
-    //[SerializeField] private ParticleSystem wandSmoke;
     [SerializeField] private Animator wandAnimator;
     [SerializeField] private float shootCooldown = 0.5f;
     [SerializeField] private float wandRange = 100f;
@@ -52,11 +51,6 @@ public class NetworkShoot : NetworkBehaviour
 
     public Color normalColour = Color.white;
     public Color enemyTargetColour = Color.red;
-
-    [Header("SFX")]
-    [Space(5)]
-    //[SerializeField] private AudioClip shootSound;
-    //[SerializeField] private float shootVolume = 0.5f;
 
     [Header("Projectile Library")]
     [Space(5)]
@@ -246,8 +240,6 @@ public class NetworkShoot : NetworkBehaviour
         if (wandAnimator != null)
             wandAnimator.SetTrigger("Shoot");
 
-        //PlayShootSound(wandFirePoint.position);
-
         StartCoroutine(ShootTimer());
 
         Vector3 cameraOrigin = playerController.playerCamera.transform.position;
@@ -298,7 +290,7 @@ public class NetworkShoot : NetworkBehaviour
         NetworkProjectile projectile = bullet.GetComponent<NetworkProjectile>();
 
         if (projectile != null)
-            projectile.Initialize(targetPoint, targetId, extraDamage);
+            projectile.Initialize(targetPoint, targetId, extraDamage, OwnerClientId);
 
         ShootObserversClientRpc(spawnPos, netStaffTypeIndex.Value);
     }
@@ -335,17 +327,7 @@ public class NetworkShoot : NetworkBehaviour
 
         if (wandAnimator != null)
             wandAnimator.SetTrigger("Shoot");
-
-        //PlayShootSound(spawnPos);
     }
-
-    /*private void PlayShootSound(Vector3 position)
-    {
-        if (shootSound != null)
-        {
-            AudioSource.PlayClipAtPoint(shootSound, position, shootVolume);
-        }
-    }*/
 
     IEnumerator ShootTimer()
     {
@@ -368,5 +350,4 @@ public class NetworkShoot : NetworkBehaviour
         yield return new WaitForSeconds(killCrosshairDuration);
         killCrosshair.gameObject.SetActive(false);
     }
-
 }

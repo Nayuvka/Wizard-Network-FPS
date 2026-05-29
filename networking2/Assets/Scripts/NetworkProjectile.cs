@@ -26,6 +26,7 @@ public class NetworkProjectile : NetworkBehaviour
     private Vector3 lastPosition;
     private Vector3 hitOffset;
     private bool hasTargetOffset = false;
+    private ulong ownerClientId;
 
     public override void OnNetworkSpawn()
     {
@@ -37,13 +38,14 @@ public class NetworkProjectile : NetworkBehaviour
         }
     }
 
-    public void Initialize(Vector3 hitPoint, ulong targetId, int extraDamage)
+    public void Initialize(Vector3 hitPoint, ulong targetId, int extraDamage, ulong ownerId)
     {
         if (!IsServer) return;
 
         targetHitPoint = hitPoint;
         targetNetworkObjectId = targetId;
         additionalDamage = extraDamage;
+        ownerClientId = ownerId;
         lastPosition = transform.position;
 
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(targetNetworkObjectId, out targetNetObj))
@@ -144,7 +146,7 @@ public class NetworkProjectile : NetworkBehaviour
         switch (type)
         {
             case ProjectileType.Fireball:
-                enemy.TakeDamage(finalDamage, lastPosition);
+                enemy.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 enemy.PlayBurnVfx(5f);
                 StopProjectileVisuals();
                 SpawnImpactVisualsClientRpc(impactPos);
@@ -152,7 +154,7 @@ public class NetworkProjectile : NetworkBehaviour
                 break;
 
             case ProjectileType.Frostball:
-                enemy.TakeDamage(finalDamage, lastPosition);
+                enemy.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 enemy.PlayFrostVfx(3f);
                 StopProjectileVisuals();
                 SpawnImpactVisualsClientRpc(impactPos);
@@ -167,7 +169,7 @@ public class NetworkProjectile : NetworkBehaviour
                 break;
 
             case ProjectileType.Normal:
-                enemy.TakeDamage(finalDamage, lastPosition);
+                enemy.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 SpawnImpactVisualsClientRpc(impactPos);
                 DespawnProjectile();
                 break;
@@ -181,14 +183,14 @@ public class NetworkProjectile : NetworkBehaviour
         switch (type)
         {
             case ProjectileType.Fireball:
-                boss.TakeDamage(finalDamage, lastPosition);
+                boss.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 StopProjectileVisuals();
                 SpawnImpactVisualsClientRpc(impactPos);
                 StartCoroutine(BurnEffectBoss(boss, 5));
                 break;
 
             case ProjectileType.Frostball:
-                boss.TakeDamage(finalDamage, lastPosition);
+                boss.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 StopProjectileVisuals();
                 SpawnImpactVisualsClientRpc(impactPos);
                 boss.ApplyFrostEffect(3f, 0.2f);
@@ -202,7 +204,7 @@ public class NetworkProjectile : NetworkBehaviour
                 break;
 
             case ProjectileType.Normal:
-                boss.TakeDamage(finalDamage, lastPosition);
+                boss.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 SpawnImpactVisualsClientRpc(impactPos);
                 DespawnProjectile();
                 break;
@@ -217,7 +219,7 @@ public class NetworkProjectile : NetworkBehaviour
 
             if (enemy != null)
             {
-                enemy.TakeDamage(5f + (additionalDamage * 0.2f));
+                enemy.TakeDamage(5f + (additionalDamage * 0.2f), transform.position, ownerClientId);
             }
         }
         DespawnProjectile();
@@ -231,7 +233,7 @@ public class NetworkProjectile : NetworkBehaviour
 
             if (boss != null)
             {
-                boss.TakeDamage(5f + (additionalDamage * 0.2f));
+                boss.TakeDamage(5f + (additionalDamage * 0.2f), transform.position, ownerClientId);
             }
         }
         DespawnProjectile();
@@ -268,12 +270,12 @@ public class NetworkProjectile : NetworkBehaviour
         {
             if (col.TryGetComponent(out NetworkEnemy enemy))
             {
-                enemy.TakeDamage(damage, pos);
+                enemy.TakeDamage(damage, pos, ownerClientId);
                 enemy.PlayLightningVfx(0.6f);
             }
             else if (col.TryGetComponent(out NetworkBoss boss))
             {
-                boss.TakeDamage(damage, pos);
+                boss.TakeDamage(damage, pos, ownerClientId);
             }
         }
     }

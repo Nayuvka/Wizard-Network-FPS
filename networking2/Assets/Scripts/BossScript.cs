@@ -115,7 +115,7 @@ public class NetworkBoss : NetworkBehaviour
         }
     }
 
-    public void TakeDamage(float amount, Vector3 knockbackSource = default)
+    public void TakeDamage(float amount, Vector3 knockbackSource = default, ulong attackerId = ulong.MaxValue)
     {
         if (!IsServer || isDead) return;
 
@@ -128,6 +128,15 @@ public class NetworkBoss : NetworkBehaviour
 
         if (currentHealth.Value <= 0)
         {
+            if (attackerId != ulong.MaxValue && NetworkManager.Singleton.ConnectedClients.TryGetValue(attackerId, out NetworkClient client))
+            {
+                if (client.PlayerObject != null && client.PlayerObject.TryGetComponent(out PlayerCombatStats stats))
+                {
+                    stats.AddKill();
+                    stats.AddScore(500);
+                }
+            }
+
             StartCoroutine(HandleDeath());
         }
     }
