@@ -13,6 +13,9 @@ public class NetworkShoot : NetworkBehaviour
         public string staffType;
         public Material gemMaterial;
         public int projectileIndex;
+
+        [Header("VFX")]
+        public ParticleSystem staffParticle;
     }
 
     [Header("Debug / Testing")]
@@ -32,7 +35,7 @@ public class NetworkShoot : NetworkBehaviour
 
     [Header("Shoot Settings")]
     [Space(5)]
-    [SerializeField] private ParticleSystem wandSmoke;
+    //[SerializeField] private ParticleSystem wandSmoke;
     [SerializeField] private Animator wandAnimator;
     [SerializeField] private float shootCooldown = 0.5f;
     [SerializeField] private float wandRange = 100f;
@@ -233,8 +236,12 @@ public class NetworkShoot : NetworkBehaviour
             cameraShakeManager.CameraShake(impulseSource, shakeForce);
         }
 
-        if (wandSmoke != null)
-            wandSmoke.Play();
+        ParticleSystem currentSmoke = staffDefinitions[currentStaffTypeIndex].staffParticle;
+
+        if (currentSmoke != null)
+        {
+            currentSmoke.Play();
+        }
 
         if (wandAnimator != null)
             wandAnimator.SetTrigger("Shoot");
@@ -293,7 +300,7 @@ public class NetworkShoot : NetworkBehaviour
         if (projectile != null)
             projectile.Initialize(targetPoint, targetId, extraDamage);
 
-        ShootObserversClientRpc(spawnPos);
+        ShootObserversClientRpc(spawnPos, netStaffTypeIndex.Value);
     }
 
     [ServerRpc]
@@ -312,12 +319,19 @@ public class NetworkShoot : NetworkBehaviour
     }
 
     [ClientRpc]
-    void ShootObserversClientRpc(Vector3 spawnPos)
+    void ShootObserversClientRpc(Vector3 spawnPos, int staffIndex)
     {
         if (IsOwner) return;
 
-        if (wandSmoke != null)
-            wandSmoke.Play();
+        if (staffIndex < 0 || staffIndex >= staffDefinitions.Length)
+            return;
+
+        ParticleSystem currentSmoke = staffDefinitions[currentStaffTypeIndex].staffParticle;
+
+        if (currentSmoke != null)
+        {
+            currentSmoke.Play();
+        }
 
         if (wandAnimator != null)
             wandAnimator.SetTrigger("Shoot");

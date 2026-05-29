@@ -27,7 +27,6 @@ public class MenuScript : MonoBehaviour
 
     [SerializeField] private GameObject roomEntryPrefab;
 
-
     [Header("Create Room")]
     [SerializeField] private TMP_InputField roomNameInput;
 

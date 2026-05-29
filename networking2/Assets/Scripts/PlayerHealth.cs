@@ -308,5 +308,8 @@ public class PlayerHealth : NetworkBehaviour
         if (!IsServer) return;
 
         currentHealth.Value = maxHealth;
+        float targetFill = currentHealth.Value / maxHealth;
+        healthBarFill.fillAmount = targetFill;
+
     }
 }
