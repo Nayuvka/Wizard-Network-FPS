@@ -27,8 +27,20 @@ public class NetworkProjectile : NetworkBehaviour
     private Vector3 hitOffset;
     private bool hasTargetOffset = false;
 
+    public override void OnNetworkSpawn()
+    {
+        if (TryGetComponent(out Rigidbody rb))
+        {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            rb.interpolation = RigidbodyInterpolation.Interpolate;
+        }
+    }
+
     public void Initialize(Vector3 hitPoint, ulong targetId, int extraDamage)
     {
+        if (!IsServer) return;
+
         targetHitPoint = hitPoint;
         targetNetworkObjectId = targetId;
         additionalDamage = extraDamage;
@@ -40,15 +52,12 @@ public class NetworkProjectile : NetworkBehaviour
             hasTargetOffset = true;
         }
 
-        if (IsServer)
-        {
-            StartCoroutine(DestroyAfterDelay(lifetime));
-        }
+        StartCoroutine(DestroyAfterDelay(lifetime));
     }
 
     void Update()
     {
-        if (targetReached) return;
+        if (!IsServer || targetReached) return;
 
         lastPosition = transform.position;
 
@@ -63,11 +72,7 @@ public class NetworkProjectile : NetworkBehaviour
         {
             transform.position = destination;
             targetReached = true;
-
-            if (IsServer)
-            {
-                OnTargetReached();
-            }
+            OnTargetReached();
         }
         else
         {
@@ -141,7 +146,6 @@ public class NetworkProjectile : NetworkBehaviour
             case ProjectileType.Fireball:
                 enemy.TakeDamage(finalDamage, lastPosition);
                 enemy.PlayBurnVfx(5f);
-
                 StopProjectileVisuals();
                 SpawnImpactVisualsClientRpc(impactPos);
                 StartCoroutine(BurnEffect(enemy, 5));
@@ -150,7 +154,6 @@ public class NetworkProjectile : NetworkBehaviour
             case ProjectileType.Frostball:
                 enemy.TakeDamage(finalDamage, lastPosition);
                 enemy.PlayFrostVfx(3f);
-
                 StopProjectileVisuals();
                 SpawnImpactVisualsClientRpc(impactPos);
                 StartCoroutine(FreezeEffect(enemy, 3f));
@@ -159,7 +162,6 @@ public class NetworkProjectile : NetworkBehaviour
             case ProjectileType.Lightning:
                 enemy.PlayLightningVfx(0.6f);
                 ChainLightning(impactPos, finalDamage);
-
                 SpawnImpactVisualsClientRpc(impactPos);
                 DespawnProjectile();
                 break;
@@ -180,7 +182,6 @@ public class NetworkProjectile : NetworkBehaviour
         {
             case ProjectileType.Fireball:
                 boss.TakeDamage(finalDamage, lastPosition);
-
                 StopProjectileVisuals();
                 SpawnImpactVisualsClientRpc(impactPos);
                 StartCoroutine(BurnEffectBoss(boss, 5));
@@ -188,7 +189,6 @@ public class NetworkProjectile : NetworkBehaviour
 
             case ProjectileType.Frostball:
                 boss.TakeDamage(finalDamage, lastPosition);
-
                 StopProjectileVisuals();
                 SpawnImpactVisualsClientRpc(impactPos);
                 boss.ApplyFrostEffect(3f, 0.2f);
@@ -220,7 +220,6 @@ public class NetworkProjectile : NetworkBehaviour
                 enemy.TakeDamage(5f + (additionalDamage * 0.2f));
             }
         }
-
         DespawnProjectile();
     }
 
@@ -235,7 +234,6 @@ public class NetworkProjectile : NetworkBehaviour
                 boss.TakeDamage(5f + (additionalDamage * 0.2f));
             }
         }
-
         DespawnProjectile();
     }
 
@@ -253,7 +251,6 @@ public class NetworkProjectile : NetworkBehaviour
                 agent.speed = originalSpeed;
             }
         }
-
         DespawnProjectile();
     }
 
