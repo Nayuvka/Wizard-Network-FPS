@@ -25,6 +25,7 @@ public class SpawnManager : NetworkBehaviour
 
     [Header("UI References")]
     public NetworkVariable<int> currentRound = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public static System.Action<int> OnRoundStarted;
     public TMP_Text bossAnnouncementText;
 
     [Header("Statue Settings")]
@@ -36,6 +37,9 @@ public class SpawnManager : NetworkBehaviour
     public GameObject spawnIndicatorPrefab;
     public float spawnIndicatorTime = 1.5f;
     public float indicatorHeight = 3f;
+
+    [Header("Round Start")]
+    [SerializeField] private float roundStartDelay = 1f;
 
     void Awake()
     {
@@ -62,33 +66,56 @@ public class SpawnManager : NetworkBehaviour
 
     public void PrepareNextRound()
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
 
         currentRound.Value++;
 
-        if (statuePrefab != null && statueSpawnPoints.Length >= currentRound.Value)
+        OnRoundStarted?.Invoke(currentRound.Value);
+
+        if (statuePrefab != null &&
+            statueSpawnPoints.Length >= currentRound.Value)
         {
-            Vector3 spawnPos = statueSpawnPoints[currentRound.Value - 1].position;
-            activeStatue = Instantiate(statuePrefab, spawnPos, statueSpawnPoints[currentRound.Value - 1].rotation);
-            activeStatue.GetComponent<NetworkObject>().Spawn();
+            Vector3 spawnPos =
+                statueSpawnPoints[
+                    currentRound.Value - 1]
+                .position;
+
+            activeStatue =
+                Instantiate(
+                    statuePrefab,
+                    spawnPos,
+                    statueSpawnPoints[
+                        currentRound.Value - 1]
+                    .rotation);
+
+            activeStatue
+                .GetComponent<NetworkObject>()
+                .Spawn();
         }
         else
         {
-            StartCoroutine(BeginEnemySpawning());
+            StartCoroutine(
+                BeginEnemySpawning());
         }
     }
 
     public void OnStatueInteracted()
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
+
 
         if (activeStatue != null)
         {
-            activeStatue.GetComponent<NetworkObject>().Despawn();
+            activeStatue
+                .GetComponent<NetworkObject>()
+                .Despawn();
+
             activeStatue = null;
         }
 
-        StartCoroutine(BeginEnemySpawning());
+        StartCoroutine(DelayedRoundStart());
     }
 
     IEnumerator BeginEnemySpawning()
@@ -144,6 +171,15 @@ public class SpawnManager : NetworkBehaviour
         spawnedList.Add(netObj);
     }
 
+    private IEnumerator DelayedRoundStart()
+    {
+        ShowRoundUIClientRpc(currentRound.Value);
+
+        yield return new WaitForSeconds(roundStartDelay);
+
+        StartCoroutine(BeginEnemySpawning());
+    }
+
     public void EnemyDeath(NetworkObject enemy)
     {
         if (!IsServer) return;
@@ -170,6 +206,18 @@ public class SpawnManager : NetworkBehaviour
         {
             bossAnnouncementText.text = "Defeat the Boss!";
             bossAnnouncementText.gameObject.SetActive(show);
+        }
+    }
+
+    [ClientRpc]
+    private void ShowRoundUIClientRpc(int round)
+    {
+        RoundDisplayUI roundUI =
+            FindFirstObjectByType<RoundDisplayUI>();
+
+        if (roundUI != null)
+        {
+            roundUI.ShowRound(round);
         }
     }
 }

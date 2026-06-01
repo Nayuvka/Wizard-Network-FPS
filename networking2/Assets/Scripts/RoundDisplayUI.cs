@@ -1,15 +1,22 @@
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 
 public class RoundDisplayUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text roundText;
+    [SerializeField] private Animator animator;
 
-    void Update()
+    public void ShowRound(int round)
     {
-        if (SpawnManager.Instance != null)
+        if (roundText != null)
         {
-            roundText.text = "WAVE: " + SpawnManager.Instance.currentRound.Value;
+            roundText.text = $"Wave {round}";
+        }
+
+        if (animator != null)
+        {
+            animator.ResetTrigger("waveStart");
+            animator.SetTrigger("waveStart");
         }
     }
 }

@@ -698,7 +698,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 1119263775
+  GlobalObjectIdHash: 4247564608
   InScenePlacedSourceGlobalObjectIdHash: 1119263775
   DeferredDespawnTick: 0
   Ownership: 1
@@ -2632,6 +2632,7 @@ GameObject:
   - component: {fileID: 6870675213612284865}
   - component: {fileID: 3961893323845164030}
   - component: {fileID: 144465380767633668}
+  - component: {fileID: 1545971255170934341}
   m_Layer: 6
   m_Name: HUDCanvas
   m_TagString: Untagged
@@ -2747,6 +2748,20 @@ MonoBehaviour:
   normalColour: {r: 1, g: 1, b: 1, a: 1}
   enemyColour: {r: 1, g: 0, b: 0, a: 1}
   markerDuration: 0.5
+--- !u!114 &1545971255170934341
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3725263954644618378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bed5860fe971f4144a989d7ee47ecc26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoundCounterUI
+  roundText: {fileID: 4115557475020907924}
+  maxRounds: 6
 --- !u!1 &3732154124621637776
 GameObject:
   m_ObjectHideFlags: 0
@@ -3603,7 +3618,7 @@ Transform:
   m_GameObject: {fileID: 4679641582910972018}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.9716898, z: 0.50871134}
+  m_LocalPosition: {x: 0, y: 2.0300002, z: -2.4980001}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4190,6 +4205,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoundDisplayUI
   roundText: {fileID: 149506041781859889}
+  animator: {fileID: 0}
 --- !u!1 &5387209510393940920
 GameObject:
   m_ObjectHideFlags: 0
@@ -6060,7 +6076,7 @@ Transform:
   m_GameObject: {fileID: 7777363773129542194}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.19, z: 0.152}
+  m_LocalPosition: {x: 1579.8281, y: 749.28253, z: 0.152}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

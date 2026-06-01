@@ -134,6 +134,11 @@ public class NetworkPlayerController : NetworkBehaviour
 
         AssignAnimationIDs();
 
+        if (playerHUD != null)
+        {
+            playerHUD.SetActive(IsOwner);
+        }
+
         if (!IsOwner)
         {
             if (playerCamera != null) playerCamera.enabled = false;
@@ -144,6 +149,11 @@ public class NetworkPlayerController : NetworkBehaviour
             {
                 AudioListener listener = playerCamera.GetComponent<AudioListener>();
                 if (listener != null) listener.enabled = false;
+            }
+
+            if(playerHUD != null)
+            {
+                playerHUD.SetActive(false);
             }
 
             if (playerInput != null) playerInput.enabled = false;
