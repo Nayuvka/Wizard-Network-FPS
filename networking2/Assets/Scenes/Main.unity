@@ -1824,8 +1824,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Grave Wave
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ff2cc552636add44f93616ad860207fb, type: 2}
-  m_sharedMaterial: {fileID: -4032525328143589486, guid: ff2cc552636add44f93616ad860207fb, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6f8d31f6c037728428cff40f03a892d7, type: 2}
+  m_sharedMaterial: {fileID: 1087603004606175147, guid: 6f8d31f6c037728428cff40f03a892d7, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1855,7 +1855,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 1
   m_VerticalAlignment: 256
   m_textAlignment: 65535

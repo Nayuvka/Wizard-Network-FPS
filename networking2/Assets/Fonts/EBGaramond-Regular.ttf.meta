@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 57022d63cbfd6e443a169412990e20f4
+guid: 3b5f17b0ce210834cba6d19031db572f
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Oxanium
+  - EB Garamond
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

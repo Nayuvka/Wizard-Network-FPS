@@ -188,16 +188,23 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void TeleportToSpawn()
     {
-        GameObject spawnObj = GameObject.Find("PlayerSpawn");
+        if (PlayerSpawnManager.Instance == null)
+            return;
 
-        if (spawnObj != null && charController != null)
-        {
-            playerSpawn = spawnObj.transform;
+        Transform spawnPoint =
+            PlayerSpawnManager.Instance.GetStartingSpawnPoint(OwnerClientId);
 
-            charController.enabled = false;
-            transform.SetPositionAndRotation(playerSpawn.position, playerSpawn.rotation);
-            charController.enabled = true;
-        }
+        if (spawnPoint == null)
+            return;
+
+        charController.enabled = false;
+
+        transform.SetPositionAndRotation(
+            spawnPoint.position,
+            spawnPoint.rotation
+        );
+
+        charController.enabled = true;
     }
 
     private void Update()
