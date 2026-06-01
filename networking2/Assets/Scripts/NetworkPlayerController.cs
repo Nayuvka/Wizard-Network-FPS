@@ -72,6 +72,7 @@ public class NetworkPlayerController : NetworkBehaviour
 
     [Header("UI Mode")]
     [SerializeField] private bool isInUIMode;
+    [SerializeField] private GameObject playerHUD;
 
 
     [SerializeField] private Animator animator;
@@ -500,6 +501,7 @@ public class NetworkPlayerController : NetworkBehaviour
             return;
 
         isInUIMode = true;
+        playerHUD.SetActive(false);
 
         move = Vector2.zero;
         look = Vector2.zero;
@@ -521,6 +523,7 @@ public class NetworkPlayerController : NetworkBehaviour
             return;
 
         isInUIMode = false;
+        playerHUD.SetActive(true);
 
         move = Vector2.zero;
         look = Vector2.zero;
