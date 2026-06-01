@@ -245,7 +245,16 @@ public class PlayerHealth : NetworkBehaviour
 
         if (currentHealth.Value <= 0)
         {
-            Die();
+            if (TryGetComponent(out PlayerCombatStats stats) && stats.hasPhoenixPhial.Value)
+            {
+                stats.ConsumePhoenixPhial();
+                currentHealth.Value = maxHealth;
+                Debug.Log("Phoenix Phial consumed! Revived instantly.");
+            }
+            else
+            {
+                Die();
+            }
         }
     }
 

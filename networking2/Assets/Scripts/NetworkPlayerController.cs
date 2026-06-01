@@ -13,7 +13,6 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private GameObject cinemachineCameraTarget;
     [SerializeField] private PauseScript pauseScript;
     public Camera playerCamera;
-    //public Camera weaponRenderingCamera;
     [SerializeField] private CinemachineCamera virtualCamera;
 
     [Header("Input Values")]
@@ -74,7 +73,6 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private bool isInUIMode;
     [SerializeField] private GameObject playerHUD;
 
-
     [SerializeField] private Animator animator;
     private bool hasAnimator;
 
@@ -93,6 +91,20 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private GameObject playerHat;
     [SerializeField] private LayerMask hideLayerMask;
     [SerializeField] private Transform playerSpawn;
+    [HideInInspector] public NetworkPotionStand nearbyPotionStand;
+
+    public void OnInteract(InputValue value)
+    {
+        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
+
+        if (value.isPressed)
+        {
+            if (nearbyPotionStand != null)
+            {
+                nearbyPotionStand.OnPlayerInteract(this);
+            }
+        }
+    }
 
     private const float threshold = 0.01f;
 
@@ -117,7 +129,6 @@ public class NetworkPlayerController : NetworkBehaviour
             return;
 
         ExitUIMode();
-
         TeleportToSpawn();
     }
 
@@ -143,7 +154,6 @@ public class NetworkPlayerController : NetworkBehaviour
         {
             if (playerCamera != null) playerCamera.enabled = false;
             if (virtualCamera != null) virtualCamera.enabled = false;
-            //if( weaponRenderingCamera != null) weaponRenderingCamera.enabled = false;
 
             if (playerCamera != null)
             {
@@ -306,7 +316,6 @@ public class NetworkPlayerController : NetworkBehaviour
 
         LobbyDisplayUI lobbyUI = FindFirstObjectByType<LobbyDisplayUI>();
 
-
         if (lobbyUI != null)
         {
             lobbyUI.ToggleLobbyUI();
@@ -359,8 +368,6 @@ public class NetworkPlayerController : NetworkBehaviour
             pauseScript.Back();
         }
     }
-
-
 
     private void GroundedCheck()
     {
@@ -613,5 +620,14 @@ public class NetworkPlayerController : NetworkBehaviour
         Gizmos.color = Color.green;
         Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - groundedOffset, transform.position.z);
         Gizmos.DrawWireSphere(spherePosition, groundedRadius);
+    }
+
+    [ClientRpc]
+    public void ApplySpeedUpgradeClientRpc()
+    {
+        if (!IsOwner) return;
+        
+        moveSpeed *= 1.35f;
+        sprintSpeed *= 1.35f;
     }
 }

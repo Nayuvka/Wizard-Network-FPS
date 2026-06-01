@@ -32,7 +32,6 @@ public class NetworkShoot : NetworkBehaviour
 
     [SerializeField] private CinemachineImpulseSource impulseSource;
 
-
     [Header("Shoot Settings")]
     [Space(5)]
     [SerializeField] private Animator wandAnimator;
@@ -132,7 +131,6 @@ public class NetworkShoot : NetworkBehaviour
 
     public void DetectTarget()
     {
-        
         Ray ray = new Ray(playerController.playerCamera.transform.position, playerController.playerCamera.transform.forward);
         Debug.DrawRay(ray.origin, ray.direction * wandRange, Color.red);
 
@@ -349,5 +347,13 @@ public class NetworkShoot : NetworkBehaviour
         killCrosshair.gameObject.SetActive(true);
         yield return new WaitForSeconds(killCrosshairDuration);
         killCrosshair.gameObject.SetActive(false);
+    }
+
+    [ClientRpc]
+    public void ApplyFireRateUpgradeClientRpc()
+    {
+        if (!IsOwner) return; 
+        
+        shootCooldown *= 0.6f; // Faster fire rate
     }
 }
