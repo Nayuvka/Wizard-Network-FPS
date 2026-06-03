@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class RoundCounterUI : MonoBehaviour
 {
@@ -8,28 +9,43 @@ public class RoundCounterUI : MonoBehaviour
 
     private void OnEnable()
     {
-        SpawnManager.OnRoundStarted +=
-            UpdateRound;
+        SpawnManager.OnRoundStarted += UpdateRound;
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     private void OnDisable()
     {
-        SpawnManager.OnRoundStarted -=
-            UpdateRound;
+        SpawnManager.OnRoundStarted -= UpdateRound;
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
     private void Start()
     {
-        if (SpawnManager.Instance != null)
+        RefreshUI();
+    }
+
+    private void OnSceneLoaded(
+        Scene scene,
+        LoadSceneMode mode)
+    {
+        RefreshUI();
+    }
+
+    private void RefreshUI()
+    {
+        bool hasSpawnManager =
+            SpawnManager.Instance != null;
+
+        roundText.enabled = hasSpawnManager;
+
+        if (hasSpawnManager)
         {
             UpdateRound(
-                SpawnManager.Instance
-                .currentRound.Value);
+                SpawnManager.Instance.currentRound.Value);
         }
     }
 
-    private void UpdateRound(
-        int round)
+    private void UpdateRound(int round)
     {
         roundText.text =
             $"Wave {round}/{maxRounds}";
