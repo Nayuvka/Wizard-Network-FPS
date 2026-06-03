@@ -188,7 +188,7 @@ MonoBehaviour:
   type: 2
   speed: 80
   baseDamage: 10
-  lifetime: 5
+  lifetime: 2
   impactEffect: {fileID: 613433886817584986, guid: 930845c07d8fc4441a35a29a87fc963a, type: 3}
   effectRadius: 7
   enemyLayer:
