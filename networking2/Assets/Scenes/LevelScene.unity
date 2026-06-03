@@ -25801,7 +25801,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: -6173777426710763991, guid: 69e8a1679047e074dab00d95cfd6345f, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: 5cd99da5fff65d14e88189d1a4fd47bf, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 0.1
   m_Pitch: 1
   Loop: 1
@@ -41648,6 +41648,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1687626445}
+  - component: {fileID: 1687626446}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -41671,6 +41672,19 @@ Transform:
   - {fileID: 693305633}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1687626446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687626444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 369f8c4f8eb55f140bf4fbc00e67d1ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleMusicManager
+  musicSource: {fileID: 949120188}
 --- !u!1001 &1688570793
 PrefabInstance:
   m_ObjectHideFlags: 0

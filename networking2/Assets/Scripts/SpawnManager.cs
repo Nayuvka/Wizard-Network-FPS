@@ -114,7 +114,7 @@ public class SpawnManager : NetworkBehaviour
 
             activeStatue = null;
         }
-
+        StartBattleMusicClientRpc();
         StartCoroutine(DelayedRoundStart());
     }
 
@@ -191,6 +191,7 @@ public class SpawnManager : NetworkBehaviour
 
         if (spawnedList.Count == 0)
         {
+            StopBattleMusicClientRpc();
             if (currentRound.Value == bossRound)
             {
                 ToggleBossUIClientRpc(false);
@@ -218,6 +219,24 @@ public class SpawnManager : NetworkBehaviour
         if (roundUI != null)
         {
             roundUI.ShowRound(round);
+        }
+    }
+
+    [ClientRpc]
+    private void StartBattleMusicClientRpc()
+    {
+        if (BattleMusicManager.Instance != null)
+        {
+            BattleMusicManager.Instance.StartBattleMusic();
+        }
+    }
+
+    [ClientRpc]
+    private void StopBattleMusicClientRpc()
+    {
+        if (BattleMusicManager.Instance != null)
+        {
+            BattleMusicManager.Instance.StopBattleMusic();
         }
     }
 }

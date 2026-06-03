@@ -1028,7 +1028,7 @@ MonoBehaviour:
   lightningVfxOffset: {x: 0, y: 1, z: 0}
   deathClip: {fileID: 8300000, guid: f51e0d5712586db44bcd880e5889b723, type: 3}
   hitClip: {fileID: 8300000, guid: a3c79fc1fd29f194d98ddab5bc4d2c74, type: 3}
-  spawnClip: {fileID: 0}
+  spawnClip: {fileID: 8300000, guid: a3c79fc1fd29f194d98ddab5bc4d2c74, type: 3}
   knockbackDuration: 0.05
   knockbackIntensity: 1.75
   popScale: 1.2
