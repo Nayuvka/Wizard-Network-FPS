@@ -18,6 +18,10 @@ public class NetworkProjectile : NetworkBehaviour
     [SerializeField] private float effectRadius = 5f;
     [SerializeField] private LayerMask enemyLayer;
 
+    [Header("Impact Effects")]
+    [SerializeField] private AudioClip hitSfx;
+    [SerializeField] private float hitSfxVolume = 1f;
+
     private Vector3 targetHitPoint;
     private ulong targetNetworkObjectId;
     private int additionalDamage = 0;
@@ -106,18 +110,42 @@ public class NetworkProjectile : NetworkBehaviour
                 return;
             }
 
-            SpawnImpactVisualsClientRpc(impactPos);
+            PlayImpactFeedback(impactPos);
             DespawnProjectile();
             return;
         }
 
-        SpawnImpactVisualsClientRpc(impactPos);
+        PlayImpactFeedback(impactPos);
         DespawnProjectile();
     }
 
     private void StopProjectileVisuals()
     {
         StopProjectileVisualsClientRpc();
+    }
+    private void PlayImpactFeedback(Vector3 impactPos)
+    {
+        PlayImpactFeedbackClientRpc(impactPos);
+    }
+
+
+
+    [ClientRpc]
+    private void PlayImpactFeedbackClientRpc(Vector3 impactPos)
+    {
+        if (impactEffect != null)
+        {
+            Instantiate(impactEffect, impactPos, Quaternion.identity);
+        }
+
+        if (hitSfx != null)
+        {
+            AudioSource.PlayClipAtPoint(
+                hitSfx,
+                impactPos,
+                hitSfxVolume
+            );
+        }
     }
 
     [ClientRpc]
@@ -149,7 +177,7 @@ public class NetworkProjectile : NetworkBehaviour
                 enemy.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 enemy.PlayBurnVfx(5f);
                 StopProjectileVisuals();
-                SpawnImpactVisualsClientRpc(impactPos);
+                PlayImpactFeedback(impactPos);
                 StartCoroutine(BurnEffect(enemy, 5));
                 break;
 
@@ -157,20 +185,20 @@ public class NetworkProjectile : NetworkBehaviour
                 enemy.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 enemy.PlayFrostVfx(3f);
                 StopProjectileVisuals();
-                SpawnImpactVisualsClientRpc(impactPos);
+                PlayImpactFeedback(impactPos);
                 StartCoroutine(FreezeEffect(enemy, 3f));
                 break;
 
             case ProjectileType.Lightning:
                 enemy.PlayLightningVfx(0.6f);
                 ChainLightning(impactPos, finalDamage);
-                SpawnImpactVisualsClientRpc(impactPos);
+                PlayImpactFeedback(impactPos);
                 DespawnProjectile();
                 break;
 
             case ProjectileType.Normal:
                 enemy.TakeDamage(finalDamage, lastPosition, ownerClientId);
-                SpawnImpactVisualsClientRpc(impactPos);
+                PlayImpactFeedback(impactPos);
                 DespawnProjectile();
                 break;
         }
@@ -185,27 +213,27 @@ public class NetworkProjectile : NetworkBehaviour
             case ProjectileType.Fireball:
                 boss.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 StopProjectileVisuals();
-                SpawnImpactVisualsClientRpc(impactPos);
+                PlayImpactFeedback(impactPos);
                 StartCoroutine(BurnEffectBoss(boss, 5));
                 break;
 
             case ProjectileType.Frostball:
                 boss.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 StopProjectileVisuals();
-                SpawnImpactVisualsClientRpc(impactPos);
+                PlayImpactFeedback(impactPos);
                 boss.ApplyFrostEffect(3f, 0.2f);
                 StartCoroutine(FreezeEffectBoss(3f));
                 break;
 
             case ProjectileType.Lightning:
                 ChainLightning(impactPos, finalDamage);
-                SpawnImpactVisualsClientRpc(impactPos);
+                PlayImpactFeedback(impactPos);
                 DespawnProjectile();
                 break;
 
             case ProjectileType.Normal:
                 boss.TakeDamage(finalDamage, lastPosition, ownerClientId);
-                SpawnImpactVisualsClientRpc(impactPos);
+                PlayImpactFeedback(impactPos);
                 DespawnProjectile();
                 break;
         }
@@ -280,15 +308,7 @@ public class NetworkProjectile : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
-    private void SpawnImpactVisualsClientRpc(Vector3 pos)
-    {
-        if (impactEffect != null)
-        {
-            Instantiate(impactEffect, pos, Quaternion.identity);
-        }
-    }
-
+    
     private void DespawnProjectile()
     {
         if (NetworkObject != null && NetworkObject.IsSpawned)

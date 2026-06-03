@@ -74,6 +74,7 @@ public class NetworkShoot : NetworkBehaviour
     );
 
     private bool canShoot = true;
+    private Coroutine killMarkerRoutine;
 
     [Header("Visuals")]
     [SerializeField] private Renderer staffRenderer;
@@ -327,6 +328,22 @@ public class NetworkShoot : NetworkBehaviour
             wandAnimator.SetTrigger("Shoot");
     }
 
+    public void ShowKillMarker()
+    {
+        if (!IsServer)
+            return;
+
+        ClientRpcParams rpcParams = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { OwnerClientId }
+            }
+        };
+
+        TriggerKillMarkerClientRpc(rpcParams);
+    }
+
     IEnumerator ShootTimer()
     {
         canShoot = false;
@@ -337,9 +354,15 @@ public class NetworkShoot : NetworkBehaviour
     [ClientRpc]
     public void TriggerKillMarkerClientRpc(ClientRpcParams clientRpcParams = default)
     {
-        if (!IsOwner) return;
-        StopAllCoroutines();
-        StartCoroutine(FlashKillMarkerRoutine());
+        if (!IsOwner)
+            return;
+
+        if (killMarkerRoutine != null)
+        {
+            StopCoroutine(killMarkerRoutine);
+        }
+
+        killMarkerRoutine = StartCoroutine(FlashKillMarkerRoutine());
     }
 
     private IEnumerator FlashKillMarkerRoutine()

@@ -194,6 +194,8 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
+  hitSfx: {fileID: 8300000, guid: 8203ac705af8c8140b57dcaf568ddb9e, type: 3}
+  hitSfxVolume: 1
 --- !u!96 &2756861422879224329
 TrailRenderer:
   serializedVersion: 4
@@ -503,6 +505,14 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 12
       objectReference: {fileID: 0}
+    - target: {fileID: 2148424902596685265, guid: 395d5ec7f996d364f94e11cfb40736d3, type: 3}
+      propertyPath: m_Pitch
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2148424902596685265, guid: 395d5ec7f996d364f94e11cfb40736d3, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: 6f0428e081c53614e8d839a3305f450f, type: 3}
     - target: {fileID: 2148424902596685265, guid: 395d5ec7f996d364f94e11cfb40736d3, type: 3}
       propertyPath: MaxDistance
       value: 20

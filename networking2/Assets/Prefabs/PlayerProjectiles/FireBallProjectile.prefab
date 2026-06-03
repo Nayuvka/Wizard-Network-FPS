@@ -193,6 +193,8 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
+  hitSfx: {fileID: 8300000, guid: 7e6537a6ea183f047ac7e549b24e65b6, type: 3}
+  hitSfxVolume: 1
 --- !u!114 &-4207449681030379322
 MonoBehaviour:
   m_ObjectHideFlags: 0

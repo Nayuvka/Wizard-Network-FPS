@@ -156,12 +156,21 @@ public class NetworkEnemy : NetworkBehaviour
         {
             isDead = true;
 
-            if (attackerId != ulong.MaxValue && NetworkManager.Singleton.ConnectedClients.TryGetValue(attackerId, out NetworkClient client))
+            if (attackerId != ulong.MaxValue &&
+                NetworkManager.Singleton.ConnectedClients.TryGetValue(attackerId, out NetworkClient client))
             {
-                if (client.PlayerObject != null && client.PlayerObject.TryGetComponent(out PlayerCombatStats stats))
+                if (client.PlayerObject != null)
                 {
-                    stats.AddKill();
-                    stats.AddScore(100);
+                    if (client.PlayerObject.TryGetComponent(out PlayerCombatStats stats))
+                    {
+                        stats.AddKill();
+                        stats.AddScore(100);
+                    }
+
+                    if (client.PlayerObject.TryGetComponent(out NetworkShoot shoot))
+                    {
+                        shoot.ShowKillMarker();
+                    }
                 }
             }
 
@@ -339,8 +348,9 @@ public class NetworkEnemy : NetworkBehaviour
     [ClientRpc]
     private void DeathFeedbackClientRpc(Vector3 pos)
     {
-        HideEnemyVisualsAndColliders();
         DestroyActiveStatusVfx();
+        HideEnemyVisualsAndColliders();
+ 
         if (deathVfx != null) Instantiate(deathVfx, pos, Quaternion.identity);
         if (deathClip != null) AudioSource.PlayClipAtPoint(deathClip, pos);
     }

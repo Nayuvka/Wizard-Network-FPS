@@ -158,7 +158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2998771775
+  GlobalObjectIdHash: 4084013556
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -193,6 +193,8 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
+  hitSfx: {fileID: 8300000, guid: 49b71f7c0288ce842965fd1524b311f1, type: 3}
+  hitSfxVolume: 1
 --- !u!96 &7021469668483005376
 TrailRenderer:
   serializedVersion: 4
@@ -361,6 +363,18 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 12
       objectReference: {fileID: 0}
+    - target: {fileID: 4936983900422567026, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
+      propertyPath: m_Pitch
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4936983900422567026, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
+      propertyPath: m_Volume
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4936983900422567026, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
+      propertyPath: m_Resource
+      value: 
+      objectReference: {fileID: 8300000, guid: 9f0310ebfe3a2514a959dba9418046fe, type: 3}
     - target: {fileID: 4936983900422567026, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
       propertyPath: MaxDistance
       value: 20

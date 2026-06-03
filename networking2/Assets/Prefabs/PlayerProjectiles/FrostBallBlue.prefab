@@ -158,7 +158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 470513683
+  GlobalObjectIdHash: 2184940228
   InScenePlacedSourceGlobalObjectIdHash: 2184940228
   DeferredDespawnTick: 0
   Ownership: 1
@@ -193,6 +193,8 @@ MonoBehaviour:
   enemyLayer:
     serializedVersion: 2
     m_Bits: 128
+  hitSfx: {fileID: 8300000, guid: 9606e329bdc6f8a44b6029ad19313744, type: 3}
+  hitSfxVolume: 1
 --- !u!114 &1285985722578580042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -384,6 +386,10 @@ PrefabInstance:
     - target: {fileID: 2661055167852718726, guid: a64a37f3dcfb87f44a8c6236b5d49b20, type: 3}
       propertyPath: m_Layer
       value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2945724958592830080, guid: a64a37f3dcfb87f44a8c6236b5d49b20, type: 3}
+      propertyPath: m_Pitch
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2945724958592830080, guid: a64a37f3dcfb87f44a8c6236b5d49b20, type: 3}
       propertyPath: m_Resource
