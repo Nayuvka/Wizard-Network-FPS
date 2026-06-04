@@ -348,25 +348,6 @@ public class NetworkPlayerController : NetworkBehaviour
         }
     }
 
-    public void OnPause(InputValue value)
-    {
-        if (!IsOwner)
-            return;
-
-        if (!value.isPressed)
-            return;
-
-        if (pauseScript == null)
-        {
-            pauseScript = FindFirstObjectByType<PauseScript>();
-        }
-
-        if (pauseScript != null)
-        {
-            pauseScript.TogglePause();
-        }
-    }
-
     public void OnBack(InputValue value)
     {
         if (!IsOwner)
@@ -383,17 +364,20 @@ public class NetworkPlayerController : NetworkBehaviour
             lobbyUI.CloseLobbyUI();
             return;
         }
+    }
 
-        if (pauseScript == null)
-        {
-            pauseScript = FindFirstObjectByType<PauseScript>();
-        }
+    public void OnPause(InputValue value)
+    {
+        if (!IsOwner || !value.isPressed)
+            return;
 
         if (pauseScript != null)
         {
-            pauseScript.Back();
+            pauseScript.TogglePause();
         }
     }
+
+    
 
     private void GroundedCheck()
     {

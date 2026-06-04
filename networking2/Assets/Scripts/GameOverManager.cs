@@ -287,6 +287,11 @@ public class GameOverManager : NetworkBehaviour
             NetworkManager.Singleton.Shutdown();
         }
 
+        if(NetworkSessionManager.Instance != null)
+        {
+            NetworkSessionManager.Instance.Cleanup();
+        }
+
         SceneManager.LoadScene(mainMenuSceneName);
     }
 }

@@ -132,12 +132,13 @@ public class PauseScript : NetworkBehaviour
             settingsPanel.activeSelf)
         {
             CloseSettings();
+            return;
         }
 
-        if (pausePanel != null && pausePanel.activeSelf && !settingsPanel.activeSelf)
+        if (pausePanel != null &&
+            pausePanel.activeSelf)
         {
             ResumeGame();
-            return;
         }
     }
 

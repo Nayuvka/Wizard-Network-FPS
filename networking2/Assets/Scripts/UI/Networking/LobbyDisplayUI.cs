@@ -28,6 +28,10 @@ public class LobbyDisplayUI : MonoBehaviour
 
     private NetworkPlayerController localPlayerController;
 
+    public AudioSource audioSource;
+    public AudioClip toggleSFX;
+
+
     private void Start()
     {
         FindLocalPlayerController();
@@ -76,10 +80,11 @@ public class LobbyDisplayUI : MonoBehaviour
 
     public void OpenLobbyUI()
     {
-        if (lobbyPanel != null)
-        {
-            lobbyPanel.SetActive(true);
-        }
+        if (lobbyPanel == null || lobbyPanel.activeSelf)
+            return;
+
+        lobbyPanel.SetActive(true);
+        PlaySFX(toggleSFX);
 
         if (localPlayerController != null)
         {
@@ -91,10 +96,11 @@ public class LobbyDisplayUI : MonoBehaviour
 
     public void CloseLobbyUI()
     {
-        if (lobbyPanel != null)
-        {
-            lobbyPanel.SetActive(false);
-        }
+        if (lobbyPanel == null || !lobbyPanel.activeSelf)
+            return;
+
+        lobbyPanel.SetActive(false);
+        PlaySFX(toggleSFX);
 
         if (localPlayerController != null)
         {
@@ -217,5 +223,13 @@ public class LobbyDisplayUI : MonoBehaviour
         {
             localPlayerController.ExitUIMode();
         }
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioSource == null || clip == null)
+            return;
+
+        audioSource.PlayOneShot(clip);
     }
 }
