@@ -178,9 +178,18 @@ public class NetworkEnemy : NetworkBehaviour
         }
     }
 
-    public void PlayBurnVfx(float duration) { if (IsServer) PlayBurnVfxClientRpc(duration); }
-    public void PlayFrostVfx(float duration) { if (IsServer) PlayFrostVfxClientRpc(duration); }
-    public void PlayLightningVfx(float duration) { if (IsServer) PlayLightningVfxClientRpc(duration); }
+    public void PlayBurnVfx(float duration)
+    {
+        if (IsServer && !isDead) PlayBurnVfxClientRpc(duration);
+    }
+    public void PlayFrostVfx(float duration)
+    {
+        if (IsServer && !isDead) PlayFrostVfxClientRpc(duration);
+    }
+    public void PlayLightningVfx(float duration)
+    {
+        if (IsServer && !isDead) PlayLightningVfxClientRpc(duration);
+    }
 
     [ClientRpc] private void PlayBurnVfxClientRpc(float duration) => SpawnStatusVfx(burnVfxPrefab, ref activeBurnVfx, burnVfxOffset, duration);
     [ClientRpc] private void PlayFrostVfxClientRpc(float duration) => SpawnStatusVfx(frostVfxPrefab, ref activeFrostVfx, frostVfxOffset, duration);
@@ -188,7 +197,7 @@ public class NetworkEnemy : NetworkBehaviour
 
     private void SpawnStatusVfx(GameObject prefab, ref GameObject activeVfx, Vector3 localOffset, float duration)
     {
-        if (prefab == null) return;
+        if (isDead || prefab == null) return;
         if (activeVfx != null) Destroy(activeVfx);
 
         Transform attachPoint = statusVfxPoint != null ? statusVfxPoint : transform;
