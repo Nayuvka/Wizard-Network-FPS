@@ -9695,7 +9695,7 @@ GameObject:
   - component: {fileID: 415119582}
   - component: {fileID: 415119581}
   - component: {fileID: 415119580}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23868,10 +23868,10 @@ GameObject:
   - component: {fileID: 836090216}
   - component: {fileID: 836090221}
   - component: {fileID: 836090220}
-  - component: {fileID: 836090218}
   - component: {fileID: 836090217}
   - component: {fileID: 836090222}
-  m_Layer: 0
+  - component: {fileID: 836090223}
+  m_Layer: 14
   m_Name: PotionStand
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23919,27 +23919,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!65 &836090218
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 836090215}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 2}
-  m_Center: {x: 0, y: 0, z: 0.5}
 --- !u!23 &836090220
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -24013,8 +23992,27 @@ MonoBehaviour:
   potionToSell: 0
   potionCost: 2500
   buySound: {fileID: 0}
-  interactCanvas: {fileID: 415119578}
-  interactText: {fileID: 1861034794}
+--- !u!65 &836090223
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 836090215}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &836158697
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -45014,6 +45012,7 @@ GameObject:
   - component: {fileID: 1821135283}
   - component: {fileID: 1821135284}
   - component: {fileID: 1821135286}
+  - component: {fileID: 1821135287}
   m_Layer: 0
   m_Name: LevelManager
   m_TagString: Untagged
@@ -45118,6 +45117,18 @@ MonoBehaviour:
   winFirstSelected: {fileID: 2012694307}
   gameSceneName: LevelScene
   mainMenuSceneName: Main
+--- !u!114 &1821135287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1821135281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dff9fdf8c21b38d4eb3fb808b0478664, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InputDeviceDetector
 --- !u!1001 &1821818267
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -46617,7 +46628,7 @@ GameObject:
   - component: {fileID: 1861034793}
   - component: {fileID: 1861034795}
   - component: {fileID: 1861034794}
-  m_Layer: 0
+  m_Layer: 14
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

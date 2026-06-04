@@ -18,7 +18,7 @@ public class PlayerProfileUI : MonoBehaviour
 
     private void Start()
     {
-        print("Script working");
+        //print("Script working");
         LoadProfileUI();
 
         if (editButton != null)

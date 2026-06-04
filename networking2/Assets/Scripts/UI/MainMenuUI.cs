@@ -166,7 +166,7 @@ public class MainMenuUI : MonoBehaviour
         switch (type)
         {
             case InputDeviceType.KeyboardMouse:
-                startText.text = "Press SPACE to Start";
+                startText.text = "Press SPACE or Click LMB to Start";
                 break;
 
             case InputDeviceType.Xbox:

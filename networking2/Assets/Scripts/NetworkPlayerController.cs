@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.Cinemachine;
 using Unity.Netcode;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UnityEngine.SceneManagement;
 public class NetworkPlayerController : NetworkBehaviour
 {
     [Header("References")]
+    [Space(5)]
     [SerializeField] private NetworkShoot networkShoot;
     [SerializeField] private CharacterController charController;
     [SerializeField] private PlayerHealth playerHealth;
@@ -27,27 +29,39 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private bool cursorInputForLook = true;
 
     [Header("Player Movement")]
+    [Space(5)]
     [SerializeField] private float moveSpeed = 4f;
     [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float speedChangeRate = 10f;
 
     [Header("Look Settings")]
+    [Space(5)]
     [SerializeField] private float mouseSensitivity = 0.07f;
     [SerializeField] private float gamepadSensitivity = 120f;
 
+    [Header("Interaction Settings")]
+    [Space(5)]
+    [SerializeField] private float interactionRange = 4f;
+    [SerializeField] LayerMask interactionLayer;
+    [SerializeField] private TextMeshProUGUI interactText;
+    private IInteractable currentInteractable;
+
     [Header("Jump Settings")]
+    [Space(5)]
     [SerializeField] private float jumpHeight = 1.2f;
     [SerializeField] private float gravity = -15f;
     [SerializeField] private float jumpTimeout = 0.1f;
     [SerializeField] private float fallTimeout = 0.15f;
 
     [Header("Ground Check")]
+    [Space(5)]
     [SerializeField] private bool grounded = true;
     [SerializeField] private float groundedOffset = -0.14f;
     [SerializeField] private float groundedRadius = 0.5f;
     [SerializeField] private LayerMask groundLayers;
 
     [Header("Cinemachine Settings")]
+    [Space(5)]
     [SerializeField] private float topClamp = 75f;
     [SerializeField] private float bottomClamp = -75f;
 
@@ -60,6 +74,7 @@ public class NetworkPlayerController : NetworkBehaviour
     private float fallTimeoutDelta;
 
     [Header("Camera Movement Noise")]
+    [Space(5)]
     [SerializeField] private CinemachineBasicMultiChannelPerlin cameraNoise;
     [SerializeField] private float walkNoiseAmplitude = 0.15f;
     [SerializeField] private float walkNoiseFrequency = 0.25f;
@@ -72,6 +87,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [Header("UI Mode")]
     [SerializeField] private bool isInUIMode;
     [SerializeField] private GameObject playerHUD;
+    [SerializeField] private GameObject interactPrompt;
 
     [SerializeField] private Animator animator;
     private bool hasAnimator;
@@ -83,28 +99,17 @@ public class NetworkPlayerController : NetworkBehaviour
     private int animIDMotionSpeed;
 
     [Header("Player SFX")]
+    [Space(5)]
     public AudioClip LandingAudioClip;
     public AudioClip[] FootstepAudioClips;
     [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
 
     [Header("Misc")]
+    [Space(5)]
     [SerializeField] private GameObject playerHat;
     [SerializeField] private LayerMask hideLayerMask;
     [SerializeField] private Transform playerSpawn;
-    [HideInInspector] public NetworkPotionStand nearbyPotionStand;
 
-    public void OnInteract(InputValue value)
-    {
-        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
-
-        if (value.isPressed)
-        {
-            if (nearbyPotionStand != null)
-            {
-                nearbyPotionStand.OnPlayerInteract(this);
-            }
-        }
-    }
 
     private const float threshold = 0.01f;
 
@@ -164,6 +169,11 @@ public class NetworkPlayerController : NetworkBehaviour
             if(playerHUD != null)
             {
                 playerHUD.SetActive(false);
+            }
+
+            if(interactPrompt != null)
+            {
+                interactPrompt.SetActive(false);
             }
 
             if (playerInput != null) playerInput.enabled = false;
@@ -258,6 +268,7 @@ public class NetworkPlayerController : NetworkBehaviour
         JumpAndGravity();
         Move();
         HandleCameraNoise();
+        DetectInteractable();
     }
 
     private void LateUpdate()
@@ -302,6 +313,21 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
         if (value.isPressed && networkShoot != null) networkShoot.ProcessLocalShoot();
+    }
+    
+    public void OnInteract(InputValue value)
+    {
+
+        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
+
+        if (currentInteractable != null)
+        {
+            if (value.isPressed)
+            {
+                print("Interacted");
+                currentInteractable.Interact();
+            }
+        }
     }
 
     public void OnToggleLobby(InputValue value)
@@ -393,6 +419,45 @@ public class NetworkPlayerController : NetworkBehaviour
 
             transform.Rotate(Vector3.up * rotationVelocity);
         }
+    }
+
+    public void DetectInteractable()
+    {
+        currentInteractable = null;
+
+        Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+        Debug.DrawRay(ray.origin, ray.direction * interactionRange, Color.blue);
+
+        if(Physics.Raycast(ray, out RaycastHit hit, interactionRange, interactionLayer))
+        {
+            if(hit.collider.TryGetComponent<IInteractable>(out var interactable))
+            {
+                currentInteractable = interactable;
+                interactPrompt.SetActive(true);
+
+                if(hit.collider.TryGetComponent<TestObject>(out TestObject testObject)){
+
+                    interactText.text = testObject.promptMessage;
+                }
+                else if(hit.collider.TryGetComponent<NetworkPotionStand>(out NetworkPotionStand networkPotionStand)){
+                    interactText.text = networkPotionStand.promptMessage;
+                }
+                else
+                {
+                    interactText.text = "Interact";
+                }
+            }
+            else
+            {
+                interactPrompt.SetActive(false);
+            }
+        }
+        else
+        {
+            interactPrompt.SetActive(false);
+        }
+
+
     }
 
     private void Move()

@@ -1,6 +1,5 @@
 using Unity.Netcode;
 using UnityEngine;
-using TMPro;
 
 public enum PotionType
 {
@@ -10,77 +9,58 @@ public enum PotionType
     PhoenixPhial
 }
 
-public class NetworkPotionStand : NetworkBehaviour
+public class NetworkPotionStand : NetworkBehaviour, IInteractable
 {
     [Header("Potion Settings")]
-    public PotionType potionToSell;
-    [SerializeField] private int potionCost = 2500;
-    
-    [Header("Effects")]
-    [SerializeField] private AudioClip buySound;
+    [SerializeField] private PotionType potionToSell;
 
-    [Header("UI Interaction")]
-    [SerializeField] private GameObject interactCanvas;
-    [SerializeField] private TMP_Text interactText;
+    [SerializeField]
+    private int potionCost = 2500;
 
-    private void Start()
+    [Header("Audio")]
+    [SerializeField]
+    private AudioClip buySound;
+
+    public string promptMessage =>
+        $"Buy {potionToSell} [{potionCost}]";
+
+    public void Interact()
     {
-        if (interactCanvas != null) 
-            interactCanvas.SetActive(false);
-        
-        if (interactText != null)
-        {
-            interactText.text = $"Press 'E' to buy {potionToSell} [{potionCost}]";
-        }
-    }
+        if (!NetworkManager.Singleton.IsClient)
+            return;
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.TryGetComponent(out NetworkPlayerController player) && player.IsOwner)
-        {
-            if (interactCanvas != null) interactCanvas.SetActive(true);
-            player.nearbyPotionStand = this;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.TryGetComponent(out NetworkPlayerController player) && player.IsOwner)
-        {
-            if (interactCanvas != null) interactCanvas.SetActive(false);
-            if (player.nearbyPotionStand == this) 
-                player.nearbyPotionStand = null;
-        }
-    }
-
-    public void OnPlayerInteract(NetworkPlayerController player)
-    {
-        TryBuyPotionServerRpc(player.OwnerClientId, potionToSell);
+        TryBuyPotionServerRpc(
+            NetworkManager.Singleton.LocalClientId
+        );
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void TryBuyPotionServerRpc(ulong clientId, PotionType typeRequested)
+    private void TryBuyPotionServerRpc(ulong clientId)
     {
-        if (NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out NetworkClient client))
-        {
-            if (client.PlayerObject != null && client.PlayerObject.TryGetComponent(out PlayerCombatStats stats))
-            {
-                bool success = stats.TryBuyPotion(potionCost, typeRequested);
-                
-                if (success)
-                {
-                    PlayEffectsClientRpc(transform.position);
-                }
-            }
-        }
+        if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out NetworkClient client))
+            return;
+
+        if (client.PlayerObject == null)
+            return;
+
+        if (!client.PlayerObject.TryGetComponent(
+                out PlayerCombatStats stats))
+            return;
+
+        bool success = stats.TryBuyPotion(potionCost,potionToSell);
+
+        if (!success)
+            return;
+
+        PlayEffectsClientRpc(transform.position);
     }
 
     [ClientRpc]
-    private void PlayEffectsClientRpc(Vector3 pos)
+    private void PlayEffectsClientRpc(Vector3 position)
     {
         if (buySound != null)
         {
-            AudioSource.PlayClipAtPoint(buySound, pos);
+            AudioSource.PlayClipAtPoint(buySound,position);
         }
     }
 }
