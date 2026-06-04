@@ -143,7 +143,7 @@ public class NetworkPlayerController : NetworkBehaviour
         networkShoot = GetComponent<NetworkShoot>();
         playerHealth = GetComponent<PlayerHealth>();
         hasAnimator = TryGetComponent(out animator);
-
+        
         if (virtualCamera == null)
             virtualCamera = GetComponentInChildren<CinemachineCamera>();
 
