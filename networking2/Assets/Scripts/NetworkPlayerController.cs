@@ -110,7 +110,6 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private LayerMask hideLayerMask;
     [SerializeField] private Transform playerSpawn;
 
-
     private const float threshold = 0.01f;
 
     private bool IsMouseInput()
@@ -144,7 +143,7 @@ public class NetworkPlayerController : NetworkBehaviour
         networkShoot = GetComponent<NetworkShoot>();
         playerHealth = GetComponent<PlayerHealth>();
         hasAnimator = TryGetComponent(out animator);
-
+        
         if (virtualCamera == null)
             virtualCamera = GetComponentInChildren<CinemachineCamera>();
 
@@ -242,6 +241,14 @@ public class NetworkPlayerController : NetworkBehaviour
         if (!IsOwner)
             return;
 
+        if (!isInUIMode && !IsLocallyPaused() && !GameOverManager.IsGameOver)
+        {
+            if (Cursor.lockState != CursorLockMode.Locked)
+            {
+                SetCursorState(true);
+            }
+        }
+
         if (GameOverManager.IsGameOver)
         {
             move = Vector2.zero;
@@ -317,7 +324,6 @@ public class NetworkPlayerController : NetworkBehaviour
     
     public void OnInteract(InputValue value)
     {
-
         if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
 
         if (currentInteractable != null)
@@ -440,8 +446,6 @@ public class NetworkPlayerController : NetworkBehaviour
         {
             interactPrompt.SetActive(false);
         }
-
-
     }
 
     private void Move()
@@ -586,8 +590,7 @@ public class NetworkPlayerController : NetworkBehaviour
             playerInput.SwitchCurrentActionMap("UI");
         }
 
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
+        SetCursorState(false);
     }
 
     public void ExitUIMode()
@@ -608,8 +611,7 @@ public class NetworkPlayerController : NetworkBehaviour
             playerInput.SwitchCurrentActionMap("Player");
         }
 
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        SetCursorState(true);
     }
 
     public bool IsInUIMode()
