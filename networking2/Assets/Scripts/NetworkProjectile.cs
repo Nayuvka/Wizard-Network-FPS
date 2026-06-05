@@ -109,6 +109,15 @@ public class NetworkProjectile : NetworkBehaviour
                 ApplyBossTypeEffect(boss, impactPos);
                 return;
             }
+            if (targetNetObj.TryGetComponent(out ExplosiveBarrel barrel))
+            {
+                barrel.Explode();
+
+                PlayImpactFeedback(transform.position);
+
+                DespawnProjectile();
+                return;
+            }
 
             PlayImpactFeedback(impactPos);
             DespawnProjectile();
