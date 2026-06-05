@@ -673,7 +673,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 135009706
+  GlobalObjectIdHash: 1119263775
   InScenePlacedSourceGlobalObjectIdHash: 1119263775
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1337,6 +1337,15 @@ MonoBehaviour:
   playerController: {fileID: 4021408388055237309}
   wallPrefab: {fileID: 1816293323269879197, guid: 1df0bb193d85111449753c6f327b0dd5, type: 3}
   pillarPrefab: {fileID: 5413352615793737273, guid: 64d6dd66119463a428adf500488c2a4f, type: 3}
+  normalStaffIndex: 3
+  iceStaffIndex: 1
+  lightningStaffIndex: 2
+  fireStaffIndex: 0
+  wallSpawnDistance: 8
+  pillarLiftHeight: 6
+  dashSpeed: 25
+  dashDuration: 0.3
+  fireLaunchMultiplier: 3
 --- !u!1 &1243842138587494804
 GameObject:
   m_ObjectHideFlags: 0

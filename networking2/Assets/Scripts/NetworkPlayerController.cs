@@ -114,7 +114,7 @@ public class NetworkPlayerController : NetworkBehaviour
     
     private bool isDashing;
     private float dashDuration;
-    private int jumpCount = 0;
+    private float currentDashSpeed;
 
     private bool IsMouseInput()
     {
@@ -410,10 +410,33 @@ public class NetworkPlayerController : NetworkBehaviour
         return isDashing;
     }
 
-    public void StartDash(float duration)
+    public void StartDash(float duration, float targetSpeed)
     {
         isDashing = true;
         dashDuration = duration;
+        currentDashSpeed = targetSpeed;
+    }
+
+    public void LiftPlayerForPillar(float liftAmount)
+    {
+        if (charController != null)
+        {
+            charController.enabled = false;
+            transform.position += new Vector3(0, liftAmount, 0); 
+            charController.enabled = true;
+        }
+    }
+
+    public void LaunchPlayer(float multiplier)
+    {
+        verticalVelocity = Mathf.Sqrt((jumpHeight * multiplier) * -2f * gravity);
+        if (hasAnimator)
+        {
+            animator.SetBool(animIDJump, true);
+            animator.SetBool(animIDFreeFall, false);
+        }
+        grounded = false;
+        jump = false;
     }
 
     private void GroundedCheck()
@@ -485,7 +508,7 @@ public class NetworkPlayerController : NetworkBehaviour
 
         if (isDashing)
         {
-            charController.Move(transform.forward * 25f * Time.deltaTime);
+            charController.Move(transform.forward * currentDashSpeed * Time.deltaTime);
             dashDuration -= Time.deltaTime;
             if (dashDuration <= 0) isDashing = false;
             return;
@@ -518,12 +541,8 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void JumpAndGravity()
     {
-        bool isFire = networkShoot != null && networkShoot.currentStaffTypeIndex == 3;
-        bool isHoldingJump = playerInput != null && playerInput.actions["Jump"].IsPressed();
-
         if (grounded)
         {
-            jumpCount = 0;
             fallTimeoutDelta = fallTimeout;
             if (hasAnimator)
             {
@@ -535,30 +554,15 @@ public class NetworkPlayerController : NetworkBehaviour
             {
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
                 if (hasAnimator) animator.SetBool(animIDJump, true);
-                jumpCount = 1;
                 jump = false;
             }
             if (jumpTimeoutDelta >= 0f) jumpTimeoutDelta -= Time.deltaTime;
         }
         else
         {
-            if (isFire && jump && jumpCount < 2)
-            {
-                verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
-                if (hasAnimator) animator.SetBool(animIDJump, true);
-                jumpCount = 2;
-                jump = false;
-            }
-
             jumpTimeoutDelta = jumpTimeout;
             if (fallTimeoutDelta >= 0f) fallTimeoutDelta -= Time.deltaTime;
             else if (hasAnimator) animator.SetBool(animIDFreeFall, true);
-
-            if (isFire && isHoldingJump && verticalVelocity < 0f)
-            {
-                verticalVelocity = -2f; 
-            }
-            
             jump = false;
         }
         
