@@ -819,6 +819,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerController
   ShowTopMostFoldoutHeaderGroup: 1
   networkShoot: {fileID: 6244465903204738980}
+  playerAbilities: {fileID: 7923728105964248148}
   charController: {fileID: 6655477826426146115}
   playerHealth: {fileID: 4443669089479794565}
   cinemachineCameraTarget: {fileID: 1243842138587494804}
@@ -1342,10 +1343,17 @@ MonoBehaviour:
   lightningStaffIndex: 2
   fireStaffIndex: 0
   wallSpawnDistance: 8
+  wallLifetime: 30
+  wallCooldown: 30
   pillarLiftHeight: 6
+  pillarLifetime: 8
+  pillarCooldown: 20
   dashSpeed: 25
   dashDuration: 0.3
-  fireLaunchMultiplier: 3
+  dashCooldown: 5
+  fireLaunchMultiplier: 4
+  glideFallSpeed: -1
+  fireCooldown: 1
 --- !u!1 &1243842138587494804
 GameObject:
   m_ObjectHideFlags: 0
@@ -3564,7 +3572,7 @@ Transform:
   m_GameObject: {fileID: 4679641582910972018}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.2463875, z: 0.15112305}
+  m_LocalPosition: {x: 0, y: 2.0300007, z: -2.4980469}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -10,6 +10,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [Header("References")]
     [Space(5)]
     [SerializeField] private NetworkShoot networkShoot;
+    [SerializeField] private NetworkPlayerAbilities playerAbilities;
     [SerializeField] private CharacterController charController;
     [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private GameObject cinemachineCameraTarget;
@@ -115,6 +116,8 @@ public class NetworkPlayerController : NetworkBehaviour
     private bool isDashing;
     private float dashDuration;
     private float currentDashSpeed;
+    private bool wasLaunchedByFire;
+    private bool isGliding;
 
     private bool IsMouseInput()
     {
@@ -145,6 +148,7 @@ public class NetworkPlayerController : NetworkBehaviour
         charController = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         networkShoot = GetComponent<NetworkShoot>();
+        playerAbilities = GetComponent<NetworkPlayerAbilities>();
         playerHealth = GetComponent<PlayerHealth>();
         hasAnimator = TryGetComponent(out animator);
         
@@ -259,7 +263,6 @@ public class NetworkPlayerController : NetworkBehaviour
             look = Vector2.zero;
             jump = false;
             sprint = false;
-
             HandleCameraNoise();
             return;
         }
@@ -270,7 +273,6 @@ public class NetworkPlayerController : NetworkBehaviour
             look = Vector2.zero;
             jump = false;
             sprint = false;
-
             HandleCameraNoise();
             return;
         }
@@ -437,6 +439,7 @@ public class NetworkPlayerController : NetworkBehaviour
         }
         grounded = false;
         jump = false;
+        wasLaunchedByFire = true;
     }
 
     private void GroundedCheck()
@@ -515,6 +518,12 @@ public class NetworkPlayerController : NetworkBehaviour
         }
 
         float targetSpeed = sprint ? sprintSpeed : moveSpeed;
+        
+        if (isGliding && playerAbilities != null)
+        {
+            targetSpeed = playerAbilities.glideMoveSpeed;
+        }
+
         if (move == Vector2.zero) targetSpeed = 0f;
 
         float currentHorizontalSpeed = new Vector3(charController.velocity.x, 0f, charController.velocity.z).magnitude;
@@ -543,6 +552,8 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (grounded)
         {
+            wasLaunchedByFire = false;
+            
             fallTimeoutDelta = fallTimeout;
             if (hasAnimator)
             {
@@ -565,8 +576,28 @@ public class NetworkPlayerController : NetworkBehaviour
             else if (hasAnimator) animator.SetBool(animIDFreeFall, true);
             jump = false;
         }
-        
-        if (verticalVelocity < terminalVelocity) verticalVelocity += gravity * Time.deltaTime;
+
+        isGliding = false;
+
+        if (playerAbilities != null && networkShoot != null)
+        {
+            if (networkShoot.currentStaffTypeIndex == playerAbilities.fireStaffIndex)
+            {
+                if (!grounded && verticalVelocity < 0f && wasLaunchedByFire)
+                {
+                    isGliding = true;
+                }
+            }
+        }
+
+        if (isGliding)
+        {
+            verticalVelocity = playerAbilities.glideFallSpeed;
+        }
+        else if (verticalVelocity < terminalVelocity)
+        {
+            verticalVelocity += gravity * Time.deltaTime;
+        }
     }
 
     private void AssignAnimationIDs()

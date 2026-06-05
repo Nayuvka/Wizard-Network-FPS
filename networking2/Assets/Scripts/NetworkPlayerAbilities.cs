@@ -17,83 +17,76 @@ public class NetworkPlayerAbilities : NetworkBehaviour
     public int lightningStaffIndex = 2;
     public int fireStaffIndex = 0;
 
-    [Header("Ability Settings")]
-    public float abilityCooldown = 2f;
+    [Header("Wall Settings (Normal)")]
     public float wallSpawnDistance = 3f;
     public float wallLifetime = 5f;
+    public float wallCooldown = 5f;
+
+    [Header("Pillar Settings (Ice)")]
     public float pillarLiftHeight = 4.5f;
     public float pillarLifetime = 5f;
+    public float pillarCooldown = 6f;
+
+    [Header("Dash Settings (Lightning)")]
     public float dashSpeed = 25f;
     public float dashDuration = 0.2f;
-    public float dashRechargeTime = 3f;
-    public float fireLaunchMultiplier = 3.0f;
+    public float dashCooldown = 3f;
 
-    private int dashCharges = 3;
-    private float dashChargeTimer = 0f;
-    private float currentCooldown = 0f;
+    [Header("Launch Settings (Fire)")]
+    public float fireLaunchMultiplier = 3.0f;
+    public float glideFallSpeed = -2.5f;
+    public float glideMoveSpeed = 12f;
+    public float fireCooldown = 4f;
+
+    private float currentWallCooldown = 0f;
+    private float currentPillarCooldown = 0f;
+    private float currentDashCooldown = 0f;
+    private float currentFireCooldown = 0f;
 
     private void Update()
     {
         if (!IsOwner) return;
 
-        if (currentCooldown > 0)
-        {
-            currentCooldown -= Time.deltaTime;
-        }
-
-        if (dashCharges < 3)
-        {
-            dashChargeTimer += Time.deltaTime;
-            if (dashChargeTimer >= dashRechargeTime)
-            {
-                dashCharges++;
-                dashChargeTimer = 0f;
-            }
-        }
+        if (currentWallCooldown > 0) currentWallCooldown -= Time.deltaTime;
+        if (currentPillarCooldown > 0) currentPillarCooldown -= Time.deltaTime;
+        if (currentDashCooldown > 0) currentDashCooldown -= Time.deltaTime;
+        if (currentFireCooldown > 0) currentFireCooldown -= Time.deltaTime;
     }
 
     public void OnSecondaryAbility(InputValue value)
     {
         if (!IsOwner || playerController.IsInUIMode() || GameOverManager.IsGameOver) return;
 
-        if (value.isPressed && networkShoot != null && currentCooldown <= 0f)
+        if (value.isPressed && networkShoot != null)
         {
             int staff = networkShoot.currentStaffTypeIndex;
-
             Quaternion flatRotation = Quaternion.Euler(0, transform.eulerAngles.y, 0);
-            bool abilityUsed = false;
 
-            if (staff == normalStaffIndex)
+            if (staff == normalStaffIndex && currentWallCooldown <= 0f)
             {
                 Vector3 spawnPos = transform.position + (flatRotation * Vector3.forward * wallSpawnDistance);
                 SpawnAbilityObjectServerRpc(0, spawnPos, flatRotation, wallLifetime);
-                abilityUsed = true;
+                currentWallCooldown = wallCooldown;
             }
-            else if (staff == iceStaffIndex)
+            else if (staff == iceStaffIndex && currentPillarCooldown <= 0f)
             {
                 Vector3 spawnPos = transform.position;
                 playerController.LiftPlayerForPillar(pillarLiftHeight);
                 SpawnAbilityObjectServerRpc(1, spawnPos, flatRotation, pillarLifetime);
-                abilityUsed = true;
+                currentPillarCooldown = pillarCooldown;
             }
-            else if (staff == lightningStaffIndex)
+            else if (staff == lightningStaffIndex && currentDashCooldown <= 0f)
             {
-                if (dashCharges > 0 && !playerController.IsDashing())
+                if (!playerController.IsDashing())
                 {
-                    dashCharges--;
                     playerController.StartDash(dashDuration, dashSpeed);
-                    abilityUsed = true;
+                    currentDashCooldown = dashCooldown;
                 }
             }
-            else if (staff == fireStaffIndex)
+            else if (staff == fireStaffIndex && currentFireCooldown <= 0f)
             {
                 playerController.LaunchPlayer(fireLaunchMultiplier);
-                abilityUsed = true;
-            }
-
-            if (abilityUsed)
-            {
-                currentCooldown = abilityCooldown;
+                currentFireCooldown = fireCooldown;
             }
         }
     }
