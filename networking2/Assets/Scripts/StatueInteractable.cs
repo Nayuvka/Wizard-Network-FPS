@@ -34,6 +34,12 @@ public class StatueInteractable : NetworkBehaviour
                         // Force the client to update their local variables immediately
                         ApplyStatChangeClientRpc(client.ClientId, randomType, shooter.baseStaffDamage);
                     }
+
+                    PlayerHealth health = client.PlayerObject.GetComponent<PlayerHealth>();
+                    if (health != null)
+                    {
+                        health.ResetHealth();
+                    }
                 }
             }
 

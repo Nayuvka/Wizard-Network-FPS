@@ -154,6 +154,13 @@ public class NetworkPlayerAbilities : NetworkBehaviour
         yield return new WaitForSeconds(delay);
         if (netObj != null && netObj.IsSpawned)
         {
+            UnityEngine.AI.NavMeshObstacle obstacle = netObj.GetComponent<UnityEngine.AI.NavMeshObstacle>();
+            if (obstacle != null)
+            {
+                obstacle.carving = false;
+                obstacle.enabled = false;
+            }
+            
             netObj.Despawn();
         }
     }
