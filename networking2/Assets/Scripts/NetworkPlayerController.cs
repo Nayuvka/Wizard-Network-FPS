@@ -550,7 +550,7 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void JumpAndGravity()
     {
-        if (grounded)
+        if (grounded && verticalVelocity <= 0.0f)
         {
             wasLaunchedByFire = false;
             
