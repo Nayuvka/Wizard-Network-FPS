@@ -1352,8 +1352,9 @@ MonoBehaviour:
   dashDuration: 0.3
   dashCooldown: 5
   fireLaunchMultiplier: 4
-  glideFallSpeed: -1
-  fireCooldown: 1
+  glideFallSpeed: -2
+  glideMoveSpeed: 12
+  fireCooldown: 20
 --- !u!1 &1243842138587494804
 GameObject:
   m_ObjectHideFlags: 0
