@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,6 +11,9 @@ public class NetworkPlayerAbilities : NetworkBehaviour
     
     [SerializeField] private GameObject wallPrefab;
     [SerializeField] private GameObject pillarPrefab;
+
+    [Header("UI Settings")]
+    public TextMeshProUGUI cooldownText;
 
     [Header("Staff Index Mapping")]
     public int normalStaffIndex = 3;
@@ -42,6 +46,8 @@ public class NetworkPlayerAbilities : NetworkBehaviour
     private float currentPillarCooldown = 0f;
     private float currentDashCooldown = 0f;
     private float currentFireCooldown = 0f;
+    
+    private int lastStaffIndex = -1;
 
     private void Update()
     {
@@ -51,6 +57,42 @@ public class NetworkPlayerAbilities : NetworkBehaviour
         if (currentPillarCooldown > 0) currentPillarCooldown -= Time.deltaTime;
         if (currentDashCooldown > 0) currentDashCooldown -= Time.deltaTime;
         if (currentFireCooldown > 0) currentFireCooldown -= Time.deltaTime;
+
+        if (networkShoot != null)
+        {
+            int currentStaff = networkShoot.currentStaffTypeIndex;
+
+            if (currentStaff != lastStaffIndex)
+            {
+                if (lastStaffIndex != -1)
+                {
+                    if (currentStaff == normalStaffIndex) currentWallCooldown = wallCooldown;
+                    else if (currentStaff == iceStaffIndex) currentPillarCooldown = pillarCooldown;
+                    else if (currentStaff == lightningStaffIndex) currentDashCooldown = dashCooldown;
+                    else if (currentStaff == fireStaffIndex) currentFireCooldown = fireCooldown;
+                }
+                lastStaffIndex = currentStaff;
+            }
+
+            if (cooldownText != null)
+            {
+                float activeCooldown = 0f;
+
+                if (currentStaff == normalStaffIndex) activeCooldown = currentWallCooldown;
+                else if (currentStaff == iceStaffIndex) activeCooldown = currentPillarCooldown;
+                else if (currentStaff == lightningStaffIndex) activeCooldown = currentDashCooldown;
+                else if (currentStaff == fireStaffIndex) activeCooldown = currentFireCooldown;
+
+                if (activeCooldown > 0f)
+                {
+                    cooldownText.text = activeCooldown.ToString("F1") + "s";
+                }
+                else
+                {
+                    cooldownText.text = "<color=green>Ready</color>";
+                }
+            }
+        }
     }
 
     public void OnSecondaryAbility(InputValue value)
