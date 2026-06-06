@@ -337,7 +337,7 @@ public class NetworkPlayerController : NetworkBehaviour
             if (value.isPressed)
             {
                 print("Interacted");
-                currentInteractable.Interact();
+                currentInteractable.Interact(this);
             }
         }
     }
@@ -362,16 +362,8 @@ public class NetworkPlayerController : NetworkBehaviour
 
     public void OnPause(InputValue value)
     {
-        if (!IsOwner)
+        if (!IsOwner || !value.isPressed)
             return;
-
-        if (!value.isPressed)
-            return;
-
-        if (pauseScript == null)
-        {
-            pauseScript = FindFirstObjectByType<PauseScript>();
-        }
 
         if (pauseScript != null)
         {
@@ -394,16 +386,6 @@ public class NetworkPlayerController : NetworkBehaviour
         {
             lobbyUI.CloseLobbyUI();
             return;
-        }
-
-        if (pauseScript == null)
-        {
-            pauseScript = FindFirstObjectByType<PauseScript>();
-        }
-
-        if (pauseScript != null)
-        {
-            pauseScript.Back();
         }
     }
 
@@ -488,6 +470,10 @@ public class NetworkPlayerController : NetworkBehaviour
                 }
                 else if(hit.collider.TryGetComponent<NetworkPotionStand>(out NetworkPotionStand networkPotionStand)){
                     interactText.text = networkPotionStand.promptMessage;
+                }
+                else if (hit.collider.TryGetComponent<TutorialStatueInteractable>(out TutorialStatueInteractable tutorialStatueInteractable))
+                {
+                    interactText.text = tutorialStatueInteractable.promptMessage;
                 }
                 else
                 {
