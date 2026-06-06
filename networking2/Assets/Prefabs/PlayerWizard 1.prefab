@@ -892,7 +892,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkShoot
   ShowTopMostFoldoutHeaderGroup: 1
-  normalState: 1
+  normalState: 0
   cameraShakeManager: {fileID: 0}
   impulseSource: {fileID: 0}
   wandAnimator: {fileID: 4205593494189509955}
@@ -3749,7 +3749,7 @@ Transform:
   m_GameObject: {fileID: 4679641582910972018}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.0300007, z: -2.4980469}
+  m_LocalPosition: {x: 0, y: 0.9716898, z: 0.50871134}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
