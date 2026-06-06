@@ -25,6 +25,7 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
     [SerializeField] private Color lightColor = new Color(1f, 0.8f, 0.5f);
 
     private bool exploded;
+
     private Collider[] barrelColliders;
     private Renderer[] barrelRenderers;
 
@@ -50,16 +51,42 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
 
         foreach (Collider hit in hits)
         {
-            if (hit.TryGetComponent(out IDamageable target) && hit.gameObject != gameObject)
-            {
-                float distance = Vector3.Distance(transform.position, hit.transform.position);
-                float damageMultiplier = 1f - Mathf.Clamp01(distance / explosionRadius);
-                float damage = explosionDamage * damageMultiplier;
+            float distance = Vector3.Distance(transform.position, hit.transform.position);
+            float damageMultiplier = 1f - Mathf.Clamp01(distance / explosionRadius);
+            float damage = explosionDamage * damageMultiplier;
 
-                if (damage >= 1f)
+            if (damage < 1f)
+                continue;
+
+            if (hit.TryGetComponent(out ExplosiveBarrel barrel))
+            {
+                if (barrel != this)
                 {
-                    target.TakeDamage(damage, transform.position, 9999);
+                    barrel.Explode();
                 }
+                continue;
+            }
+
+            if (hit.TryGetComponent(out NetworkEnemy enemy))
+            {
+                enemy.TakeDamage(damage, transform.position);
+                continue;
+            }
+
+            if (hit.TryGetComponent(out PlayerHealth playerHealth))
+            {
+                playerHealth.TakeDamage(damage);
+                continue;
+            }
+
+            if (hit.TryGetComponent(out PracticeTarget target))
+            {
+                target.ExplodeHit();
+                continue;
+            }
+            if (hit.TryGetComponent(out IDamageable damageable) && hit.gameObject != gameObject)
+            {
+                damageable.TakeDamage(damage, transform.position, 9999);
             }
         }
 
@@ -70,7 +97,10 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
 
     private IEnumerator RespawnRoutine()
     {
-        yield return new WaitForSeconds(respawnTime + Random.Range(0f, randomRespawnOffset));
+        yield return new WaitForSeconds(
+            respawnTime + Random.Range(0f, randomRespawnOffset)
+        );
+
         exploded = false;
         SetBarrelVisibleClientRpc(true);
     }
@@ -79,11 +109,16 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
     private void PlayExplosionClientRpc()
     {
         if (explosionVFX != null)
+        {
             Instantiate(explosionVFX, transform.position, Quaternion.identity);
+        }
 
         if (explosionSFX != null && explosionSFX.Length > 0)
         {
-            AudioSource.PlayClipAtPoint(explosionSFX[Random.Range(0, explosionSFX.Length)], transform.position);
+            AudioClip randomClip =
+                explosionSFX[Random.Range(0, explosionSFX.Length)];
+
+            AudioSource.PlayClipAtPoint(randomClip, transform.position);
         }
 
         StartCoroutine(LightFlashRoutine());
@@ -93,20 +128,26 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
     {
         GameObject lightObj = new GameObject("Explosion Flash");
         lightObj.transform.position = transform.position + Vector3.up;
+
         Light flashLight = lightObj.AddComponent<Light>();
         flashLight.type = LightType.Point;
         flashLight.intensity = lightIntensity;
         flashLight.range = lightRange;
         flashLight.color = lightColor;
+
         yield return new WaitForSeconds(lightDuration);
+
         Destroy(lightObj);
     }
 
     [ClientRpc]
     private void SetBarrelVisibleClientRpc(bool visible)
     {
-        foreach (Renderer renderer in barrelRenderers) renderer.enabled = visible;
-        foreach (Collider collider in barrelColliders) collider.enabled = visible;
+        foreach (Renderer renderer in barrelRenderers)
+            renderer.enabled = visible;
+
+        foreach (Collider collider in barrelColliders)
+            collider.enabled = visible;
     }
 
     private void OnDrawGizmosSelected()

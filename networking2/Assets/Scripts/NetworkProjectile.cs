@@ -90,15 +90,24 @@ public class NetworkProjectile : NetworkBehaviour
     {
         Vector3 impactPos = transform.position;
 
-        if (targetNetObj != null && targetNetObj.TryGetComponent(out IDamageable damageable))
+        if (targetNetObj == null)
         {
-            ApplyTypeEffect(damageable, impactPos);
+            PlayImpactFeedback(impactPos);
+            DespawnProjectile();
             return;
         }
+
+        if (targetNetObj.TryGetComponent(out IDamageable damageable))
+        {
+            ApplyTypeEffect(damageable, impactPos);
+            PlayImpactFeedback(impactPos);
+            DespawnProjectile();
+            return;
+        }
+
         if (targetNetObj.TryGetComponent(out ExplosiveBarrel barrel))
         {
             barrel.Explode();
-
             PlayImpactFeedback(impactPos);
             DespawnProjectile();
             return;
@@ -107,7 +116,6 @@ public class NetworkProjectile : NetworkBehaviour
         if (targetNetObj.TryGetComponent(out PracticeTarget target))
         {
             target.Hit();
-
             PlayImpactFeedback(impactPos);
             DespawnProjectile();
             return;
