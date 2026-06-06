@@ -97,7 +97,7 @@ public class NetworkPlayerAbilities : NetworkBehaviour
 
     public void OnSecondaryAbility(InputValue value)
     {
-        if (!IsOwner || playerController.IsInUIMode() || GameOverManager.IsGameOver) return;
+        if (!IsOwner || playerController.IsInUIMode() || IsGameActuallyOver()) return;
 
         if (value.isPressed && networkShoot != null)
         {
@@ -162,6 +162,18 @@ public class NetworkPlayerAbilities : NetworkBehaviour
             }
             
             netObj.Despawn();
+        }
+    }
+    
+    private bool IsGameActuallyOver()
+    {
+        try
+        {
+            return GameOverManager.IsGameOver;
+        }
+        catch
+        {
+            return false;
         }
     }
 }
