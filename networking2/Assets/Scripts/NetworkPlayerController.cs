@@ -118,6 +118,8 @@ public class NetworkPlayerController : NetworkBehaviour
     private float currentDashSpeed;
     private bool wasLaunchedByFire;
     private bool isGliding;
+    
+    private float pauseCheckTimer = 0f;
 
     private bool IsMouseInput()
     {
@@ -249,7 +251,7 @@ public class NetworkPlayerController : NetworkBehaviour
         if (!IsOwner)
             return;
 
-        if (!isInUIMode && !IsLocallyPaused() && !GameOverManager.IsGameOver)
+        if (!isInUIMode && !IsLocallyPaused() && !IsGameActuallyOver())
         {
             if (Cursor.lockState != CursorLockMode.Locked)
             {
@@ -257,17 +259,7 @@ public class NetworkPlayerController : NetworkBehaviour
             }
         }
 
-        if (GameOverManager.IsGameOver)
-        {
-            move = Vector2.zero;
-            look = Vector2.zero;
-            jump = false;
-            sprint = false;
-            HandleCameraNoise();
-            return;
-        }
-
-        if (IsLocallyPaused() || isInUIMode)
+        if (IsGameActuallyOver() || IsLocallyPaused() || isInUIMode)
         {
             move = Vector2.zero;
             look = Vector2.zero;
@@ -289,10 +281,7 @@ public class NetworkPlayerController : NetworkBehaviour
         if (!IsOwner)
             return;
 
-        if (GameOverManager.IsGameOver)
-            return;
-
-        if (IsLocallyPaused() || isInUIMode)
+        if (IsGameActuallyOver() || IsLocallyPaused() || isInUIMode)
             return;
 
         CameraRotation();
@@ -300,43 +289,42 @@ public class NetworkPlayerController : NetworkBehaviour
 
     public void OnMove(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode || IsGameActuallyOver()) return;
         move = value.Get<Vector2>();
     }
 
     public void OnLook(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode || IsGameActuallyOver()) return;
         if (cursorInputForLook) look = value.Get<Vector2>();
     }
 
     public void OnJump(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode || IsGameActuallyOver()) return;
         jump = value.isPressed;
     }
 
     public void OnSprint(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode || IsGameActuallyOver()) return;
         sprint = value.isPressed;
     }
 
     public void OnShoot(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode || IsGameActuallyOver()) return;
         if (value.isPressed && networkShoot != null) networkShoot.ProcessLocalShoot();
     }
 
     public void OnInteract(InputValue value)
     {
-        if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
+        if (!IsOwner || IsLocallyPaused() || isInUIMode || IsGameActuallyOver()) return;
 
         if (currentInteractable != null)
         {
             if (value.isPressed)
             {
-                print("Interacted");
                 currentInteractable.Interact(this);
             }
         }
@@ -346,8 +334,6 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (!IsOwner)
             return;
-
-        print("Interact Pressed");
 
         if (!value.isPressed)
             return;
@@ -362,8 +348,16 @@ public class NetworkPlayerController : NetworkBehaviour
 
     public void OnPause(InputValue value)
     {
-        if (!IsOwner || !value.isPressed)
+        if (!IsOwner)
             return;
+
+        if (!value.isPressed)
+            return;
+
+        if (pauseScript == null)
+        {
+            pauseScript = FindFirstObjectByType<PauseScript>();
+        }
 
         if (pauseScript != null)
         {
@@ -386,6 +380,16 @@ public class NetworkPlayerController : NetworkBehaviour
         {
             lobbyUI.CloseLobbyUI();
             return;
+        }
+
+        if (pauseScript == null)
+        {
+            pauseScript = FindFirstObjectByType<PauseScript>();
+        }
+
+        if (pauseScript != null)
+        {
+            pauseScript.Back();
         }
     }
 
@@ -455,39 +459,33 @@ public class NetworkPlayerController : NetworkBehaviour
         currentInteractable = null;
 
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-        Debug.DrawRay(ray.origin, ray.direction * interactionRange, Color.blue);
 
         if(Physics.Raycast(ray, out RaycastHit hit, interactionRange, interactionLayer))
         {
             if(hit.collider.TryGetComponent<IInteractable>(out var interactable))
             {
                 currentInteractable = interactable;
-                interactPrompt.SetActive(true);
+                if(interactPrompt != null) interactPrompt.SetActive(true);
 
                 if(hit.collider.TryGetComponent<TestObject>(out TestObject testObject)){
-
-                    interactText.text = testObject.promptMessage;
+                    if(interactText != null) interactText.text = testObject.promptMessage;
                 }
                 else if(hit.collider.TryGetComponent<NetworkPotionStand>(out NetworkPotionStand networkPotionStand)){
-                    interactText.text = networkPotionStand.promptMessage;
-                }
-                else if (hit.collider.TryGetComponent<TutorialStatueInteractable>(out TutorialStatueInteractable tutorialStatueInteractable))
-                {
-                    interactText.text = tutorialStatueInteractable.promptMessage;
+                    if(interactText != null) interactText.text = networkPotionStand.promptMessage;
                 }
                 else
                 {
-                    interactText.text = "Interact";
+                    if(interactText != null) interactText.text = "Interact";
                 }
             }
             else
             {
-                interactPrompt.SetActive(false);
+                if(interactPrompt != null) interactPrompt.SetActive(false);
             }
         }
         else
         {
-            interactPrompt.SetActive(false);
+            if(interactPrompt != null) interactPrompt.SetActive(false);
         }
     }
 
@@ -512,16 +510,10 @@ public class NetworkPlayerController : NetworkBehaviour
 
         if (move == Vector2.zero) targetSpeed = 0f;
 
-        float currentHorizontalSpeed = new Vector3(charController.velocity.x, 0f, charController.velocity.z).magnitude;
-        float speedOffset = 0.1f;
         float inputMagnitude = analogMovement ? move.magnitude : 1f;
 
-        if (currentHorizontalSpeed < targetSpeed - speedOffset || currentHorizontalSpeed > targetSpeed + speedOffset)
-        {
-            speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * speedChangeRate);
-            speed = Mathf.Round(speed * 1000f) / 1000f;
-        }
-        else speed = targetSpeed;
+        speed = Mathf.Lerp(speed, targetSpeed * inputMagnitude, Time.deltaTime * speedChangeRate);
+        speed = Mathf.Round(speed * 1000f) / 1000f;
 
         Vector3 inputDirection = transform.right * move.x + transform.forward * move.y;
 
@@ -658,12 +650,7 @@ public class NetworkPlayerController : NetworkBehaviour
             return;
 
         isInUIMode = true;
-        playerHUD.SetActive(false);
-
-        move = Vector2.zero;
-        look = Vector2.zero;
-        jump = false;
-        sprint = false;
+        if(playerHUD != null) playerHUD.SetActive(false);
 
         if (playerInput != null)
         {
@@ -679,12 +666,7 @@ public class NetworkPlayerController : NetworkBehaviour
             return;
 
         isInUIMode = false;
-        playerHUD.SetActive(true);
-
-        move = Vector2.zero;
-        look = Vector2.zero;
-        jump = false;
-        sprint = false;
+        if(playerHUD != null) playerHUD.SetActive(true);
 
         if (playerInput != null)
         {
@@ -735,15 +717,28 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private bool IsLocallyPaused()
     {
-        if (pauseScript == null)
+        if (pauseScript != null)
+            return pauseScript.IsPaused();
+
+        if (Time.unscaledTime > pauseCheckTimer)
         {
-            pauseScript = FindFirstObjectByType<PauseScript>();
+            pauseScript = FindFirstObjectByType<PauseScript>(FindObjectsInactive.Include);
+            pauseCheckTimer = Time.unscaledTime + 1.5f;
         }
 
-        if (pauseScript == null)
-            return false;
+        return false;
+    }
 
-        return pauseScript.IsPaused();
+    private bool IsGameActuallyOver()
+    {
+        try
+        {
+            return GameOverManager.IsGameOver;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     private void OnDrawGizmosSelected()
