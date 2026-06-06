@@ -19,6 +19,13 @@ public class PracticeTarget : MonoBehaviour
     private int hitCount;
     private bool isDead;
 
+    private Collider targetCollider;
+
+    private void Start()
+    {
+        targetCollider = GetComponent<Collider>();
+    }
+
     public void Hit()
     {
         if (isDead)
@@ -46,6 +53,7 @@ public class PracticeTarget : MonoBehaviour
             if (audioSource != null && deathSound != null)
             {
                 audioSource.PlayOneShot(deathSound);
+                targetCollider.enabled = false;
             }
 
             StartCoroutine(RespawnRoutine());
@@ -80,6 +88,7 @@ public class PracticeTarget : MonoBehaviour
 
         yield return new WaitForSeconds(delay);
 
+        targetCollider.enabled = true;
         animator.SetTrigger("Revive");
 
         if (audioSource != null && reviveSound != null)
