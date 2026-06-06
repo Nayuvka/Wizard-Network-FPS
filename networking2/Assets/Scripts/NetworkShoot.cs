@@ -377,6 +377,6 @@ public class NetworkShoot : NetworkBehaviour
     {
         if (!IsOwner) return; 
         
-        shootCooldown *= 0.6f; // Faster fire rate
+        shootCooldown *= 0.5f;
     }
 }

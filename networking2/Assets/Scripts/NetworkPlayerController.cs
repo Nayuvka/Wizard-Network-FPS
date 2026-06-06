@@ -753,7 +753,7 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (!IsOwner) return;
         
-        moveSpeed *= 1.35f;
-        sprintSpeed *= 1.35f;
+        moveSpeed *= 1.5f;
+        sprintSpeed *= 1.5f;
     }
 }

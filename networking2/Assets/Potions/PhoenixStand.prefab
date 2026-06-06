@@ -243,7 +243,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2326004587
+  GlobalObjectIdHash: 3829933991
   InScenePlacedSourceGlobalObjectIdHash: 1724811956
   DeferredDespawnTick: 0
   Ownership: 1
@@ -269,8 +269,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkPotionStand
   ShowTopMostFoldoutHeaderGroup: 1
-  potionToSell: 2
-  potionCost: 3000
+  potionToSell: 3
+  potionCost: 2000
   buySound: {fileID: 0}
 --- !u!65 &9144478721383663677
 BoxCollider:

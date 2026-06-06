@@ -133,7 +133,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::NetworkPotionStand
   ShowTopMostFoldoutHeaderGroup: 1
   potionToSell: 0
-  potionCost: 2500
+  potionCost: 1500
   buySound: {fileID: 0}
 --- !u!65 &4374894018705864917
 BoxCollider:
