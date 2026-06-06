@@ -1,24 +1,18 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using System.Collections;
-using UnityEngine.AI;
 
 public class NetworkProjectile : NetworkBehaviour
 {
     public enum ProjectileType { Fireball, Frostball, Lightning, Normal }
 
-    [Header("Base Settings")]
     [SerializeField] private ProjectileType type;
     [SerializeField] private float speed = 40f;
     [SerializeField] private float baseDamage = 10f;
     [SerializeField] private float lifetime = 5f;
     [SerializeField] private GameObject impactEffect;
-
-    [Header("Special Effect Settings")]
     [SerializeField] private float effectRadius = 5f;
     [SerializeField] private LayerMask enemyLayer;
-
-    [Header("Impact Effects")]
     [SerializeField] private AudioClip hitSfx;
     [SerializeField] private float hitSfxVolume = 1f;
 
@@ -96,40 +90,9 @@ public class NetworkProjectile : NetworkBehaviour
     {
         Vector3 impactPos = transform.position;
 
-        if (targetNetObj != null)
+        if (targetNetObj != null && targetNetObj.TryGetComponent(out IDamageable damageable))
         {
-            if (targetNetObj.TryGetComponent(out NetworkEnemy enemy))
-            {
-                ApplyTypeEffect(enemy, impactPos);
-                return;
-            }
-
-            if (targetNetObj.TryGetComponent(out NetworkBoss boss))
-            {
-                ApplyBossTypeEffect(boss, impactPos);
-                return;
-            }
-
-            if (targetNetObj.TryGetComponent(out ExplosiveBarrel barrel))
-            {
-                barrel.Explode();
-
-                PlayImpactFeedback(impactPos);
-                DespawnProjectile();
-                return;
-            }
-
-            if (targetNetObj.TryGetComponent(out PracticeTarget target))
-            {
-                target.Hit();
-
-                PlayImpactFeedback(impactPos);
-                DespawnProjectile();
-                return;
-            }
-
-            PlayImpactFeedback(impactPos);
-            DespawnProjectile();
+            ApplyTypeEffect(damageable, impactPos);
             return;
         }
 
@@ -141,12 +104,11 @@ public class NetworkProjectile : NetworkBehaviour
     {
         StopProjectileVisualsClientRpc();
     }
+
     private void PlayImpactFeedback(Vector3 impactPos)
     {
         PlayImpactFeedbackClientRpc(impactPos);
     }
-
-
 
     [ClientRpc]
     private void PlayImpactFeedbackClientRpc(Vector3 impactPos)
@@ -185,62 +147,24 @@ public class NetworkProjectile : NetworkBehaviour
         }
     }
 
-    private void ApplyTypeEffect(NetworkEnemy enemy, Vector3 impactPos)
+    private void ApplyTypeEffect(IDamageable target, Vector3 impactPos)
     {
         float finalDamage = baseDamage + additionalDamage;
 
         switch (type)
         {
             case ProjectileType.Fireball:
-                enemy.TakeDamage(finalDamage, lastPosition, ownerClientId);
-                enemy.PlayBurnVfx(5f);
+                target.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 StopProjectileVisuals();
                 PlayImpactFeedback(impactPos);
-                StartCoroutine(BurnEffect(enemy, 5));
+                StartCoroutine(BurnEffect(target, 5));
                 break;
 
             case ProjectileType.Frostball:
-                enemy.TakeDamage(finalDamage, lastPosition, ownerClientId);
-                enemy.PlayFrostVfx(3f);
+                target.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 StopProjectileVisuals();
                 PlayImpactFeedback(impactPos);
-                StartCoroutine(FreezeEffect(enemy, 3f));
-                break;
-
-            case ProjectileType.Lightning:
-                enemy.PlayLightningVfx(0.6f);
-                ChainLightning(impactPos, finalDamage);
-                PlayImpactFeedback(impactPos);
-                DespawnProjectile();
-                break;
-
-            case ProjectileType.Normal:
-                enemy.TakeDamage(finalDamage, lastPosition, ownerClientId);
-                PlayImpactFeedback(impactPos);
-                DespawnProjectile();
-                break;
-        }
-    }
-
-    private void ApplyBossTypeEffect(NetworkBoss boss, Vector3 impactPos)
-    {
-        float finalDamage = baseDamage + additionalDamage;
-
-        switch (type)
-        {
-            case ProjectileType.Fireball:
-                boss.TakeDamage(finalDamage, lastPosition, ownerClientId);
-                StopProjectileVisuals();
-                PlayImpactFeedback(impactPos);
-                StartCoroutine(BurnEffectBoss(boss, 5));
-                break;
-
-            case ProjectileType.Frostball:
-                boss.TakeDamage(finalDamage, lastPosition, ownerClientId);
-                StopProjectileVisuals();
-                PlayImpactFeedback(impactPos);
-                boss.ApplyFrostEffect(3f, 0.2f);
-                StartCoroutine(FreezeEffectBoss(3f));
+                StartCoroutine(FreezeEffect(target, 3f));
                 break;
 
             case ProjectileType.Lightning:
@@ -250,44 +174,30 @@ public class NetworkProjectile : NetworkBehaviour
                 break;
 
             case ProjectileType.Normal:
-                boss.TakeDamage(finalDamage, lastPosition, ownerClientId);
+                target.TakeDamage(finalDamage, lastPosition, ownerClientId);
                 PlayImpactFeedback(impactPos);
                 DespawnProjectile();
                 break;
         }
     }
 
-    private IEnumerator BurnEffect(NetworkEnemy enemy, int ticks)
+    private IEnumerator BurnEffect(IDamageable target, int ticks)
     {
         for (int i = 0; i < ticks; i++)
         {
             yield return new WaitForSeconds(1f);
 
-            if (enemy != null)
+            if (target != null)
             {
-                enemy.TakeDamage(5f + (additionalDamage * 0.2f), transform.position, ownerClientId);
+                target.TakeDamage(5f + (additionalDamage * 0.2f), transform.position, ownerClientId);
             }
         }
         DespawnProjectile();
     }
 
-    private IEnumerator BurnEffectBoss(NetworkBoss boss, int ticks)
+    private IEnumerator FreezeEffect(IDamageable target, float duration)
     {
-        for (int i = 0; i < ticks; i++)
-        {
-            yield return new WaitForSeconds(1f);
-
-            if (boss != null)
-            {
-                boss.TakeDamage(5f + (additionalDamage * 0.2f), transform.position, ownerClientId);
-            }
-        }
-        DespawnProjectile();
-    }
-
-    private IEnumerator FreezeEffect(NetworkEnemy enemy, float duration)
-    {
-        if (enemy != null && enemy.TryGetComponent(out NavMeshAgent agent))
+        if (target != null && target is MonoBehaviour mb && mb.TryGetComponent(out UnityEngine.AI.NavMeshAgent agent))
         {
             float originalSpeed = agent.speed;
             agent.speed *= 0.2f;
@@ -302,31 +212,19 @@ public class NetworkProjectile : NetworkBehaviour
         DespawnProjectile();
     }
 
-    private IEnumerator FreezeEffectBoss(float duration)
-    {
-        yield return new WaitForSeconds(duration);
-        DespawnProjectile();
-    }
-
     private void ChainLightning(Vector3 pos, float damage)
     {
         Collider[] hitEnemies = Physics.OverlapSphere(pos, effectRadius, enemyLayer);
 
         foreach (var col in hitEnemies)
         {
-            if (col.TryGetComponent(out NetworkEnemy enemy))
+            if (col.TryGetComponent(out IDamageable target))
             {
-                enemy.TakeDamage(damage, pos, ownerClientId);
-                enemy.PlayLightningVfx(0.6f);
-            }
-            else if (col.TryGetComponent(out NetworkBoss boss))
-            {
-                boss.TakeDamage(damage, pos, ownerClientId);
+                target.TakeDamage(damage, pos, ownerClientId);
             }
         }
     }
 
-    
     private void DespawnProjectile()
     {
         if (NetworkObject != null && NetworkObject.IsSpawned)
