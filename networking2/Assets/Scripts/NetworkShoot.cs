@@ -173,7 +173,7 @@ public class NetworkShoot : NetworkBehaviour
         }
     }
 
-    private void CycleProjectile(int direction)
+    public void CycleProjectile(int direction)
     {
         currentStaffTypeIndex += direction;
 

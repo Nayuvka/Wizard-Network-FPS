@@ -24,7 +24,7 @@ public class NetworkPotionStand : NetworkBehaviour, IInteractable
     public string promptMessage =>
         $"Buy {potionToSell} [{potionCost}]";
 
-    public void Interact()
+    public void Interact(NetworkPlayerController player)
     {
         if (!NetworkManager.Singleton.IsClient)
             return;
