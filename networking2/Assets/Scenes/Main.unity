@@ -6466,7 +6466,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5611162267455281731, guid: d0f823ad37250b7458ee85ac8c510979, type: 3}
       propertyPath: m_Name
-      value: Post Processing
+      value: MainPostProcessing
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5565085001307652596, guid: d0f823ad37250b7458ee85ac8c510979, type: 3}
