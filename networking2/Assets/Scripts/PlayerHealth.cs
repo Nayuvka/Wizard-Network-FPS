@@ -33,6 +33,10 @@ public class PlayerHealth : NetworkBehaviour
 
     [Header("Low Health Vignette")]
     [SerializeField] private Volume globalVolume;
+
+    private Color defaultVignetteColor;
+    private float defaultVignetteIntensity;
+
     [SerializeField] private float lowHealthThreshold = 60f;
     [SerializeField] private float vignetteIntensity = 0.45f;
 
@@ -116,7 +120,9 @@ public class PlayerHealth : NetworkBehaviour
             {
                 vignette.intensity.overrideState = true;
                 vignette.color.overrideState = true;
-                vignette.color.value = Color.red;
+
+                defaultVignetteColor = vignette.color.value;
+                defaultVignetteIntensity = vignette.intensity.value;
             }
         }
     }
@@ -220,17 +226,35 @@ public class PlayerHealth : NetworkBehaviour
     {
         if (respawnScript != null && respawnScript.isRespawning.Value)
         {
-            vignette.intensity.value = 0f;
+            vignette.intensity.value = defaultVignetteIntensity;
+            vignette.color.value = defaultVignetteColor;
             return;
         }
 
-        bool isLowHealth = health <= lowHealthThreshold && health > 0;
-        float target = isLowHealth ? vignetteIntensity : 0f;
+        bool isLowHealth =
+            health <= lowHealthThreshold &&
+            health > 0;
+
+        float targetIntensity =
+            isLowHealth
+            ? vignetteIntensity
+            : defaultVignetteIntensity;
+
+        Color targetColor =
+            isLowHealth
+            ? Color.red
+            : defaultVignetteColor;
 
         vignette.intensity.value = Mathf.MoveTowards(
             vignette.intensity.value,
-            target,
+            targetIntensity,
             Time.deltaTime * 2f
+        );
+
+        vignette.color.value = Color.Lerp(
+            vignette.color.value,
+            targetColor,
+            Time.deltaTime * 4f
         );
     }
 
