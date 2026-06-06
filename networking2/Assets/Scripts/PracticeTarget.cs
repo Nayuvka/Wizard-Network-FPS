@@ -9,52 +9,85 @@ public class PracticeTarget : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] private AudioSource audioSource;
-    [SerializeField] private AudioClip upSound;
-    [SerializeField] private AudioClip downSound;
+    [SerializeField] private AudioClip pushSound;
+    [SerializeField] private AudioClip deathSound;
+    [SerializeField] private AudioClip reviveSound;
 
     [Header("Animation")]
-    [SerializeField] private Animation targetAnimation;
-    [SerializeField] private AnimationClip targetUp;
-    [SerializeField] private AnimationClip targetDown;
+    [SerializeField] private Animator animator;
 
-    private bool isDown;
+    private int hitCount;
+    private bool isDead;
 
     public void Hit()
     {
-        if (isDown)
+        if (isDead)
             return;
 
-        StartCoroutine(TargetRoutine());
+        hitCount++;
+
+        // First hit
+        if (hitCount == 1)
+        {
+            animator.SetTrigger("Push");
+
+            if (audioSource != null && pushSound != null)
+            {
+                audioSource.PlayOneShot(pushSound);
+            }
+        }
+        // Second hit
+        else if (hitCount >= 2)
+        {
+            isDead = true;
+
+            animator.SetTrigger("Die");
+
+            if (audioSource != null && deathSound != null)
+            {
+                audioSource.PlayOneShot(deathSound);
+            }
+
+            StartCoroutine(RespawnRoutine());
+        }
     }
 
-    private IEnumerator TargetRoutine()
+    public void ExplodeHit()
     {
-        isDown = true;
+        if (isDead)
+            return;
 
-        targetAnimation.clip = targetDown;
-        targetAnimation.Play();
+        hitCount = 2;
+        isDead = true;
 
-        if (audioSource != null && downSound != null)
+        animator.SetTrigger("Die");
+        Debug.Log("Death Animation");
+
+        if (audioSource != null && deathSound != null)
         {
-            audioSource.PlayOneShot(downSound);
+            audioSource.PlayOneShot(deathSound);
         }
 
-        float delay =
-            Random.Range(
-                minRespawnTime,
-                maxRespawnTime
-            );
+        StartCoroutine(RespawnRoutine());
+    }
+
+    private IEnumerator RespawnRoutine()
+    {
+        float delay = Random.Range(
+            minRespawnTime,
+            maxRespawnTime
+        );
 
         yield return new WaitForSeconds(delay);
 
-        targetAnimation.clip = targetUp;
-        targetAnimation.Play();
+        animator.SetTrigger("Revive");
 
-        if (audioSource != null && upSound != null)
+        if (audioSource != null && reviveSound != null)
         {
-            audioSource.PlayOneShot(upSound);
+            audioSource.PlayOneShot(reviveSound);
         }
 
-        isDown = false;
+        hitCount = 0;
+        isDead = false;
     }
 }

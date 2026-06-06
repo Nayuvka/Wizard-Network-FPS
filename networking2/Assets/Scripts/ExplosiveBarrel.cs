@@ -83,6 +83,11 @@ public class ExplosiveBarrel : NetworkBehaviour
             {
                 playerHealth.TakeDamage(damage);
             }
+
+            if (hit.TryGetComponent(out PracticeTarget target))
+            {
+                target.ExplodeHit();
+            }
         }
 
         PlayExplosionClientRpc();
