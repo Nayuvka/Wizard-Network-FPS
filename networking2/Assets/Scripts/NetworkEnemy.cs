@@ -4,7 +4,7 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 using System.Collections;
 
-public class NetworkEnemy : NetworkBehaviour
+public class NetworkEnemy : NetworkBehaviour, IDamageable
 {
     [Header("Enemy Settings")]
     [SerializeField] private float maxHealth = 100f;

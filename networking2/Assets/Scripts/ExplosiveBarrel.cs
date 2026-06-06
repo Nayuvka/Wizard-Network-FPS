@@ -2,7 +2,7 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
-public class ExplosiveBarrel : NetworkBehaviour
+public class ExplosiveBarrel : NetworkBehaviour, IDamageable
 {
     [Header("Explosion")]
     [SerializeField] private float explosionRadius = 5f;
@@ -25,7 +25,6 @@ public class ExplosiveBarrel : NetworkBehaviour
     [SerializeField] private Color lightColor = new Color(1f, 0.8f, 0.5f);
 
     private bool exploded;
-
     private Collider[] barrelColliders;
     private Renderer[] barrelRenderers;
 
@@ -35,6 +34,11 @@ public class ExplosiveBarrel : NetworkBehaviour
         barrelRenderers = GetComponentsInChildren<Renderer>();
     }
 
+    public void TakeDamage(float amount, Vector3 source, ulong attackerId)
+    {
+        Explode();
+    }
+
     public void Explode()
     {
         if (!IsServer || exploded)
@@ -42,70 +46,32 @@ public class ExplosiveBarrel : NetworkBehaviour
 
         exploded = true;
 
-        Collider[] hits = Physics.OverlapSphere(
-            transform.position,
-            explosionRadius
-        );
+        Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
 
         foreach (Collider hit in hits)
         {
-            float distance = Vector3.Distance(
-                transform.position,
-                hit.transform.position
-            );
-
-            float damageMultiplier =
-                1f - Mathf.Clamp01(distance / explosionRadius);
-
-            float damage =
-                explosionDamage * damageMultiplier;
-
-            if (damage < 1f)
-                continue;
-
-            if (hit.TryGetComponent(out ExplosiveBarrel barrel))
+            if (hit.TryGetComponent(out IDamageable target) && hit.gameObject != gameObject)
             {
-                if (barrel != this)
+                float distance = Vector3.Distance(transform.position, hit.transform.position);
+                float damageMultiplier = 1f - Mathf.Clamp01(distance / explosionRadius);
+                float damage = explosionDamage * damageMultiplier;
+
+                if (damage >= 1f)
                 {
-                    barrel.Explode();
+                    target.TakeDamage(damage, transform.position, 9999);
                 }
-            }
-
-            if (hit.TryGetComponent(out NetworkEnemy enemy))
-            {
-                enemy.TakeDamage(
-                    damage,
-                    transform.position
-                );
-            }
-
-            if (hit.TryGetComponent(out PlayerHealth playerHealth))
-            {
-                playerHealth.TakeDamage(damage);
-            }
-
-            if (hit.TryGetComponent(out PracticeTarget target))
-            {
-                target.ExplodeHit();
             }
         }
 
         PlayExplosionClientRpc();
-
         SetBarrelVisibleClientRpc(false);
-
         StartCoroutine(RespawnRoutine());
     }
 
     private IEnumerator RespawnRoutine()
     {
-        yield return new WaitForSeconds(
-            respawnTime +
-            Random.Range(0f, randomRespawnOffset)
-        );
-
+        yield return new WaitForSeconds(respawnTime + Random.Range(0f, randomRespawnOffset));
         exploded = false;
-
         SetBarrelVisibleClientRpc(true);
     }
 
@@ -113,29 +79,11 @@ public class ExplosiveBarrel : NetworkBehaviour
     private void PlayExplosionClientRpc()
     {
         if (explosionVFX != null)
-        {
-            Instantiate(
-                explosionVFX,
-                transform.position,
-                Quaternion.identity
-            );
-        }
+            Instantiate(explosionVFX, transform.position, Quaternion.identity);
 
-        if (explosionSFX != null &&
-            explosionSFX.Length > 0)
+        if (explosionSFX != null && explosionSFX.Length > 0)
         {
-            AudioClip randomClip =
-                explosionSFX[
-                    Random.Range(
-                        0,
-                        explosionSFX.Length
-                    )
-                ];
-
-            AudioSource.PlayClipAtPoint(
-                randomClip,
-                transform.position
-            );
+            AudioSource.PlayClipAtPoint(explosionSFX[Random.Range(0, explosionSFX.Length)], transform.position);
         }
 
         StartCoroutine(LightFlashRoutine());
@@ -143,48 +91,27 @@ public class ExplosiveBarrel : NetworkBehaviour
 
     private IEnumerator LightFlashRoutine()
     {
-        GameObject lightObj =
-            new GameObject("Explosion Flash");
-
-        lightObj.transform.position =
-            transform.position + Vector3.up;
-
-        Light flashLight =
-            lightObj.AddComponent<Light>();
-
+        GameObject lightObj = new GameObject("Explosion Flash");
+        lightObj.transform.position = transform.position + Vector3.up;
+        Light flashLight = lightObj.AddComponent<Light>();
         flashLight.type = LightType.Point;
         flashLight.intensity = lightIntensity;
         flashLight.range = lightRange;
         flashLight.color = lightColor;
-
-        yield return new WaitForSeconds(
-            lightDuration
-        );
-
+        yield return new WaitForSeconds(lightDuration);
         Destroy(lightObj);
     }
 
     [ClientRpc]
     private void SetBarrelVisibleClientRpc(bool visible)
     {
-        foreach (Renderer renderer in barrelRenderers)
-        {
-            renderer.enabled = visible;
-        }
-
-        foreach (Collider collider in barrelColliders)
-        {
-            collider.enabled = visible;
-        }
+        foreach (Renderer renderer in barrelRenderers) renderer.enabled = visible;
+        foreach (Collider collider in barrelColliders) collider.enabled = visible;
     }
 
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-
-        Gizmos.DrawWireSphere(
-            transform.position,
-            explosionRadius
-        );
+        Gizmos.DrawWireSphere(transform.position, explosionRadius);
     }
 }

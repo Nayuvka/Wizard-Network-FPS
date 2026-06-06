@@ -4,7 +4,7 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 using System.Collections;
 
-public class NetworkBoss : NetworkBehaviour
+public class NetworkBoss : NetworkBehaviour, IDamageable
 {
     [Header("Stats")]
     [SerializeField] private float maxHealth = 1000f;
