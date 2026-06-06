@@ -10,6 +10,7 @@ public class NetworkPlayerController : NetworkBehaviour
     [Header("References")]
     [Space(5)]
     [SerializeField] private NetworkShoot networkShoot;
+    [SerializeField] private NetworkPlayerAbilities playerAbilities;
     [SerializeField] private CharacterController charController;
     [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private GameObject cinemachineCameraTarget;
@@ -111,6 +112,12 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private Transform playerSpawn;
 
     private const float threshold = 0.01f;
+    
+    private bool isDashing;
+    private float dashDuration;
+    private float currentDashSpeed;
+    private bool wasLaunchedByFire;
+    private bool isGliding;
 
     private bool IsMouseInput()
     {
@@ -141,6 +148,7 @@ public class NetworkPlayerController : NetworkBehaviour
         charController = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         networkShoot = GetComponent<NetworkShoot>();
+        playerAbilities = GetComponent<NetworkPlayerAbilities>();
         playerHealth = GetComponent<PlayerHealth>();
         hasAnimator = TryGetComponent(out animator);
         
@@ -255,7 +263,6 @@ public class NetworkPlayerController : NetworkBehaviour
             look = Vector2.zero;
             jump = false;
             sprint = false;
-
             HandleCameraNoise();
             return;
         }
@@ -266,7 +273,6 @@ public class NetworkPlayerController : NetworkBehaviour
             look = Vector2.zero;
             jump = false;
             sprint = false;
-
             HandleCameraNoise();
             return;
         }
@@ -321,7 +327,7 @@ public class NetworkPlayerController : NetworkBehaviour
         if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
         if (value.isPressed && networkShoot != null) networkShoot.ProcessLocalShoot();
     }
-    
+
     public void OnInteract(InputValue value)
     {
         if (!IsOwner || IsLocallyPaused() || isInUIMode) return;
@@ -331,7 +337,7 @@ public class NetworkPlayerController : NetworkBehaviour
             if (value.isPressed)
             {
                 print("Interacted");
-                currentInteractable.Interact(this);
+                currentInteractable.Interact();
             }
         }
     }
@@ -354,6 +360,25 @@ public class NetworkPlayerController : NetworkBehaviour
         }
     }
 
+    public void OnPause(InputValue value)
+    {
+        if (!IsOwner)
+            return;
+
+        if (!value.isPressed)
+            return;
+
+        if (pauseScript == null)
+        {
+            pauseScript = FindFirstObjectByType<PauseScript>();
+        }
+
+        if (pauseScript != null)
+        {
+            pauseScript.TogglePause();
+        }
+    }
+
     public void OnBack(InputValue value)
     {
         if (!IsOwner)
@@ -370,20 +395,52 @@ public class NetworkPlayerController : NetworkBehaviour
             lobbyUI.CloseLobbyUI();
             return;
         }
-    }
 
-    public void OnPause(InputValue value)
-    {
-        if (!IsOwner || !value.isPressed)
-            return;
+        if (pauseScript == null)
+        {
+            pauseScript = FindFirstObjectByType<PauseScript>();
+        }
 
         if (pauseScript != null)
         {
-            pauseScript.TogglePause();
+            pauseScript.Back();
         }
     }
 
-    
+    public bool IsDashing()
+    {
+        return isDashing;
+    }
+
+    public void StartDash(float duration, float targetSpeed)
+    {
+        isDashing = true;
+        dashDuration = duration;
+        currentDashSpeed = targetSpeed;
+    }
+
+    public void LiftPlayerForPillar(float liftAmount)
+    {
+        if (charController != null)
+        {
+            charController.enabled = false;
+            transform.position += new Vector3(0, liftAmount, 0); 
+            charController.enabled = true;
+        }
+    }
+
+    public void LaunchPlayer(float multiplier)
+    {
+        verticalVelocity = Mathf.Sqrt((jumpHeight * multiplier) * -2f * gravity);
+        if (hasAnimator)
+        {
+            animator.SetBool(animIDJump, true);
+            animator.SetBool(animIDFreeFall, false);
+        }
+        grounded = false;
+        jump = false;
+        wasLaunchedByFire = true;
+    }
 
     private void GroundedCheck()
     {
@@ -432,9 +489,6 @@ public class NetworkPlayerController : NetworkBehaviour
                 else if(hit.collider.TryGetComponent<NetworkPotionStand>(out NetworkPotionStand networkPotionStand)){
                     interactText.text = networkPotionStand.promptMessage;
                 }
-                else if(hit.collider.TryGetComponent<TutorialStatueInteractable>(out TutorialStatueInteractable tutorialStatueInteractable)){
-                    interactText.text = tutorialStatueInteractable.promptMessage;
-                }
                 else
                 {
                     interactText.text = "Interact";
@@ -455,7 +509,21 @@ public class NetworkPlayerController : NetworkBehaviour
     {
         if (charController == null || !charController.enabled) return;
 
+        if (isDashing)
+        {
+            charController.Move(transform.forward * currentDashSpeed * Time.deltaTime);
+            dashDuration -= Time.deltaTime;
+            if (dashDuration <= 0) isDashing = false;
+            return;
+        }
+
         float targetSpeed = sprint ? sprintSpeed : moveSpeed;
+        
+        if (isGliding && playerAbilities != null)
+        {
+            targetSpeed = playerAbilities.glideMoveSpeed;
+        }
+
         if (move == Vector2.zero) targetSpeed = 0f;
 
         float currentHorizontalSpeed = new Vector3(charController.velocity.x, 0f, charController.velocity.z).magnitude;
@@ -482,8 +550,10 @@ public class NetworkPlayerController : NetworkBehaviour
 
     private void JumpAndGravity()
     {
-        if (grounded)
+        if (grounded && verticalVelocity <= 0.0f)
         {
+            wasLaunchedByFire = false;
+            
             fallTimeoutDelta = fallTimeout;
             if (hasAnimator)
             {
@@ -506,7 +576,28 @@ public class NetworkPlayerController : NetworkBehaviour
             else if (hasAnimator) animator.SetBool(animIDFreeFall, true);
             jump = false;
         }
-        if (verticalVelocity < terminalVelocity) verticalVelocity += gravity * Time.deltaTime;
+
+        isGliding = false;
+
+        if (playerAbilities != null && networkShoot != null)
+        {
+            if (networkShoot.currentStaffTypeIndex == playerAbilities.fireStaffIndex)
+            {
+                if (!grounded && verticalVelocity < 0f && wasLaunchedByFire)
+                {
+                    isGliding = true;
+                }
+            }
+        }
+
+        if (isGliding)
+        {
+            verticalVelocity = playerAbilities.glideFallSpeed;
+        }
+        else if (verticalVelocity < terminalVelocity)
+        {
+            verticalVelocity += gravity * Time.deltaTime;
+        }
     }
 
     private void AssignAnimationIDs()
