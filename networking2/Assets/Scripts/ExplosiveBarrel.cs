@@ -35,7 +35,7 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
         barrelRenderers = GetComponentsInChildren<Renderer>();
     }
 
-    public void TakeDamage(float amount, Vector3 source, ulong attackerId)
+    public void TakeDamage(float amount, Vector3 sourcePosition = default, ulong attackerId = ulong.MaxValue, DamageType damageType = DamageType.Normal)
     {
         Explode();
     }

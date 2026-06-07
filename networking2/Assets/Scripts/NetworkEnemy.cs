@@ -139,12 +139,25 @@ public class NetworkEnemy : NetworkBehaviour, IDamageable
         }
     }
 
-    public void TakeDamage(float damage, Vector3 sourcePosition = default, ulong attackerId = ulong.MaxValue)
+    public void TakeDamage(float damage, Vector3 sourcePosition = default, ulong attackerId = ulong.MaxValue, DamageType damageType = DamageType.Normal)
     {
         if (!IsServer || isDead) return;
 
         currentHealth.Value -= damage;
         HitFeedbackClientRpc();
+
+        switch (damageType)
+        {
+            case DamageType.Fire:
+                PlayBurnVfxClientRpc(5f);
+                break;
+            case DamageType.Frost:
+                PlayFrostVfxClientRpc(3f);
+                break;
+            case DamageType.Lightning:
+                PlayLightningVfxClientRpc(1.5f);
+                break;
+        }
 
         if (currentHealth.Value > 0)
         {
@@ -178,33 +191,43 @@ public class NetworkEnemy : NetworkBehaviour, IDamageable
         }
     }
 
-    public void PlayBurnVfx(float duration)
+    [ClientRpc]
+    private void PlayBurnVfxClientRpc(float duration)
     {
-        if (IsServer && !isDead) PlayBurnVfxClientRpc(duration);
-    }
-    public void PlayFrostVfx(float duration)
-    {
-        if (IsServer && !isDead) PlayFrostVfxClientRpc(duration);
-    }
-    public void PlayLightningVfx(float duration)
-    {
-        if (IsServer && !isDead) PlayLightningVfxClientRpc(duration);
-    }
-
-    [ClientRpc] private void PlayBurnVfxClientRpc(float duration) => SpawnStatusVfx(burnVfxPrefab, ref activeBurnVfx, burnVfxOffset, duration);
-    [ClientRpc] private void PlayFrostVfxClientRpc(float duration) => SpawnStatusVfx(frostVfxPrefab, ref activeFrostVfx, frostVfxOffset, duration);
-    [ClientRpc] private void PlayLightningVfxClientRpc(float duration) => SpawnStatusVfx(lightningVfxPrefab, ref activeLightningVfx, lightningVfxOffset, duration);
-
-    private void SpawnStatusVfx(GameObject prefab, ref GameObject activeVfx, Vector3 localOffset, float duration)
-    {
-        if (isDead || prefab == null) return;
-        if (activeVfx != null) Destroy(activeVfx);
+        if (isDead || burnVfxPrefab == null) return;
+        if (activeBurnVfx != null) Destroy(activeBurnVfx);
 
         Transform attachPoint = statusVfxPoint != null ? statusVfxPoint : transform;
-        activeVfx = Instantiate(prefab, attachPoint.position, attachPoint.rotation, attachPoint);
-        activeVfx.transform.localPosition = localOffset;
-        activeVfx.transform.localRotation = Quaternion.identity;
-        Destroy(activeVfx, duration);
+        activeBurnVfx = Instantiate(burnVfxPrefab, attachPoint.position, attachPoint.rotation, attachPoint);
+        activeBurnVfx.transform.localPosition = burnVfxOffset;
+        activeBurnVfx.transform.localRotation = Quaternion.identity;
+        Destroy(activeBurnVfx, duration);
+    }
+
+    [ClientRpc]
+    private void PlayFrostVfxClientRpc(float duration)
+    {
+        if (isDead || frostVfxPrefab == null) return;
+        if (activeFrostVfx != null) Destroy(activeFrostVfx);
+
+        Transform attachPoint = statusVfxPoint != null ? statusVfxPoint : transform;
+        activeFrostVfx = Instantiate(frostVfxPrefab, attachPoint.position, attachPoint.rotation, attachPoint);
+        activeFrostVfx.transform.localPosition = frostVfxOffset;
+        activeFrostVfx.transform.localRotation = Quaternion.identity;
+        Destroy(activeFrostVfx, duration);
+    }
+
+    [ClientRpc]
+    private void PlayLightningVfxClientRpc(float duration)
+    {
+        if (isDead || lightningVfxPrefab == null) return;
+        if (activeLightningVfx != null) Destroy(activeLightningVfx);
+
+        Transform attachPoint = statusVfxPoint != null ? statusVfxPoint : transform;
+        activeLightningVfx = Instantiate(lightningVfxPrefab, attachPoint.position, attachPoint.rotation, attachPoint);
+        activeLightningVfx.transform.localPosition = lightningVfxOffset;
+        activeLightningVfx.transform.localRotation = Quaternion.identity;
+        Destroy(activeLightningVfx, duration);
     }
 
     private IEnumerator KnockbackRoutine(Vector3 sourcePosition)

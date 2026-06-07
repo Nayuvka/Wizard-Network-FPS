@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.AI;
+using System.Collections;
 
 public class WizardBoss : NetworkBehaviour, IDamageable
 {
@@ -21,11 +22,15 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     private Transform target;
     private bool isDead = false;
 
+    private float originalSpeed;
+    private Coroutine frostRoutine;
+
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
             agent = GetComponent<NavMeshAgent>();
+            if (agent != null) originalSpeed = agent.speed;
             FindTarget();
         }
     }
@@ -40,7 +45,10 @@ public class WizardBoss : NetworkBehaviour, IDamageable
         }
         else 
         {
-            agent.SetDestination(target.position);
+            if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+            {
+                agent.SetDestination(target.position);
+            }
             
             batSpawnTimer += Time.deltaTime;
             if (batSpawnTimer >= batSpawnRate)
@@ -77,9 +85,16 @@ public class WizardBoss : NetworkBehaviour, IDamageable
             target = players[Random.Range(0, players.Length)].transform;
     }
 
-    public void TakeDamage(float amount, Vector3 source, ulong attackerId)
+    public void TakeDamage(float amount, Vector3 sourcePosition = default, ulong attackerId = ulong.MaxValue, DamageType damageType = DamageType.Normal)
     {
         if (!IsServer || isDead) return;
+
+        if (damageType == DamageType.Frost)
+        {
+            if (frostRoutine != null) StopCoroutine(frostRoutine);
+            frostRoutine = StartCoroutine(FrostRoutine(3f, 0.5f));
+        }
+
         health -= amount;
         if (health <= 0)
         {
@@ -87,5 +102,12 @@ public class WizardBoss : NetworkBehaviour, IDamageable
             if (GameOverManager.Instance != null) GameOverManager.Instance.WinGame();
             GetComponent<NetworkObject>().Despawn();
         }
+    }
+
+    private IEnumerator FrostRoutine(float duration, float multiplier)
+    {
+        if (agent != null) agent.speed = originalSpeed * multiplier;
+        yield return new WaitForSeconds(duration);
+        if (!isDead && agent != null) agent.speed = originalSpeed;
     }
 }

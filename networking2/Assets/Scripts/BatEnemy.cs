@@ -1,5 +1,6 @@
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
+using System.Collections;
 
 public class BatEnemy : NetworkBehaviour, IDamageable
 {
@@ -8,8 +9,12 @@ public class BatEnemy : NetworkBehaviour, IDamageable
     [SerializeField] private float health = 20f;
     private Transform target;
 
+    private float originalSpeed;
+    private Coroutine frostRoutine;
+
     public override void OnNetworkSpawn()
     {
+        originalSpeed = speed;
         if (IsServer)
         {
             GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
@@ -39,10 +44,24 @@ public class BatEnemy : NetworkBehaviour, IDamageable
         }
     }
 
-    public void TakeDamage(float amount, Vector3 source, ulong attackerId)
+    public void TakeDamage(float amount, Vector3 sourcePosition = default, ulong attackerId = ulong.MaxValue, DamageType damageType = DamageType.Normal)
     {
         if (!IsServer) return;
+
+        if (damageType == DamageType.Frost)
+        {
+            if (frostRoutine != null) StopCoroutine(frostRoutine);
+            frostRoutine = StartCoroutine(FrostRoutine(3f, 0.5f));
+        }
+
         health -= amount;
         if (health <= 0) GetComponent<NetworkObject>().Despawn();
+    }
+
+    private IEnumerator FrostRoutine(float duration, float multiplier)
+    {
+        speed = originalSpeed * multiplier;
+        yield return new WaitForSeconds(duration);
+        speed = originalSpeed;
     }
 }

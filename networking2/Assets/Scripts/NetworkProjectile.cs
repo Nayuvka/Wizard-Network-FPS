@@ -100,8 +100,6 @@ public class NetworkProjectile : NetworkBehaviour
         if (targetNetObj.TryGetComponent(out IDamageable damageable))
         {
             ApplyTypeEffect(damageable, impactPos);
-            PlayImpactFeedback(impactPos);
-            DespawnProjectile();
             return;
         }
 
@@ -179,17 +177,17 @@ public class NetworkProjectile : NetworkBehaviour
         switch (type)
         {
             case ProjectileType.Fireball:
-                target.TakeDamage(finalDamage, lastPosition, ownerClientId);
+                target.TakeDamage(finalDamage, lastPosition, ownerClientId, DamageType.Fire);
                 StopProjectileVisuals();
                 PlayImpactFeedback(impactPos);
                 StartCoroutine(BurnEffect(target, 5));
                 break;
 
             case ProjectileType.Frostball:
-                target.TakeDamage(finalDamage, lastPosition, ownerClientId);
+                target.TakeDamage(finalDamage, lastPosition, ownerClientId, DamageType.Frost);
                 StopProjectileVisuals();
                 PlayImpactFeedback(impactPos);
-                StartCoroutine(FreezeEffect(target, 3f));
+                DespawnProjectile();
                 break;
 
             case ProjectileType.Lightning:
@@ -199,7 +197,7 @@ public class NetworkProjectile : NetworkBehaviour
                 break;
 
             case ProjectileType.Normal:
-                target.TakeDamage(finalDamage, lastPosition, ownerClientId);
+                target.TakeDamage(finalDamage, lastPosition, ownerClientId, DamageType.Normal);
                 PlayImpactFeedback(impactPos);
                 DespawnProjectile();
                 break;
@@ -214,24 +212,7 @@ public class NetworkProjectile : NetworkBehaviour
 
             if (target != null)
             {
-                target.TakeDamage(5f + (additionalDamage * 0.2f), transform.position, ownerClientId);
-            }
-        }
-        DespawnProjectile();
-    }
-
-    private IEnumerator FreezeEffect(IDamageable target, float duration)
-    {
-        if (target != null && target is MonoBehaviour mb && mb.TryGetComponent(out UnityEngine.AI.NavMeshAgent agent))
-        {
-            float originalSpeed = agent.speed;
-            agent.speed *= 0.2f;
-
-            yield return new WaitForSeconds(duration);
-
-            if (agent != null)
-            {
-                agent.speed = originalSpeed;
+                target.TakeDamage(5f + (additionalDamage * 0.2f), transform.position, ownerClientId, DamageType.Fire);
             }
         }
         DespawnProjectile();
@@ -245,7 +226,7 @@ public class NetworkProjectile : NetworkBehaviour
         {
             if (col.TryGetComponent(out IDamageable target))
             {
-                target.TakeDamage(damage, pos, ownerClientId);
+                target.TakeDamage(damage, pos, ownerClientId, DamageType.Lightning);
             }
         }
     }

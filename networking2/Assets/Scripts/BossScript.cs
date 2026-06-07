@@ -38,12 +38,14 @@ public class NetworkBoss : NetworkBehaviour, IDamageable
     [SerializeField] private Animator bossAnimator;
     [SerializeField] private float deathDelay = 3.0f;
 
+    private Coroutine frostRoutine;
+
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
             agent = GetComponent<NavMeshAgent>();
-            originalSpeed = agent.speed;
+            if (agent != null) originalSpeed = agent.speed;
             currentHealth.Value = maxHealth;
             FindTarget();
         }
@@ -79,7 +81,10 @@ public class NetworkBoss : NetworkBehaviour, IDamageable
         }
 
         float distance = Vector3.Distance(transform.position, target.position);
-        agent.SetDestination(target.position);
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        {
+            agent.SetDestination(target.position);
+        }
 
         fireTimer += Time.deltaTime;
         if (distance <= attackRange && fireTimer >= fireRate)
@@ -115,11 +120,17 @@ public class NetworkBoss : NetworkBehaviour, IDamageable
         }
     }
 
-    public void TakeDamage(float amount, Vector3 knockbackSource = default, ulong attackerId = ulong.MaxValue)
+    public void TakeDamage(float amount, Vector3 knockbackSource = default, ulong attackerId = ulong.MaxValue, DamageType damageType = DamageType.Normal)
     {
         if (!IsServer || isDead) return;
 
         currentHealth.Value -= amount;
+
+        if (damageType == DamageType.Frost)
+        {
+            if (frostRoutine != null) StopCoroutine(frostRoutine);
+            frostRoutine = StartCoroutine(FrostRoutine(3f, 0.2f));
+        }
 
         if (knockbackSource != default)
         {
@@ -141,17 +152,11 @@ public class NetworkBoss : NetworkBehaviour, IDamageable
         }
     }
 
-    public void ApplyFrostEffect(float duration, float multiplier)
-    {
-        if (!IsServer || isDead) return;
-        StartCoroutine(FrostRoutine(duration, multiplier));
-    }
-
     private IEnumerator FrostRoutine(float duration, float multiplier)
     {
-        agent.speed = originalSpeed * multiplier;
+        if (agent != null) agent.speed = originalSpeed * multiplier;
         yield return new WaitForSeconds(duration);
-        if (!isDead) agent.speed = originalSpeed;
+        if (!isDead && agent != null) agent.speed = originalSpeed;
     }
 
     private void ApplyKnockback(Vector3 source)
