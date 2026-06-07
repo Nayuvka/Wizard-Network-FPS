@@ -10,4 +10,10 @@ public class RoomData
     public bool isPrivate;
     public int currentPlayers;
     public int maxPlayers;
+
+    public bool IsFull()
+    {
+        return currentPlayers >= maxPlayers;
+    }
 }
+

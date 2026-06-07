@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Back
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 6f1f9361a9549c44fa38e8f10d31a3ad, type: 2}
-  m_sharedMaterial: {fileID: -53136553426411874, guid: 6f1f9361a9549c44fa38e8f10d31a3ad, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f6fede71c94b20a4ba4e40bc9b78ca07, type: 2}
+  m_sharedMaterial: {fileID: 7550211305944260792, guid: f6fede71c94b20a4ba4e40bc9b78ca07, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -210,7 +210,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 25, y: 25}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &835135719179324360
 CanvasRenderer:
@@ -240,7 +240,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b1b1922a87b0f0e4e874f099a29a4d8d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4e1a767fca4e789409283e5aaea3e8de, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -263,6 +263,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InputpromptUI
   promptImage: {fileID: 5852335844757108172}
-  keyboardSprite: {fileID: 21300000, guid: b1b1922a87b0f0e4e874f099a29a4d8d, type: 3}
+  keyboardSprite: {fileID: 21300000, guid: 4e1a767fca4e789409283e5aaea3e8de, type: 3}
   xboxSprite: {fileID: 21300000, guid: 1bfb783b93e96a64bae5fea58138fa73, type: 3}
   playStationSprite: {fileID: 21300000, guid: 84f82cac1989a6d4a8ee6de9b1788e64, type: 3}

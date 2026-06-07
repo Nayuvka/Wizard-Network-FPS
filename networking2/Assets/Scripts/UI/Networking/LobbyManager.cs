@@ -59,11 +59,23 @@ public class LobbyManager : NetworkBehaviour
     private void OnClientConnected(ulong clientId)
     {
         RefreshPlayerList();
+
+        if (LanDiscovery.Instance != null)
+        {
+            LanDiscovery.Instance.UpdatePlayerCount(
+                connectedPlayers.Count);
+        }
     }
 
     private void OnClientDisconnected(ulong clientId)
     {
         RefreshPlayerList();
+
+        if (LanDiscovery.Instance != null)
+        {
+            LanDiscovery.Instance.UpdatePlayerCount(
+                connectedPlayers.Count);
+        }
     }
 
     public void RefreshPlayerList()

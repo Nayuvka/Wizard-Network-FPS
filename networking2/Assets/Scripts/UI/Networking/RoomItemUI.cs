@@ -17,6 +17,11 @@ public class RoomItemUI : MonoBehaviour
             ? "Private"
             : "Public";
 
+        if (room.IsFull())
+        {
+            status += " - FULL";
+        }
+
         roomNameText.text =
             $"{room.roomName} ({status})";
 
@@ -26,5 +31,11 @@ public class RoomItemUI : MonoBehaviour
         playerCountText.text =
             $"{room.currentPlayers}/" +
             $"{room.maxPlayers}";
+
+        if (joinButton != null)
+        {
+            joinButton.interactable =
+                !room.IsFull();
+        }
     }
 }

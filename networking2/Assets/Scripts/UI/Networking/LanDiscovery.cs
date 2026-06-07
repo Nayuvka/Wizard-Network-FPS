@@ -40,6 +40,15 @@ public class LanDiscovery : MonoBehaviour
         }
     }
 
+    public bool IsRoomFull()
+    {
+        if (currentRoomData == null)
+            return false;
+
+        return currentRoomData.currentPlayers >=
+               currentRoomData.maxPlayers;
+    }
+
     #region HOSTING
 
     public void StartBroadcasting(
@@ -92,8 +101,7 @@ public class LanDiscovery : MonoBehaviour
         }
     }
 
-    public void UpdatePlayerCount(
-        int currentPlayers)
+    public void UpdatePlayerCount(int currentPlayers)
     {
         if (currentRoomData == null)
             return;

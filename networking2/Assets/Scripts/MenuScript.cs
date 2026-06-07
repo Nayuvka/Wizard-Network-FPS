@@ -31,7 +31,7 @@ public class MenuScript : MonoBehaviour
     [SerializeField] private TMP_InputField roomNameInput;
 
     [SerializeField] private Slider maxPlayersSlider;
-
+    [SerializeField] private TextMeshProUGUI maxPlayersText;
     [SerializeField] private TMP_Dropdown roomPrivacyDropdown;
 
     [Header("Private Room Join")]
@@ -88,6 +88,24 @@ public class MenuScript : MonoBehaviour
 
             roomCodeInput.onDeselect
                 .AddListener(OnRoomCodeDeselected);
+        }
+
+        if (maxPlayersSlider != null)
+        {
+            maxPlayersSlider.onValueChanged
+                .AddListener(UpdateMaxPlayersText);
+
+            UpdateMaxPlayersText(
+                maxPlayersSlider.value);
+        }
+    }
+
+    private void UpdateMaxPlayersText(float value)
+    {
+        if (maxPlayersText != null)
+        {
+            maxPlayersText.text =
+                Mathf.RoundToInt(value).ToString();
         }
     }
 

@@ -166,15 +166,15 @@ public class MainMenuUI : MonoBehaviour
         switch (type)
         {
             case InputDeviceType.KeyboardMouse:
-                startText.text = "Press SPACE or Click LMB to Start";
+                startText.text = "Press [Space or Left Click] to Start";
                 break;
 
             case InputDeviceType.Xbox:
-                startText.text = "Press A to Start";
+                startText.text = "Press [A] to Start";
                 break;
 
             case InputDeviceType.PlayStation:
-                startText.text = "Press X to Start";
+                startText.text = "Press [X] to Start";
                 break;
         }
     }
