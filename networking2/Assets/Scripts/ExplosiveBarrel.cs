@@ -25,6 +25,7 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
     [SerializeField] private Color lightColor = new Color(1f, 0.8f, 0.5f);
 
     private bool exploded;
+    private ulong lastAttackerId = ulong.MaxValue;
 
     private Collider[] barrelColliders;
     private Renderer[] barrelRenderers;
@@ -37,13 +38,20 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
 
     public void TakeDamage(float amount, Vector3 sourcePosition = default, ulong attackerId = ulong.MaxValue, DamageType damageType = DamageType.Normal)
     {
+        lastAttackerId = attackerId;
         Explode();
     }
 
-    public void Explode()
+    public void Explode(ulong attackerId = ulong.MaxValue)
     {
         if (!IsServer || exploded)
             return;
+
+        if (attackerId != ulong.MaxValue)
+        {
+            lastAttackerId = attackerId;
+        }
+
 
         exploded = true;
 
@@ -62,14 +70,14 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
             {
                 if (barrel != this)
                 {
-                    barrel.Explode();
+                    barrel.Explode(lastAttackerId);
                 }
                 continue;
             }
 
             if (hit.TryGetComponent(out NetworkEnemy enemy))
             {
-                enemy.TakeDamage(damage, transform.position);
+                enemy.TakeDamage(damage,transform.position,lastAttackerId);
                 continue;
             }
 
