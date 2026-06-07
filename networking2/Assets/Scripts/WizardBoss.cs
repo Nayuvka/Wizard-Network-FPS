@@ -12,6 +12,9 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     [SerializeField] private float batSpawnRate = 3.0f;
     private float batSpawnTimer;
 
+    [Header("Movement")]
+    [SerializeField] private float moveSpeed = 3.5f;
+
     [Header("VFX & Status")]
     [SerializeField] private GameObject burnVfxPrefab;
     [SerializeField] private GameObject frostVfxPrefab;
@@ -25,7 +28,6 @@ public class WizardBoss : NetworkBehaviour, IDamageable
 
     [Header("Stats")]
     [SerializeField] private float maxHealth = 1200f;
-    [SerializeField] private float moveSpeed = 3.5f;
     [SerializeField] private Slider healthBar;
     
     private NetworkVariable<float> currentHealth = new NetworkVariable<float>(1200f);
@@ -40,13 +42,13 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     {
         if (IsServer)
         {
-            currentHealth.Value = maxHealth;
             agent = GetComponent<NavMeshAgent>();
-            if (agent != null)
+            if (agent != null) 
             {
-                agent.speed = moveSpeed;
                 originalSpeed = agent.speed;
+                agent.speed = moveSpeed;
             }
+            currentHealth.Value = maxHealth;
             FindTarget();
         }
 
@@ -68,23 +70,22 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     {
         if (!IsServer || isDead) return;
 
-        if (target == null) 
+        if (target == null)
         {
             FindTarget();
+            return;
         }
-        else 
+
+        if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
-            if (agent != null && agent.isActiveAndEnabled && agent.isOnNavMesh)
-            {
-                agent.SetDestination(target.position);
-            }
+            agent.SetDestination(target.position);
+        }
             
-            batSpawnTimer += Time.deltaTime;
-            if (batSpawnTimer >= batSpawnRate)
-            {
-                SpawnBat();
-                batSpawnTimer = 0;
-            }
+        batSpawnTimer += Time.deltaTime;
+        if (batSpawnTimer >= batSpawnRate)
+        {
+            SpawnBat();
+            batSpawnTimer = 0;
         }
     }
 
@@ -106,6 +107,8 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     {
         if (!IsServer || isDead) return;
 
+        currentHealth.Value -= amount;
+
         switch (damageType)
         {
             case DamageType.Fire: PlayBurnVfxClientRpc(5f); break;
@@ -117,7 +120,6 @@ public class WizardBoss : NetworkBehaviour, IDamageable
             case DamageType.Lightning: PlayLightningVfxClientRpc(1.5f); break;
         }
 
-        currentHealth.Value -= amount;
         if (currentHealth.Value <= 0) Die();
     }
 
