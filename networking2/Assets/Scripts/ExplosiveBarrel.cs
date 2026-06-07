@@ -52,7 +52,6 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
             lastAttackerId = attackerId;
         }
 
-
         exploded = true;
 
         Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
@@ -77,7 +76,7 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
 
             if (hit.TryGetComponent(out NetworkEnemy enemy))
             {
-                enemy.TakeDamage(damage,transform.position,lastAttackerId);
+                enemy.TakeDamage(damage, transform.position, lastAttackerId);
                 continue;
             }
 
@@ -92,9 +91,10 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
                 target.ExplodeHit();
                 continue;
             }
+
             if (hit.TryGetComponent(out IDamageable damageable) && hit.gameObject != gameObject)
             {
-                damageable.TakeDamage(damage, transform.position, 9999);
+                damageable.TakeDamage(damage, transform.position, lastAttackerId);
             }
         }
 
