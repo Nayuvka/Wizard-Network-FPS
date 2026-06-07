@@ -266,7 +266,6 @@ GameObject:
   - component: {fileID: 7362736469589036960}
   - component: {fileID: 5183535685439702855}
   - component: {fileID: 7226160552568203}
-  - component: {fileID: 2843467093707912727}
   m_Layer: 7
   m_Name: BatModel
   m_TagString: Untagged
@@ -283,8 +282,8 @@ Transform:
   m_GameObject: {fileID: 3203737557750574039}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0.929, z: -0.027}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1494460708772003980}
@@ -346,27 +345,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2843467093707912727
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3203737557750574039}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6408060921335656266
 GameObject:
   m_ObjectHideFlags: 0
@@ -380,10 +358,10 @@ GameObject:
   - component: {fileID: 4099246708308472473}
   - component: {fileID: 8860809667667303603}
   - component: {fileID: 1509087769984179689}
+  - component: {fileID: 6672864861229209234}
+  - component: {fileID: 4470853477952615298}
   - component: {fileID: 8948027414949243327}
   - component: {fileID: 8622030224756186251}
-  - component: {fileID: 5171786390944380228}
-  - component: {fileID: 2998539379164778030}
   m_Layer: 7
   m_Name: BatPrefab
   m_TagString: Enemy
@@ -400,7 +378,7 @@ Transform:
   m_GameObject: {fileID: 6408060921335656266}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 500.862, y: 16.49815, z: 1487.205}
+  m_LocalPosition: {x: 502.43158, y: 13.945, z: 1474.0598}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -482,12 +460,12 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1.0013504, z: 1}
-  m_Center: {x: 0, y: 0.0006752014, z: 0}
+  m_Size: {x: 0.5716858, y: 0.58137035, z: 0.56726074}
+  m_Center: {x: 0.011764526, y: 0.9657407, z: -0.024353027}
 --- !u!114 &1509087769984179689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -500,7 +478,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2011878207
+  GlobalObjectIdHash: 2932625180
   InScenePlacedSourceGlobalObjectIdHash: 132881788
   DeferredDespawnTick: 0
   Ownership: 1
@@ -513,6 +491,63 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &6672864861229209234
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6408060921335656266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 604aa1d04fbcc4a489d36adf82d80c95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NetworkEnemy
+  ShowTopMostFoldoutHeaderGroup: 1
+  maxHealth: 40
+  moveSpeed: 5
+  attackDamage: 20
+  attackRange: 2
+  attackInterval: 3
+  deathVfx: {fileID: 2360125799386554154, guid: 85ca7922df4ba3a41b57ed819e3d8c68, type: 3}
+  burnVfxPrefab: {fileID: 7251879486380165639, guid: c2f6a8962aac3814aa56cb9647c93470, type: 3}
+  frostVfxPrefab: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
+  lightningVfxPrefab: {fileID: 9027514048236820045, guid: effb650189dc5714e9e9801b1cfb3991, type: 3}
+  statusVfxPoint: {fileID: 8692691561173300462}
+  burnVfxOffset: {x: 0, y: 1, z: 0}
+  frostVfxOffset: {x: 0, y: 1, z: 0}
+  lightningVfxOffset: {x: 0, y: 1, z: 0}
+  deathClip: {fileID: 8300000, guid: f51e0d5712586db44bcd880e5889b723, type: 3}
+  hitClip: {fileID: 8300000, guid: a3c79fc1fd29f194d98ddab5bc4d2c74, type: 3}
+  spawnClip: {fileID: 8300000, guid: a3c79fc1fd29f194d98ddab5bc4d2c74, type: 3}
+  knockbackDuration: 0.05
+  knockbackIntensity: 1.75
+  popScale: 1.2
+  popDuration: 0.12
+  healthSlider: {fileID: 7911095173561641}
+  healthCanvasGroup: {fileID: 209871101941053558}
+--- !u!195 &4470853477952615298
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6408060921335656266}
+  m_Enabled: 0
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 100
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0.5
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 2
 --- !u!114 &8948027414949243327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -573,57 +608,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyHitFlash
   flashColor: {r: 1, g: 1, b: 1, a: 1}
   flashDuration: 0.1
---- !u!114 &5171786390944380228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6408060921335656266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fe72095f08acdd4fa74a290b332d7e3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BatEnemy
-  ShowTopMostFoldoutHeaderGroup: 1
-  speed: 8
-  damage: 10
-  maxHealth: 20
-  flightHeight: 20
-  hoverAmplitude: 0.5
-  hoverFrequency: 2
-  deathVfx: {fileID: 2360125799386554154, guid: 85ca7922df4ba3a41b57ed819e3d8c68, type: 3}
-  burnVfxPrefab: {fileID: 7251879486380165639, guid: c2f6a8962aac3814aa56cb9647c93470, type: 3}
-  frostVfxPrefab: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
-  lightningVfxPrefab: {fileID: 9027514048236820045, guid: effb650189dc5714e9e9801b1cfb3991, type: 3}
-  statusVfxPoint: {fileID: 8692691561173300462}
---- !u!54 &2998539379164778030
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6408060921335656266}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!1 &6621116133256933219
 GameObject:
   m_ObjectHideFlags: 0
@@ -772,7 +756,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 1.085}
+  m_AnchoredPosition: {x: 0, y: 1.877}
   m_SizeDelta: {x: 3, y: 3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &9001838037064731845
@@ -875,7 +859,7 @@ Transform:
   m_GameObject: {fileID: 8451824586664509896}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.521}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
