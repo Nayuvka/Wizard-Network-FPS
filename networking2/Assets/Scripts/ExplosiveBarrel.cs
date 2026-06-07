@@ -38,8 +38,7 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
 
     public void TakeDamage(float amount, Vector3 sourcePosition = default, ulong attackerId = ulong.MaxValue, DamageType damageType = DamageType.Normal)
     {
-        lastAttackerId = attackerId;
-        Explode();
+        Explode(attackerId);
     }
 
     public void Explode(ulong attackerId = ulong.MaxValue)

@@ -97,22 +97,23 @@ public class NetworkProjectile : NetworkBehaviour
             return;
         }
 
-        if (targetNetObj.TryGetComponent(out IDamageable damageable))
-        {
-            ApplyTypeEffect(damageable, impactPos);
-            return;
-        }
-
         if (targetNetObj.TryGetComponent(out ExplosiveBarrel barrel))
         {
             barrel.TakeDamage(
                 baseDamage + additionalDamage,
                 lastPosition,
-                ownerClientId
+                ownerClientId,
+                DamageType.Normal
             );
 
             PlayImpactFeedback(impactPos);
             DespawnProjectile();
+            return;
+        }
+
+        if (targetNetObj.TryGetComponent(out IDamageable damageable))
+        {
+            ApplyTypeEffect(damageable, impactPos);
             return;
         }
 
