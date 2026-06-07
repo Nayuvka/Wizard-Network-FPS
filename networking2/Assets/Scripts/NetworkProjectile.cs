@@ -107,7 +107,12 @@ public class NetworkProjectile : NetworkBehaviour
 
         if (targetNetObj.TryGetComponent(out ExplosiveBarrel barrel))
         {
-            barrel.Explode();
+            barrel.TakeDamage(
+                baseDamage + additionalDamage,
+                lastPosition,
+                ownerClientId
+            );
+
             PlayImpactFeedback(impactPos);
             DespawnProjectile();
             return;
