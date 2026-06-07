@@ -18,10 +18,15 @@ public class SpawnManager : NetworkBehaviour
     public int difficultyInterval;
     private int currentDifficulty = 1;
 
-    [Header("Boss Settings")]
+    [Header("Boss 1 Settings")]
     public GameObject bossPrefab;
     public Transform bossSpawnPoint;
     public int bossRound = 6;
+
+    [Header("Boss 2 Settings")]
+    public GameObject boss2Prefab;
+    public Transform boss2SpawnPoint;
+    public int boss2Round = 12;
 
     [Header("UI References")]
     public NetworkVariable<int> currentRound = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
@@ -105,7 +110,6 @@ public class SpawnManager : NetworkBehaviour
         if (!IsServer)
             return;
 
-
         if (activeStatue != null)
         {
             activeStatue
@@ -124,10 +128,19 @@ public class SpawnManager : NetworkBehaviour
 
         if (currentRound.Value == bossRound)
         {
-            ToggleBossUIClientRpc(true);
+            ToggleBossUIClientRpc(true, "Defeat the Boss!");
             
             Vector3 bPos = bossSpawnPoint != null ? bossSpawnPoint.position : enemySpawnPoints[Random.Range(0, enemySpawnPoints.Length)].transform.position;
             StartCoroutine(SpawnEnemy(bossPrefab, bPos, 0f));
+
+            spawnAmount /= 2;
+        }
+        else if (currentRound.Value == boss2Round)
+        {
+            ToggleBossUIClientRpc(true, "Defeat the Wizard Boss!");
+            
+            Vector3 bPos = boss2SpawnPoint != null ? boss2SpawnPoint.position : enemySpawnPoints[Random.Range(0, enemySpawnPoints.Length)].transform.position;
+            StartCoroutine(SpawnEnemy(boss2Prefab, bPos, 0f));
 
             spawnAmount /= 2;
         }
@@ -192,20 +205,20 @@ public class SpawnManager : NetworkBehaviour
         if (spawnedList.Count == 0)
         {
             StopBattleMusicClientRpc();
-            if (currentRound.Value == bossRound)
+            if (currentRound.Value == bossRound || currentRound.Value == boss2Round)
             {
-                ToggleBossUIClientRpc(false);
+                ToggleBossUIClientRpc(false, "");
             }
             PrepareNextRound();
         }
     }
 
     [ClientRpc]
-    private void ToggleBossUIClientRpc(bool show)
+    private void ToggleBossUIClientRpc(bool show, string text)
     {
         if (bossAnnouncementText != null)
         {
-            bossAnnouncementText.text = "Defeat the Boss!";
+            bossAnnouncementText.text = text;
             bossAnnouncementText.gameObject.SetActive(show);
         }
     }

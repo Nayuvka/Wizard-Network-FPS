@@ -29,8 +29,9 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     [Header("Stats")]
     [SerializeField] private float maxHealth = 1200f;
     [SerializeField] private Slider healthBar;
+    [SerializeField] private GameObject healthCanvas;
     
-    private NetworkVariable<float> currentHealth = new NetworkVariable<float>(1200f);
+    private NetworkVariable<float> currentHealth = new NetworkVariable<float>(1200f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private NavMeshAgent agent;
     private Transform target;
     private bool isDead = false;
@@ -45,8 +46,8 @@ public class WizardBoss : NetworkBehaviour, IDamageable
             agent = GetComponent<NavMeshAgent>();
             if (agent != null) 
             {
-                originalSpeed = agent.speed;
                 agent.speed = moveSpeed;
+                originalSpeed = agent.speed;
             }
             currentHealth.Value = maxHealth;
             FindTarget();
@@ -68,6 +69,12 @@ public class WizardBoss : NetworkBehaviour, IDamageable
 
     void Update()
     {
+        if (healthCanvas != null && Camera.main != null)
+        {
+            healthCanvas.transform.LookAt(healthCanvas.transform.position + Camera.main.transform.rotation * Vector3.forward,
+                Camera.main.transform.rotation * Vector3.up);
+        }
+
         if (!IsServer || isDead) return;
 
         if (target == null)
@@ -126,6 +133,13 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     private void Die()
     {
         isDead = true;
+
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = true;
+            agent.velocity = Vector3.zero;
+        }
+
         DeathFeedbackClientRpc();
         StartCoroutine(DespawnDelay());
     }
@@ -163,5 +177,10 @@ public class WizardBoss : NetworkBehaviour, IDamageable
         if (activeBurnVfx) Destroy(activeBurnVfx);
         if (activeFrostVfx) Destroy(activeFrostVfx);
         if (activeLightningVfx) Destroy(activeLightningVfx);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        currentHealth.OnValueChanged -= UpdateBossUI;
     }
 }

@@ -847,7 +847,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 472.41, y: 14.48, z: 1493.8195}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1.25, y: 1.25, z: 1.25}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7088757162707417377}
@@ -996,7 +996,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 2159159554628663895}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 1.25
+  m_Radius: 0.75
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
@@ -1122,8 +1122,7 @@ MonoBehaviour:
   batPrefab: {fileID: 6408060921335656266, guid: 1145e9a69155d2e4d87db5ea584a5150, type: 3}
   batSpawnPoint: {fileID: 6229811824017421445}
   batSpawnRate: 5
-  moveSpeed: 1.5
-  stopDistance: 5
+  moveSpeed: 3
   burnVfxPrefab: {fileID: 7251879486380165639, guid: c2f6a8962aac3814aa56cb9647c93470, type: 3}
   frostVfxPrefab: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
   lightningVfxPrefab: {fileID: 9027514048236820045, guid: effb650189dc5714e9e9801b1cfb3991, type: 3}
@@ -1131,6 +1130,7 @@ MonoBehaviour:
   vfxOffset: {x: 0, y: 2, z: 0}
   maxHealth: 1200
   healthBar: {fileID: 2932966644542416577}
+  healthCanvas: {fileID: 0}
 --- !u!1 &2271507666424499278
 GameObject:
   m_ObjectHideFlags: 0
