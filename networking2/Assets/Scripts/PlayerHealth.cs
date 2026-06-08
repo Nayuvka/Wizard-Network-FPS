@@ -8,6 +8,9 @@ using UnityEngine.UI;
 
 public class PlayerHealth : NetworkBehaviour
 {
+    [Header("Scene Settings")]
+    [SerializeField] private string lobbySceneName = "Lobby";
+
     [Header("Settings")]
     [SerializeField] private float maxHealth = 100f;
 
@@ -280,6 +283,9 @@ public class PlayerHealth : NetworkBehaviour
     public void TakeDamage(float damage)
     {
         if (!IsServer) return;
+
+        if (SceneManager.GetActiveScene().name == lobbySceneName)
+            return;
 
         if (respawnScript != null && respawnScript.isRespawning.Value) return;
 
