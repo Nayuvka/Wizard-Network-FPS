@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using Unity.Netcode;
 
-public class PracticeTarget : MonoBehaviour
+public class PracticeTarget : NetworkBehaviour
 {
     [Header("Respawn")]
     [SerializeField] private float minRespawnTime = 2f;
@@ -16,6 +17,7 @@ public class PracticeTarget : MonoBehaviour
     [Header("Animation")]
     [SerializeField] private Animator animator;
 
+
     private int hitCount;
     private bool isDead;
 
@@ -28,33 +30,19 @@ public class PracticeTarget : MonoBehaviour
 
     public void Hit()
     {
-        if (isDead)
+        if (!IsServer || isDead)
             return;
 
         hitCount++;
 
-        // First hit
         if (hitCount == 1)
         {
-            animator.SetTrigger("Push");
-
-            if (audioSource != null && pushSound != null)
-            {
-                audioSource.PlayOneShot(pushSound);
-            }
+            PushClientRpc();
         }
-        // Second hit
         else if (hitCount >= 2)
         {
             isDead = true;
-
-            animator.SetTrigger("Die");
-
-            if (audioSource != null && deathSound != null)
-            {
-                audioSource.PlayOneShot(deathSound);
-                targetCollider.enabled = false;
-            }
+            DieClientRpc();
 
             StartCoroutine(RespawnRoutine());
         }
@@ -62,32 +50,53 @@ public class PracticeTarget : MonoBehaviour
 
     public void ExplodeHit()
     {
-        if (isDead)
+        if (!IsServer || isDead)
             return;
 
         hitCount = 2;
         isDead = true;
 
-        animator.SetTrigger("Die");
-        Debug.Log("Death Animation");
-
-        if (audioSource != null && deathSound != null)
-        {
-            audioSource.PlayOneShot(deathSound);
-        }
-
+        DieClientRpc();
         StartCoroutine(RespawnRoutine());
     }
 
     private IEnumerator RespawnRoutine()
     {
-        float delay = Random.Range(
-            minRespawnTime,
-            maxRespawnTime
-        );
-
+        float delay = Random.Range(minRespawnTime, maxRespawnTime);
         yield return new WaitForSeconds(delay);
 
+        hitCount = 0;
+        isDead = false;
+
+        ReviveClientRpc();
+    }
+
+    [ClientRpc]
+    private void PushClientRpc()
+    {
+        animator.SetTrigger("Push");
+
+        if (audioSource != null && pushSound != null)
+        {
+            audioSource.PlayOneShot(pushSound);
+        }
+    }
+
+    [ClientRpc]
+    private void DieClientRpc()
+    {
+        animator.SetTrigger("Die");
+        targetCollider.enabled = false;
+
+        if (audioSource != null && deathSound != null)
+        {
+            audioSource.PlayOneShot(deathSound);
+        }
+    }
+
+    [ClientRpc]
+    private void ReviveClientRpc()
+    {
         targetCollider.enabled = true;
         animator.SetTrigger("Revive");
 
@@ -95,8 +104,5 @@ public class PracticeTarget : MonoBehaviour
         {
             audioSource.PlayOneShot(reviveSound);
         }
-
-        hitCount = 0;
-        isDead = false;
     }
 }
