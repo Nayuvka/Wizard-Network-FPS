@@ -1107,7 +1107,7 @@ MonoBehaviour:
   lightningVfxPrefab: {fileID: 9027514048236820045, guid: effb650189dc5714e9e9801b1cfb3991, type: 3}
   statusVfxPoint: {fileID: 7088757162707417377}
   vfxOffset: {x: 0, y: 2, z: 0}
-  maxHealth: 1200
+  maxHealth: 6000
   healthBar: {fileID: 2932966644542416577}
   healthCanvas: {fileID: 7692642592192706794}
 --- !u!1 &2271507666424499278
