@@ -34,7 +34,7 @@ public class NetworkPotionStand : NetworkBehaviour, IInteractable
         );
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
     private void TryBuyPotionServerRpc(ulong clientId)
     {
         if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out NetworkClient client))
