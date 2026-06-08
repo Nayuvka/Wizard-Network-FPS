@@ -1048,7 +1048,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   playerSpawn: {fileID: 0}
-  enableRoundDebug: 1
+  enableRoundDebug: 0
 --- !u!114 &6244465903204738980
 MonoBehaviour:
   m_ObjectHideFlags: 0
