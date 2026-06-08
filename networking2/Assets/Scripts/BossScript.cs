@@ -204,10 +204,10 @@ public class NetworkBoss : NetworkBehaviour, IDamageable
 
         yield return new WaitForSeconds(deathDelay);
 
-        if (GameOverManager.Instance != null)
+       /* if (GameOverManager.Instance != null)
         {
             GameOverManager.Instance.WinGame();
-        }
+        }*/
 
         NetworkObject.Despawn();
     }

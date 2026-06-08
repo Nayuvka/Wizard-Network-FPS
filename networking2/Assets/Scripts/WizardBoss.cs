@@ -288,6 +288,8 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     private IEnumerator DespawnDelay()
     {
         yield return new WaitForSeconds(1f);
+        if (GameOverManager.Instance != null)
+            GameOverManager.Instance.WinGame();
 
         GetComponent<NetworkObject>().Despawn();
     }
