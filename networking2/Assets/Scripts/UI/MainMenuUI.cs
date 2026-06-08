@@ -54,6 +54,10 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Vector3 startRotation;
     [SerializeField] private Vector3 gameRotation;
 
+    [Header("Managers")]
+    [Space(5)]
+    [SerializeField] private BackgroundMusicManager musicManager;
+
     [Header("SFX")]
     [Space(5)]
     public AudioSource startGameSource;
@@ -92,6 +96,11 @@ public class MainMenuUI : MonoBehaviour
             SetMenuCanvasVisible(true);
 
             SetSelected(mainMenuFirstSelected);
+
+            if (musicManager != null)
+            {
+                musicManager.StartMusic();
+            }
         }
         else
         {
@@ -221,6 +230,11 @@ public class MainMenuUI : MonoBehaviour
             StopCoroutine(flashCoroutine);
 
         startText.color = new Color(startText.color.r, startText.color.g, startText.color.b, 1f);
+
+        if (musicManager != null)
+        {
+            musicManager.StartMusic();
+        }
 
         StartCoroutine(StartGameTransition());
     }

@@ -11,6 +11,7 @@ public class BackgroundMusicManager : MonoBehaviour
     [SerializeField] private bool loopAll = true;
 
     private int currentTrackIndex = 0;
+    private bool hasStarted = false; 
 
     private void Start()
     {
@@ -29,18 +30,25 @@ public class BackgroundMusicManager : MonoBehaviour
             return;
         }
 
-        currentTrackIndex = playRandomly ? Random.Range(0, backgroundTracks.Length) : 0;
-        PlayTrack(currentTrackIndex);
     }
 
     private void Update()
     {
-        if (audioSource == null) return;
+        if (audioSource == null || !hasStarted) return; 
 
         if (!audioSource.isPlaying && loopAll)
         {
             PlayNextTrack();
         }
+    }
+
+
+    public void StartMusic()
+    {
+        
+        hasStarted = true;
+        currentTrackIndex = playRandomly ? Random.Range(0, backgroundTracks.Length) : 0;
+        PlayTrack(currentTrackIndex);
     }
 
     private void PlayTrack(int index)
@@ -79,6 +87,9 @@ public class BackgroundMusicManager : MonoBehaviour
     public void StopMusic()
     {
         if (audioSource != null)
+        {
             audioSource.Stop();
+            hasStarted = false;
+        }
     }
 }
