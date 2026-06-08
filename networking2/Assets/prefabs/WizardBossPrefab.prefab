@@ -825,7 +825,6 @@ GameObject:
   - component: {fileID: 8986967967639558274}
   - component: {fileID: 7105419409838443471}
   - component: {fileID: 2588516324874658133}
-  - component: {fileID: 4142015335498566035}
   - component: {fileID: 6322607423322756312}
   - component: {fileID: 1393789944475365177}
   - component: {fileID: 5161744496557797181}
@@ -935,33 +934,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.5, y: 3.4314299, z: 1.6686401}
   m_Center: {x: 0, y: 1.8912005, z: 0.33432007}
---- !u!54 &4142015335498566035
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2159159554628663895}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
 --- !u!114 &6322607423322756312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -974,7 +946,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 709314190
+  GlobalObjectIdHash: 4003585074
   InScenePlacedSourceGlobalObjectIdHash: 3398768998
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1121,10 +1093,14 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   batPrefab: {fileID: 6408060921335656266, guid: 1145e9a69155d2e4d87db5ea584a5150, type: 3}
   batSpawnPoint: {fileID: 6229811824017421445}
-  batSpawnRate: 5
-  moveSpeed: 3
+  batSpawnRate: 2
+  moveSpeed: 7
   castingRange: 12
-  castDuration: 2.5
+  tooCloseRange: 5
+  backAwayDistance: 6
+  castDuration: 2
+  rotationSpeed: 6
+  rotationOffsetAngle: 0
   burnVfxPrefab: {fileID: 7251879486380165639, guid: c2f6a8962aac3814aa56cb9647c93470, type: 3}
   frostVfxPrefab: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
   lightningVfxPrefab: {fileID: 9027514048236820045, guid: effb650189dc5714e9e9801b1cfb3991, type: 3}
@@ -1132,7 +1108,7 @@ MonoBehaviour:
   vfxOffset: {x: 0, y: 2, z: 0}
   maxHealth: 1200
   healthBar: {fileID: 2932966644542416577}
-  healthCanvas: {fileID: 0}
+  healthCanvas: {fileID: 7692642592192706794}
 --- !u!1 &2271507666424499278
 GameObject:
   m_ObjectHideFlags: 0
@@ -2514,7 +2490,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 3.37, z: 0}
-  m_LocalScale: {x: 0.05, y: 0.05, z: 0.05}
+  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1194191286310367904}
@@ -2894,7 +2870,7 @@ GameObject:
   - component: {fileID: 8687442258442621242}
   - component: {fileID: 6094480444804048604}
   m_Layer: 7
-  m_Name: Canvas
+  m_Name: EnemyCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2909,7 +2885,7 @@ RectTransform:
   m_GameObject: {fileID: 7692642592192706794}
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5094807182445940975}
@@ -3514,7 +3490,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -6722085885383957590, guid: d143150c1d4788144b2399dd595c1fd9, type: 3}
       propertyPath: m_Intensity
-      value: 100
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -6180062082625161578, guid: d143150c1d4788144b2399dd595c1fd9, type: 3}
       propertyPath: m_Layer
