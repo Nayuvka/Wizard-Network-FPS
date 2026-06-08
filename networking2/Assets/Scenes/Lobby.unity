@@ -17198,6 +17198,7 @@ MonoBehaviour:
   container: {fileID: 1844619985}
   playerRowPrefab: {fileID: 2416641346549848772, guid: ff90223e5661f29449879ebbcedde579, type: 3}
   roomCodeText: {fileID: 813439592}
+  moreButton: {fileID: 1721520284}
   startMatchButton: {fileID: 1457744737}
   readyButton: {fileID: 1096110501}
   readyButtonText: {fileID: 1320380969}

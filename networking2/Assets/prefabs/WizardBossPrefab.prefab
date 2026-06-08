@@ -946,7 +946,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 4003585074
+  GlobalObjectIdHash: 3398768998
   InScenePlacedSourceGlobalObjectIdHash: 3398768998
   DeferredDespawnTick: 0
   Ownership: 1
@@ -1101,6 +1101,7 @@ MonoBehaviour:
   castDuration: 2
   rotationSpeed: 6
   rotationOffsetAngle: 0
+  deathVfx: {fileID: 2360125799386554154, guid: 85ca7922df4ba3a41b57ed819e3d8c68, type: 3}
   burnVfxPrefab: {fileID: 7251879486380165639, guid: c2f6a8962aac3814aa56cb9647c93470, type: 3}
   frostVfxPrefab: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
   lightningVfxPrefab: {fileID: 9027514048236820045, guid: effb650189dc5714e9e9801b1cfb3991, type: 3}

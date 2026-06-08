@@ -27,6 +27,9 @@ public class NetworkBoss : NetworkBehaviour, IDamageable
     [SerializeField] private AudioClip shootSound;
     [SerializeField] private float shootVolume = 0.7f;
 
+    [Header("VFX")]
+    [SerializeField] private GameObject deathVfx;
+
     [Header("Movement")]
     private NavMeshAgent agent;
     private Transform target;
@@ -195,6 +198,8 @@ public class NetworkBoss : NetworkBehaviour, IDamageable
             agent.velocity = Vector3.zero;
         }
 
+        DeathVfxClientRpc(transform.position);
+
         TriggerDeathAnimationClientRpc();
 
         yield return new WaitForSeconds(deathDelay);
@@ -228,5 +233,14 @@ public class NetworkBoss : NetworkBehaviour, IDamageable
     public override void OnNetworkDespawn()
     {
         currentHealth.OnValueChanged -= UpdateUI;
+    }
+
+    [ClientRpc]
+    private void DeathVfxClientRpc(Vector3 position)
+    {
+        if (deathVfx != null)
+        {
+            Instantiate(deathVfx, position, Quaternion.identity);
+        }
     }
 }

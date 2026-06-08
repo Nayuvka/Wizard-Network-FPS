@@ -17,6 +17,7 @@ public class LobbyDisplayUI : MonoBehaviour
     [SerializeField] private TMP_Text roomCodeText;
 
     [Header("Buttons")]
+    [SerializeField] GameObject moreButton;
     [SerializeField] private GameObject startMatchButton;
     [SerializeField] private Button readyButton;
     [SerializeField] private TMP_Text readyButtonText;
@@ -84,6 +85,10 @@ public class LobbyDisplayUI : MonoBehaviour
             return;
 
         lobbyPanel.SetActive(true);
+        if(moreButton != null)
+        {
+            moreButton.SetActive(false);
+        }
         PlaySFX(toggleSFX);
 
         if (localPlayerController != null)
@@ -100,6 +105,10 @@ public class LobbyDisplayUI : MonoBehaviour
             return;
 
         lobbyPanel.SetActive(false);
+        if (moreButton != null)
+        {
+            moreButton.SetActive(false);
+        }
         PlaySFX(toggleSFX);
 
         if (localPlayerController != null)

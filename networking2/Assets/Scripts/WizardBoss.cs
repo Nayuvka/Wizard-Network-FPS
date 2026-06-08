@@ -25,7 +25,12 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     private bool isCasting;
     private bool isBackingAway;
 
+    [Header("Death VFX")]
+    [SerializeField] private GameObject deathVfx;
+
     [Header("VFX & Status")]
+    
+
     [SerializeField] private GameObject burnVfxPrefab;
     [SerializeField] private GameObject frostVfxPrefab;
     [SerializeField] private GameObject lightningVfxPrefab;
@@ -64,7 +69,7 @@ public class WizardBoss : NetworkBehaviour, IDamageable
             }
 
             currentHealth.Value = maxHealth;
-            FindNearestPlayer(); // Initial target acquisition
+            FindNearestPlayer();
         }
 
         if (healthBar != null)
@@ -86,14 +91,17 @@ public class WizardBoss : NetworkBehaviour, IDamageable
         HandleCanvasBillboard();
 
         if (!IsServer || isDead) return;
-
-        // Dynamic target switching: Constantly look for the best, closest target
         FindNearestPlayer();
 
         if (target == null) return;
 
         HandleSmoothLookRotation();
         HandleMovement();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        currentHealth.OnValueChanged -= UpdateBossUI;
     }
 
     private void HandleMovement()
@@ -205,18 +213,15 @@ public class WizardBoss : NetworkBehaviour, IDamageable
         float closestDistance = Mathf.Infinity;
         Transform nearest = null;
 
-        // Loop through all globally connected network clients instead of using laggy GameObject.Find tags
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
             if (client.PlayerObject == null) continue;
 
-            // Grab combat components matching your project's framework setup
             PlayerHealth pHealth = client.PlayerObject.GetComponent<PlayerHealth>();
             RespawnScript respawn = client.PlayerObject.GetComponent<RespawnScript>();
 
             if (pHealth == null || respawn == null) continue;
 
-            // Ignore players who are currently dead or waiting on a respawn timer
             if (pHealth.currentHealth.Value <= 0 || respawn.isRespawning.Value) continue;
 
             float dist = Vector3.Distance(transform.position, client.PlayerObject.transform.position);
@@ -284,9 +289,6 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     {
         yield return new WaitForSeconds(1f);
 
-        if (GameOverManager.Instance != null)
-            GameOverManager.Instance.WinGame();
-
         GetComponent<NetworkObject>().Despawn();
     }
 
@@ -315,16 +317,47 @@ public class WizardBoss : NetworkBehaviour, IDamageable
         Destroy(activeVfx, duration);
     }
 
+    private void HideVisuals()
+    {
+        foreach (Collider col in GetComponentsInChildren<Collider>())
+            col.enabled = false;
+
+        foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
+            renderer.enabled = false;
+
+        if (healthCanvas != null)
+            healthCanvas.SetActive(false);
+    }
+
     [ClientRpc]
     private void DeathFeedbackClientRpc()
     {
-        if (activeBurnVfx) Destroy(activeBurnVfx);
-        if (activeFrostVfx) Destroy(activeFrostVfx);
-        if (activeLightningVfx) Destroy(activeLightningVfx);
+        if (activeBurnVfx)
+        {
+            Destroy(activeBurnVfx);
+            activeBurnVfx = null;
+        }
+
+        if (activeFrostVfx)
+        {
+            Destroy(activeFrostVfx);
+            activeFrostVfx = null;
+        }
+
+        if (activeLightningVfx)
+        {
+            Destroy(activeLightningVfx);
+            activeLightningVfx = null;
+        }
+
+        HideVisuals();
+
+        if (deathVfx != null)
+        {
+            Instantiate(deathVfx, transform.position, Quaternion.identity);
+        }
     }
 
-    public override void OnNetworkDespawn()
-    {
-        currentHealth.OnValueChanged -= UpdateBossUI;
-    }
+
+    
 }
