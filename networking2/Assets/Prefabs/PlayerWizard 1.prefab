@@ -3233,7 +3233,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoundCounterUI
   roundText: {fileID: 4115557475020907924}
-  maxRounds: 6
+  maxRounds: 10
 --- !u!1 &3732154124621637776
 GameObject:
   m_ObjectHideFlags: 0
