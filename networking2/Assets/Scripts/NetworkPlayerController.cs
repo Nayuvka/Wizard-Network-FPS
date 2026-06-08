@@ -35,6 +35,8 @@ public class NetworkPlayerController : NetworkBehaviour
     [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float speedChangeRate = 10f;
 
+    [SerializeField] private PlayerStamina playerStamina;
+
     [Header("Look Settings")]
     [Space(5)]
     [SerializeField] private float mouseSensitivity = 0.07f;
@@ -501,14 +503,22 @@ public class NetworkPlayerController : NetworkBehaviour
             return;
         }
 
-        float targetSpeed = sprint ? sprintSpeed : moveSpeed;
-        
+        bool isMoving = move != Vector2.zero;
+        bool isActuallySprinting = sprint && isMoving && (playerStamina == null || playerStamina.CurrentStamina > 0);
+
+        if (playerStamina != null)
+        {
+            playerStamina.ProcessStamina(isActuallySprinting);
+        }
+
+        float targetSpeed = isActuallySprinting ? sprintSpeed : moveSpeed;
+
         if (isGliding && playerAbilities != null)
         {
             targetSpeed = playerAbilities.glideMoveSpeed;
         }
 
-        if (move == Vector2.zero) targetSpeed = 0f;
+        if (!isMoving) targetSpeed = 0f;
 
         float inputMagnitude = analogMovement ? move.magnitude : 1f;
 

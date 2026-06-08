@@ -418,6 +418,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 0}
   clickSFX: {fileID: 0}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &322859193263423930
 GameObject:
   m_ObjectHideFlags: 0
@@ -893,10 +895,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
+    m_NormalColor: {r: 0.5764706, g: 0.5764706, b: 0.5764706, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
-    m_SelectedColor: {r: 0.7372549, g: 0.7372549, b: 0.7372549, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -919,7 +921,7 @@ MonoBehaviour:
   m_MinValue: 0.0001
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0.5
+  m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -1428,7 +1430,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: Apply
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 079e469d3e1cabc489cd92ed27f78b73, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f6fede71c94b20a4ba4e40bc9b78ca07, type: 2}
   m_sharedMaterial: {fileID: -5563289049149994279, guid: 079e469d3e1cabc489cd92ed27f78b73, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -1495,7 +1497,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &864255376045989036
@@ -2022,6 +2024,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 0}
   clickSFX: {fileID: 0}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &1015638499294564014
 GameObject:
   m_ObjectHideFlags: 0
@@ -5304,10 +5308,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
+    m_NormalColor: {r: 0.5764706, g: 0.5764706, b: 0.5764706, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
-    m_SelectedColor: {r: 0.7372549, g: 0.7372549, b: 0.7372549, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -5564,6 +5568,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 0}
   clickSFX: {fileID: 0}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &3896324588053419732
 GameObject:
   m_ObjectHideFlags: 0
@@ -6132,6 +6138,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 0}
   clickSFX: {fileID: 0}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &4447974275529945482
 GameObject:
   m_ObjectHideFlags: 0
@@ -6586,6 +6594,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 0}
   clickSFX: {fileID: 0}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &5085089423591073797
 GameObject:
   m_ObjectHideFlags: 0
@@ -8411,6 +8421,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 0}
   clickSFX: {fileID: 0}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &6782237290345268075
 GameObject:
   m_ObjectHideFlags: 0
@@ -9050,6 +9062,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 0}
   clickSFX: {fileID: 0}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &7553725143976217598
 GameObject:
   m_ObjectHideFlags: 0
@@ -9533,6 +9547,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 0}
   clickSFX: {fileID: 0}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &7810624055555443821
 GameObject:
   m_ObjectHideFlags: 0
@@ -9677,6 +9693,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 0}
   clickSFX: {fileID: 0}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &7880050433857289204
 GameObject:
   m_ObjectHideFlags: 0
@@ -10045,6 +10063,9 @@ MonoBehaviour:
   hoverTextColour: {r: 1, g: 1, b: 1, a: 1}
   buttonFill: 0
   startWithActiveTab: 1
+  audioSource: {fileID: 0}
+  hoverSFX: {fileID: 0}
+  clickSFX: {fileID: 0}
 --- !u!1 &8032724252033116508
 GameObject:
   m_ObjectHideFlags: 0
@@ -10112,7 +10133,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: Restore Default
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 079e469d3e1cabc489cd92ed27f78b73, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f6fede71c94b20a4ba4e40bc9b78ca07, type: 2}
   m_sharedMaterial: {fileID: -5563289049149994279, guid: 079e469d3e1cabc489cd92ed27f78b73, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -10179,7 +10200,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &8537085235870617982
@@ -10326,6 +10347,8 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   hoverSFX: {fileID: 0}
   clickSFX: {fileID: 0}
+  hasInputIcon: 0
+  inputIcon: {fileID: 0}
 --- !u!1 &8579367172954763061
 GameObject:
   m_ObjectHideFlags: 0
@@ -10534,10 +10557,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 1}
+    m_NormalColor: {r: 0.5764706, g: 0.5764706, b: 0.5764706, a: 1}
+    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 1}
     m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
-    m_SelectedColor: {r: 0.7372549, g: 0.7372549, b: 0.7372549, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -11111,13 +11134,49 @@ PrefabInstance:
     m_TransformParent: {fileID: 1948406033858682369}
     m_Modifications:
     - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
+      propertyPath: m_Colors.m_NormalColor.b
+      value: 0.5764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
+      propertyPath: m_Colors.m_NormalColor.g
+      value: 0.5764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
+      propertyPath: m_Colors.m_NormalColor.r
+      value: 0.5764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
       propertyPath: m_Navigation.m_SelectOnUp
       value: 
       objectReference: {fileID: 3828067493845454648}
     - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
+      propertyPath: m_Colors.m_SelectedColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
       propertyPath: m_Navigation.m_SelectOnDown
       value: 
       objectReference: {fileID: 2798582536459611988}
+    - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
+      propertyPath: m_Colors.m_HighlightedColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
+      propertyPath: m_Colors.m_HighlightedColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1460756166955854161, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
+      propertyPath: m_Colors.m_HighlightedColor.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3435521431620145959, guid: 3c2801512c03264458ebb0169e8a8dea, type: 3}
       propertyPath: m_Name
       value: MasterVolumePanel

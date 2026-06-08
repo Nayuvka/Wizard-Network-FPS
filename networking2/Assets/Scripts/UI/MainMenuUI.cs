@@ -107,6 +107,9 @@ public class MainMenuUI : MonoBehaviour
             ShowStartGamePanel();
         }
 
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         if (InputDeviceDetector.Instance != null)
             UpdateStartText(InputDeviceDetector.Instance.CurrentDevice);
     }

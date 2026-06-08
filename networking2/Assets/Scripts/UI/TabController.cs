@@ -22,6 +22,11 @@ public class TabController : MonoBehaviour
     [SerializeField] private bool buttonFill;
     [SerializeField] private bool startWithActiveTab = true;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip hoverSFX;
+    [SerializeField] private AudioClip clickSFX;
+
     private TextMeshProUGUI[] tabTexts;
     private int currentTab = -1;
 
@@ -49,6 +54,12 @@ public class TabController : MonoBehaviour
     public void ActivateTab(int tabNo)
     {
         if (!IsValidTab(tabNo)) return;
+
+        // Prevent click sound when clicking the already active tab
+        if (tabNo != currentTab)
+        {
+            PlaySFX(clickSFX);
+        }
 
         currentTab = tabNo;
 
@@ -86,6 +97,8 @@ public class TabController : MonoBehaviour
     {
         if (!IsValidTab(tabNo) || tabNo == currentTab) return;
 
+        PlaySFX(hoverSFX);
+
         if (tabButtons[tabNo] != null)
         {
             tabButtons[tabNo].color = hoverTabColour;
@@ -109,6 +122,14 @@ public class TabController : MonoBehaviour
         if (tabTexts[tabNo] != null)
         {
             tabTexts[tabNo].color = deselectedTextColour;
+        }
+    }
+
+    private void PlaySFX(AudioClip clip)
+    {
+        if (audioSource != null && clip != null)
+        {
+            audioSource.PlayOneShot(clip);
         }
     }
 

@@ -586,7 +586,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23018861, g: 0.23018861, b: 0.23018861, a: 0.9607843}
+  m_Color: {r: 0.12452829, g: 0.12452829, b: 0.12452829, a: 0.98039216}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1670,6 +1670,22 @@ PrefabInstance:
     - target: {fileID: 3033140340615345947, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -50
+      objectReference: {fileID: 0}
+    - target: {fileID: 3147524028450079017, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
+      propertyPath: m_Color.a
+      value: 0.9843137
+      objectReference: {fileID: 0}
+    - target: {fileID: 3147524028450079017, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
+      propertyPath: m_Color.b
+      value: 0.1254902
+      objectReference: {fileID: 0}
+    - target: {fileID: 3147524028450079017, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
+      propertyPath: m_Color.g
+      value: 0.1254902
+      objectReference: {fileID: 0}
+    - target: {fileID: 3147524028450079017, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
+      propertyPath: m_Color.r
+      value: 0.1254902
       objectReference: {fileID: 0}
     - target: {fileID: 4470088124110311049, guid: 26df97f843bd6ea4c9ac7e39fc94603e, type: 3}
       propertyPath: m_AnchorMax.y
