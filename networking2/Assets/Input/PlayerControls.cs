@@ -235,6 +235,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SkipRound"",
+                    ""type"": ""Button"",
+                    ""id"": ""0e0b8d65-b024-40c4-ae9d-ef1812f52a85"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -763,6 +772,28 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""SecondaryAbility"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""af6db3a6-0d4b-4a9c-9085-8b70daedb566"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""SkipRound"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""60a1f4ce-e0a4-4637-be97-bc473c9d127d"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Gamepad"",
+                    ""action"": ""SkipRound"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1439,6 +1470,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_Back = m_Player.FindAction("Back", throwIfNotFound: true);
         m_Player_ToggleLobby = m_Player.FindAction("ToggleLobby", throwIfNotFound: true);
         m_Player_SecondaryAbility = m_Player.FindAction("SecondaryAbility", throwIfNotFound: true);
+        m_Player_SkipRound = m_Player.FindAction("SkipRound", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1550,6 +1582,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Back;
     private readonly InputAction m_Player_ToggleLobby;
     private readonly InputAction m_Player_SecondaryAbility;
+    private readonly InputAction m_Player_SkipRound;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1626,6 +1659,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @SecondaryAbility => m_Wrapper.m_Player_SecondaryAbility;
         /// <summary>
+        /// Provides access to the underlying input action "Player/SkipRound".
+        /// </summary>
+        public InputAction @SkipRound => m_Wrapper.m_Player_SkipRound;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1699,6 +1736,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @SecondaryAbility.started += instance.OnSecondaryAbility;
             @SecondaryAbility.performed += instance.OnSecondaryAbility;
             @SecondaryAbility.canceled += instance.OnSecondaryAbility;
+            @SkipRound.started += instance.OnSkipRound;
+            @SkipRound.performed += instance.OnSkipRound;
+            @SkipRound.canceled += instance.OnSkipRound;
         }
 
         /// <summary>
@@ -1758,6 +1798,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @SecondaryAbility.started -= instance.OnSecondaryAbility;
             @SecondaryAbility.performed -= instance.OnSecondaryAbility;
             @SecondaryAbility.canceled -= instance.OnSecondaryAbility;
+            @SkipRound.started -= instance.OnSkipRound;
+            @SkipRound.performed -= instance.OnSkipRound;
+            @SkipRound.canceled -= instance.OnSkipRound;
         }
 
         /// <summary>
@@ -2192,6 +2235,13 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSecondaryAbility(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SkipRound" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSkipRound(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

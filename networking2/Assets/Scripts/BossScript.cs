@@ -199,15 +199,14 @@ public class NetworkBoss : NetworkBehaviour, IDamageable
         }
 
         DeathVfxClientRpc(transform.position);
-
         TriggerDeathAnimationClientRpc();
 
         yield return new WaitForSeconds(deathDelay);
 
-       /* if (GameOverManager.Instance != null)
+        if (SpawnManager.Instance != null)
         {
-            GameOverManager.Instance.WinGame();
-        }*/
+            SpawnManager.Instance.EnemyDeath(NetworkObject);
+        }
 
         NetworkObject.Despawn();
     }

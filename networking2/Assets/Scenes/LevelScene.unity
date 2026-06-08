@@ -34793,7 +34793,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 746229437067259248, guid: 046df58ee5d87254eacaba5ba1e39bc2, type: 3}
       propertyPath: statueSpawnPoints.Array.size
-      value: 5
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 746229437067259248, guid: 046df58ee5d87254eacaba5ba1e39bc2, type: 3}
       propertyPath: 'enemySpawnPoints.Array.data[0]'
@@ -34829,6 +34829,26 @@ PrefabInstance:
       objectReference: {fileID: 1091695437}
     - target: {fileID: 746229437067259248, guid: 046df58ee5d87254eacaba5ba1e39bc2, type: 3}
       propertyPath: 'statueSpawnPoints.Array.data[4]'
+      value: 
+      objectReference: {fileID: 1091695437}
+    - target: {fileID: 746229437067259248, guid: 046df58ee5d87254eacaba5ba1e39bc2, type: 3}
+      propertyPath: 'statueSpawnPoints.Array.data[5]'
+      value: 
+      objectReference: {fileID: 1091695437}
+    - target: {fileID: 746229437067259248, guid: 046df58ee5d87254eacaba5ba1e39bc2, type: 3}
+      propertyPath: 'statueSpawnPoints.Array.data[6]'
+      value: 
+      objectReference: {fileID: 1091695437}
+    - target: {fileID: 746229437067259248, guid: 046df58ee5d87254eacaba5ba1e39bc2, type: 3}
+      propertyPath: 'statueSpawnPoints.Array.data[7]'
+      value: 
+      objectReference: {fileID: 1091695437}
+    - target: {fileID: 746229437067259248, guid: 046df58ee5d87254eacaba5ba1e39bc2, type: 3}
+      propertyPath: 'statueSpawnPoints.Array.data[8]'
+      value: 
+      objectReference: {fileID: 1091695437}
+    - target: {fileID: 746229437067259248, guid: 046df58ee5d87254eacaba5ba1e39bc2, type: 3}
+      propertyPath: 'statueSpawnPoints.Array.data[9]'
       value: 
       objectReference: {fileID: 1091695437}
     - target: {fileID: 2017062373235476613, guid: 046df58ee5d87254eacaba5ba1e39bc2, type: 3}

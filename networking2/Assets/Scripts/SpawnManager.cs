@@ -164,6 +164,77 @@ public class SpawnManager : NetworkBehaviour
         yield return null;
     }
 
+    public void SkipToNextRound()
+    {
+        if (!IsServer)
+            return;
+
+        foreach (NetworkObject enemy in spawnedList.ToArray())
+        {
+            if (enemy != null && enemy.IsSpawned)
+            {
+                enemy.Despawn();
+            }
+        }
+
+        spawnedList.Clear();
+
+        if (activeStatue != null)
+        {
+            NetworkObject statueNetObj =
+                activeStatue.GetComponent<NetworkObject>();
+
+            if (statueNetObj != null &&
+                statueNetObj.IsSpawned)
+            {
+                statueNetObj.Despawn();
+            }
+
+            activeStatue = null;
+        }
+
+        StopAllCoroutines();
+
+        PrepareNextRound();
+    }
+
+    public void ForceRound(int round)
+    {
+        if (!IsServer)
+            return;
+
+        foreach (NetworkObject enemy in spawnedList.ToArray())
+        {
+            if (enemy != null &&
+                enemy.IsSpawned)
+            {
+                enemy.Despawn();
+            }
+        }
+
+        spawnedList.Clear();
+
+        if (activeStatue != null)
+        {
+            NetworkObject statueNetObj =
+                activeStatue.GetComponent<NetworkObject>();
+
+            if (statueNetObj != null &&
+                statueNetObj.IsSpawned)
+            {
+                statueNetObj.Despawn();
+            }
+
+            activeStatue = null;
+        }
+
+        StopAllCoroutines();
+
+        currentRound.Value = round - 1;
+
+        PrepareNextRound();
+    }
+
     IEnumerator SpawnEnemy(GameObject enemyPrefab, Vector3 spawnPosition, float spawnTimeOffset)
     {
         yield return new WaitForSeconds(spawnTimeOffset);

@@ -123,6 +123,9 @@ public class NetworkPlayerController : NetworkBehaviour
     
     private float pauseCheckTimer = 0f;
 
+    [Header("Debug")]
+    [SerializeField] private bool enableRoundDebug;
+
     private bool IsMouseInput()
     {
         return Mouse.current != null && Mouse.current.delta.ReadValue() != Vector2.zero;
@@ -205,6 +208,20 @@ public class NetworkPlayerController : NetworkBehaviour
             playerInput.actions["ToggleLobby"].Enable();
             playerInput.actions["Pause"].Enable();
             playerInput.actions["Back"].Enable();
+            if (playerInput.actions.FindAction("SkipRound") != null)
+            {
+                playerInput.actions["SkipRound"].Enable();
+            }
+
+            if (playerInput.actions.FindAction("BossRound1") != null)
+            {
+                playerInput.actions["BossRound1"].Enable();
+            }
+
+            if (playerInput.actions.FindAction("BossRound2") != null)
+            {
+                playerInput.actions["BossRound2"].Enable();
+            }
         }
 
         if (playerCamera != null)
@@ -393,6 +410,57 @@ public class NetworkPlayerController : NetworkBehaviour
         {
             pauseScript.Back();
         }
+    }
+
+    public void OnSkipRound(InputValue value)
+    {
+        if (!enableRoundDebug)
+            return;
+
+        if (!IsOwner)
+            return;
+
+        if (!value.isPressed)
+            return;
+
+        if (SpawnManager.Instance == null)
+            return;
+
+        SpawnManager.Instance.SkipToNextRound();
+    }
+
+    public void OnBossRound1(InputValue value)
+    {
+        if (!enableRoundDebug)
+            return;
+
+        if (!IsOwner)
+            return;
+
+        if (!value.isPressed)
+            return;
+
+        if (SpawnManager.Instance == null)
+            return;
+
+        SpawnManager.Instance.ForceRound(SpawnManager.Instance.bossRound);
+    }
+
+    public void OnBossRound2(InputValue value)
+    {
+        if (!enableRoundDebug)
+            return;
+
+        if (!IsOwner)
+            return;
+
+        if (!value.isPressed)
+            return;
+
+        if (SpawnManager.Instance == null)
+            return;
+
+        SpawnManager.Instance.ForceRound(SpawnManager.Instance.boss2Round);
     }
 
     public bool IsDashing()
