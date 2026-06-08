@@ -20,7 +20,7 @@ public class WizardBoss : NetworkBehaviour, IDamageable
 
     [Header("Target Tracking")]
     [SerializeField] private float rotationSpeed = 6f;
-    [SerializeField] private float rotationOffsetAngle = 0f; 
+    [SerializeField] private float rotationOffsetAngle = 0f;
 
     private bool isCasting;
     private bool isBackingAway;
@@ -64,7 +64,7 @@ public class WizardBoss : NetworkBehaviour, IDamageable
             }
 
             currentHealth.Value = maxHealth;
-            FindTarget();
+            FindNearestPlayer(); // Initial target acquisition
         }
 
         if (healthBar != null)
@@ -87,11 +87,10 @@ public class WizardBoss : NetworkBehaviour, IDamageable
 
         if (!IsServer || isDead) return;
 
-        if (target == null)
-        {
-            FindTarget();
-            return;
-        }
+        // Dynamic target switching: Constantly look for the best, closest target
+        FindNearestPlayer();
+
+        if (target == null) return;
 
         HandleSmoothLookRotation();
         HandleMovement();
@@ -103,6 +102,7 @@ public class WizardBoss : NetworkBehaviour, IDamageable
             return;
 
         float distance = Vector3.Distance(transform.position, target.position);
+
         if (!isCasting && !isBackingAway)
         {
             if (distance <= tooCloseRange)
@@ -111,6 +111,7 @@ public class WizardBoss : NetworkBehaviour, IDamageable
             }
             else if (distance > castingRange)
             {
+                agent.updateRotation = true;
                 agent.isStopped = false;
                 agent.SetDestination(target.position);
             }
@@ -123,7 +124,7 @@ public class WizardBoss : NetworkBehaviour, IDamageable
 
     private void HandleSmoothLookRotation()
     {
-        if (isCasting && target != null)
+        if ((isCasting || isBackingAway) && target != null)
         {
             Vector3 dir = (target.position - transform.position).normalized;
             dir.y = 0;
@@ -162,6 +163,7 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     private IEnumerator BackAwayRoutine()
     {
         isBackingAway = true;
+        agent.updateRotation = false;
         agent.isStopped = false;
 
         Vector3 awayDir = (transform.position - target.position).normalized;
@@ -172,13 +174,17 @@ public class WizardBoss : NetworkBehaviour, IDamageable
             agent.SetDestination(hit.position);
         }
 
-        float safetyTimeout = 2.0f;
-        while (agent.isActiveAndEnabled && agent.isOnNavMesh && agent.remainingDistance > agent.stoppingDistance && safetyTimeout > 0f)
+        yield return null;
+
+        float safetyTimeout = 2.5f;
+        while (agent.isActiveAndEnabled && agent.isOnNavMesh &&
+              (agent.pathPending || agent.remainingDistance > agent.stoppingDistance) && safetyTimeout > 0f)
         {
             safetyTimeout -= Time.deltaTime;
             yield return null;
         }
 
+        agent.updateRotation = true;
         isBackingAway = false;
     }
 
@@ -186,7 +192,6 @@ public class WizardBoss : NetworkBehaviour, IDamageable
     {
         Transform spawnT = batSpawnPoint != null ? batSpawnPoint : transform;
 
-        // Directly capture look direction toward player target layout paths ignoring boss mesh angular modifications
         Vector3 directionToPlayer = (target.position - spawnT.position).normalized;
         directionToPlayer.y = 0;
         Quaternion launchRotation = Quaternion.LookRotation(directionToPlayer);
@@ -195,22 +200,42 @@ public class WizardBoss : NetworkBehaviour, IDamageable
         bat.GetComponent<NetworkObject>().Spawn();
     }
 
+    private void FindNearestPlayer()
+    {
+        float closestDistance = Mathf.Infinity;
+        Transform nearest = null;
+
+        // Loop through all globally connected network clients instead of using laggy GameObject.Find tags
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            if (client.PlayerObject == null) continue;
+
+            // Grab combat components matching your project's framework setup
+            PlayerHealth pHealth = client.PlayerObject.GetComponent<PlayerHealth>();
+            RespawnScript respawn = client.PlayerObject.GetComponent<RespawnScript>();
+
+            if (pHealth == null || respawn == null) continue;
+
+            // Ignore players who are currently dead or waiting on a respawn timer
+            if (pHealth.currentHealth.Value <= 0 || respawn.isRespawning.Value) continue;
+
+            float dist = Vector3.Distance(transform.position, client.PlayerObject.transform.position);
+            if (dist < closestDistance)
+            {
+                closestDistance = dist;
+                nearest = client.PlayerObject.transform;
+            }
+        }
+
+        target = nearest;
+    }
+
     private void HandleCanvasBillboard()
     {
         if (healthCanvas != null && Camera.main != null)
         {
-            healthCanvas.transform.LookAt(
-                healthCanvas.transform.position + Camera.main.transform.rotation * Vector3.forward,
-                Camera.main.transform.rotation * Vector3.up
-            );
+            healthCanvas.transform.LookAt(healthCanvas.transform.position + Camera.main.transform.forward);
         }
-    }
-
-    void FindTarget()
-    {
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-        if (players.Length > 0)
-            target = players[Random.Range(0, players.Length)].transform;
     }
 
     public void TakeDamage(float amount, Vector3 sourcePosition = default, ulong attackerId = ulong.MaxValue, DamageType damageType = DamageType.Normal)
