@@ -73,6 +73,8 @@ public class NetworkShoot : NetworkBehaviour
         NetworkVariableWritePermission.Server
     );
 
+    public int CurrentStaffIndex => netStaffTypeIndex.Value;
+
     private bool canShoot = true;
     private Coroutine killMarkerRoutine;
 

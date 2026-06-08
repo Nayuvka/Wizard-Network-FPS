@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
 public class NetworkPlayerAbilities : NetworkBehaviour
@@ -12,8 +13,17 @@ public class NetworkPlayerAbilities : NetworkBehaviour
     [SerializeField] private GameObject wallPrefab;
     [SerializeField] private GameObject pillarPrefab;
 
-    [Header("UI Settings")]
-    public TextMeshProUGUI cooldownText;
+    [Header("Ability UI")]
+    [SerializeField] private Image abilityIcon;
+    [SerializeField] private Image cooldownFill;
+    [SerializeField] private TextMeshProUGUI abilityNameText;
+    [SerializeField] private TextMeshProUGUI cooldownText;
+
+    [Header("Ability Icons")]
+    [SerializeField] private Sprite wallIcon;
+    [SerializeField] private Sprite pillarIcon;
+    [SerializeField] private Sprite dashIcon;
+    [SerializeField] private Sprite fireIcon;
 
     [Header("Staff Index Mapping")]
     public int normalStaffIndex = 3;
@@ -49,6 +59,11 @@ public class NetworkPlayerAbilities : NetworkBehaviour
     
     private int lastStaffIndex = -1;
 
+    private void Start()
+    {
+        UpdateAbilityUI();
+    }
+
     private void Update()
     {
         if (!IsOwner) return;
@@ -74,24 +89,7 @@ public class NetworkPlayerAbilities : NetworkBehaviour
                 lastStaffIndex = currentStaff;
             }
 
-            if (cooldownText != null)
-            {
-                float activeCooldown = 0f;
-
-                if (currentStaff == normalStaffIndex) activeCooldown = currentWallCooldown;
-                else if (currentStaff == iceStaffIndex) activeCooldown = currentPillarCooldown;
-                else if (currentStaff == lightningStaffIndex) activeCooldown = currentDashCooldown;
-                else if (currentStaff == fireStaffIndex) activeCooldown = currentFireCooldown;
-
-                if (activeCooldown > 0f)
-                {
-                    cooldownText.text = activeCooldown.ToString("F1") + "s";
-                }
-                else
-                {
-                    cooldownText.text = "<color=green>Ready</color>";
-                }
-            }
+            UpdateAbilityUI();
         }
     }
 
@@ -164,7 +162,69 @@ public class NetworkPlayerAbilities : NetworkBehaviour
             netObj.Despawn();
         }
     }
-    
+
+    private void UpdateAbilityUI()
+    {
+        if (networkShoot == null) return;
+
+        int currentStaff = networkShoot.currentStaffTypeIndex;
+
+        float currentCooldown = 0f;
+        float maxCooldown = 1f;
+
+        string abilityName = "";
+        Sprite icon = null;
+
+        if (currentStaff == normalStaffIndex)
+        {
+            currentCooldown = currentWallCooldown;
+            maxCooldown = wallCooldown;
+            abilityName = "Stone Wall";
+            icon = wallIcon;
+        }
+        else if (currentStaff == iceStaffIndex)
+        {
+            currentCooldown = currentPillarCooldown;
+            maxCooldown = pillarCooldown;
+            abilityName = "Ice Pillar";
+            icon = pillarIcon;
+        }
+        else if (currentStaff == lightningStaffIndex)
+        {
+            currentCooldown = currentDashCooldown;
+            maxCooldown = dashCooldown;
+            abilityName = "Lightning Dash";
+            icon = dashIcon;
+        }
+        else if (currentStaff == fireStaffIndex)
+        {
+            currentCooldown = currentFireCooldown;
+            maxCooldown = fireCooldown;
+            abilityName = "Phoenix Leap";
+            icon = fireIcon;
+        }
+
+        if (abilityIcon != null)
+            abilityIcon.sprite = icon;
+
+        if (abilityNameText != null)
+            abilityNameText.text = abilityName;
+
+        if (cooldownText != null)
+        {
+            cooldownText.text = currentCooldown > 0f
+                ? $"{currentCooldown:F1}s"
+                : "Ready";
+        }
+
+        if (cooldownFill != null)
+        {
+            cooldownFill.fillAmount = 1f - Mathf.Clamp01(
+    currentCooldown / maxCooldown
+);
+        }
+    }
+
     private bool IsGameActuallyOver()
     {
         try
