@@ -457,7 +457,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.5716858, y: 0.58137035, z: 0.56726074}
-  m_Center: {x: 0.011764526, y: 0.9657407, z: -0.024353027}
+  m_Center: {x: 0.011764526, y: 1.11, z: 0.07}
 --- !u!114 &1509087769984179689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -501,7 +501,7 @@ MonoBehaviour:
   attackDamage: 20
   attackRange: 2
   attackInterval: 3
-  deathVfx: {fileID: 2360125799386554154, guid: 85ca7922df4ba3a41b57ed819e3d8c68, type: 3}
+  deathVfx: {fileID: 3645460515654626844, guid: 28bf599c92a5a8a42a90e42066af893a, type: 3}
   burnVfxPrefab: {fileID: 7251879486380165639, guid: c2f6a8962aac3814aa56cb9647c93470, type: 3}
   frostVfxPrefab: {fileID: 5112403345868107898, guid: 6f34ef0d986e9db4199cf75805f79753, type: 3}
   lightningVfxPrefab: {fileID: 9027514048236820045, guid: effb650189dc5714e9e9801b1cfb3991, type: 3}
@@ -510,8 +510,8 @@ MonoBehaviour:
   frostVfxOffset: {x: 0, y: 1, z: 0}
   lightningVfxOffset: {x: 0, y: 1, z: 0}
   deathClip: {fileID: 8300000, guid: f51e0d5712586db44bcd880e5889b723, type: 3}
-  hitClip: {fileID: 8300000, guid: a3c79fc1fd29f194d98ddab5bc4d2c74, type: 3}
-  spawnClip: {fileID: 8300000, guid: a3c79fc1fd29f194d98ddab5bc4d2c74, type: 3}
+  hitClip: {fileID: 8300000, guid: 6b0cda4e15cab1949828b24028c2446f, type: 3}
+  spawnClip: {fileID: 8300000, guid: b6eafe71525031344b3b007a31817c89, type: 3}
   knockbackDuration: 0.05
   knockbackIntensity: 1.75
   popScale: 1.2
@@ -851,7 +851,7 @@ Transform:
   m_GameObject: {fileID: 8451824586664509896}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1.12, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
