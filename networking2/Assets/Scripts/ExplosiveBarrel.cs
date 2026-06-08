@@ -79,6 +79,18 @@ public class ExplosiveBarrel : NetworkBehaviour, IDamageable
                 continue;
             }
 
+            if (hit.TryGetComponent(out WizardBoss wizardBoss))
+            {
+                wizardBoss.TakeDamage(damage, transform.position, lastAttackerId);
+                continue;
+            }
+
+            if (hit.TryGetComponent(out NetworkBoss networkBoss))
+            {
+                networkBoss.TakeDamage(damage, transform.position, lastAttackerId);
+                continue;
+            }
+
             if (hit.TryGetComponent(out PlayerHealth playerHealth))
             {
                 playerHealth.TakeDamage(damage);
